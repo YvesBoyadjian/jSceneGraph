@@ -113,7 +113,7 @@ public class SoSensorManager implements Destroyable {
 	    timerQueue[0] = null;
 	    rescheduleQueue[0] = null;
 
-	    delayQTimeout.operator_equal(SbTime.zero());
+	    delayQTimeout.copyFrom(SbTime.zero());
 	    delayQTimeoutSensor = new SoAlarmSensor(delayQTimeoutCB, this);
 //	#ifdef DEBUG
 	    if (SoDebug.GetEnv("IV_DEBUG_SENSORS") != null) {
@@ -131,6 +131,11 @@ public class SoSensorManager implements Destroyable {
 		delayQTimeoutSensor.destructor();
 	}
 	
+    //! Set up a function to call when either queue has a sensor added
+    //! or removed
+    public void                setChangedCallback(Callback funcArg, Object data)
+        { changedFunc = funcArg; changedFuncData = data; }
+
 	// Insert/remove an delay or timer event into/from the appropriate queue. 
 	public void insertDelaySensor(SoDelayQueueSensor s) {
 		
@@ -576,7 +581,9 @@ public void processTimerQueue()
     --processingQueue;
 }
 
-	
+//! Returns TRUE if there is at least one sensor in the delay queue
+public boolean                isDelaySensorPending()
+                            { return (delayQueue[0] != null); }	
 
 	//
 	// Description:

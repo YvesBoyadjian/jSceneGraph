@@ -371,7 +371,7 @@ private        int                 depth;
 		       SoGLTextureCoordinateElement.initClass(SoGLTextureCoordinateElement.class);
 		       SoGLTextureEnabledElement.initClass(SoGLTextureEnabledElement.class);
 		       SoGLTextureImageElement.initClass(SoGLTextureImageElement.class);
-//		       SoGLTextureMatrixElement.initClass();
+		       SoGLTextureMatrixElement.initClass(SoGLTextureMatrixElement.class);
 		       SoGLUpdateAreaElement.initClass(SoGLUpdateAreaElement.class);
 		       SoGLViewingMatrixElement.initClass(SoGLViewingMatrixElement.class);
 		       SoGLViewportRegionElement.initClass(SoGLViewportRegionElement.class);

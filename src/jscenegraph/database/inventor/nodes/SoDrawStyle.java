@@ -228,7 +228,7 @@ public SoDrawStyle()
 {
     nodeHeader.SO_NODE_CONSTRUCTOR(/*SoDrawStyle*/);
 
-    nodeHeader.SO_NODE_ADD_SFIELD(style,"style",            (SoDrawStyleElement.getDefault()));
+    nodeHeader.SO_NODE_ADD_SFIELD(style,"style",            (SoDrawStyleElement.getDefault().getValue()));
     nodeHeader.SO_NODE_ADD_SFIELD(pointSize,"pointSize",        (SoPointSizeElement.getDefault()));
     nodeHeader.SO_NODE_ADD_SFIELD(lineWidth,"lineWidth",        (SoLineWidthElement.getDefault()));
     nodeHeader.SO_NODE_ADD_SFIELD(linePattern,"linePattern",      (SoLinePatternElement.getDefault()));

@@ -205,10 +205,10 @@ public SoSeparator()
 {
 	nodeHeader.SO_NODE_CONSTRUCTOR();
 
-	nodeHeader.SO_NODE_ADD_SFIELD(renderCaching,     "renderCaching",       (CacheEnabled.AUTO));
-	nodeHeader.SO_NODE_ADD_SFIELD(boundingBoxCaching,   "boundingBoxCaching",    (CacheEnabled.AUTO));
-	nodeHeader.SO_NODE_ADD_SFIELD(renderCulling,      "renderCulling",      (CacheEnabled.AUTO));
-	nodeHeader.SO_NODE_ADD_SFIELD(pickCulling,        "pickCulling",      (CacheEnabled.AUTO));
+	nodeHeader.SO_NODE_ADD_SFIELD(renderCaching,     "renderCaching",       (CacheEnabled.AUTO.getValue()));
+	nodeHeader.SO_NODE_ADD_SFIELD(boundingBoxCaching,   "boundingBoxCaching",    (CacheEnabled.AUTO.getValue()));
+	nodeHeader.SO_NODE_ADD_SFIELD(renderCulling,      "renderCulling",      (CacheEnabled.AUTO.getValue()));
+	nodeHeader.SO_NODE_ADD_SFIELD(pickCulling,        "pickCulling",      (CacheEnabled.AUTO.getValue()));
 
     // Set up static info for enum fields
 	nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(CacheEnabled.ON);
@@ -240,10 +240,10 @@ public SoSeparator(int nChildren){
 
  nodeHeader.SO_NODE_CONSTRUCTOR();
 
- nodeHeader.SO_NODE_ADD_SFIELD(renderCaching, "renderCaching",           (CacheEnabled.AUTO));
- nodeHeader.SO_NODE_ADD_SFIELD(boundingBoxCaching, "boundingBoxCaching", (CacheEnabled.AUTO));
- nodeHeader.SO_NODE_ADD_SFIELD(renderCulling, "renderCulling",           (CacheEnabled.AUTO));
- nodeHeader.SO_NODE_ADD_SFIELD(pickCulling,  "pickCulling",              (CacheEnabled.AUTO));
+ nodeHeader.SO_NODE_ADD_SFIELD(renderCaching, "renderCaching",           (CacheEnabled.AUTO.getValue()));
+ nodeHeader.SO_NODE_ADD_SFIELD(boundingBoxCaching, "boundingBoxCaching", (CacheEnabled.AUTO.getValue()));
+ nodeHeader.SO_NODE_ADD_SFIELD(renderCulling, "renderCulling",           (CacheEnabled.AUTO.getValue()));
+ nodeHeader.SO_NODE_ADD_SFIELD(pickCulling,  "pickCulling",              (CacheEnabled.AUTO.getValue()));
 
     // Set up static info for enum fields
  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(CacheEnabled.ON);

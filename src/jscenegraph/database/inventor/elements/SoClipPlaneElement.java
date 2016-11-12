@@ -133,7 +133,7 @@ init(SoState state)
 //
 // Use: public, static
 
-public void
+public static void
 add(SoState state, SoNode node, final SbPlane plane)
 //
 ////////////////////////////////////////////////////////////////////////

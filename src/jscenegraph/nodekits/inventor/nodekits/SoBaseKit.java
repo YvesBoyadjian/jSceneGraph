@@ -9,6 +9,7 @@ import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoSearchAction;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoChildList;
@@ -245,10 +246,10 @@ createPathToAnyPart(final SbName partName,
 {
     // Return if pathToExtend is non-NULL but doesn't contain 'this'
     if (   pathToExtend != null &&
-         ((SoFullPath)pathToExtend).containsNode(this) == false ) {
+         (new SoFullPath(pathToExtend)).containsNode(this) == false ) {
 //#ifdef DEBUG
-//            SoDebugError::post("SoBaseKit::createPathToAnyPart",
-//            "The given pathToExtend does not contain this node.Returning NULL");
+            SoDebugError.post("SoBaseKit::createPathToAnyPart",
+            "The given pathToExtend does not contain this node.Returning NULL");
 //#endif
         return null;
     }
@@ -261,7 +262,7 @@ createPathToAnyPart(final SbName partName,
     if ( pathToExtend == null )
         return (SoNodeKitPath) thePath;
 
-    final SoFullPath fullPathToExtend = (SoFullPath) pathToExtend;
+    final SoFullPath fullPathToExtend = new SoFullPath( pathToExtend);
 
     thePath.ref();
     fullPathToExtend.ref();
@@ -269,7 +270,7 @@ createPathToAnyPart(final SbName partName,
     // Create a copy of 'fullPathToExtend' with 'thePath' tacked onto it
 
     // First, copy fullPathToExtend into longPath
-    SoFullPath longPath = (SoFullPath) fullPathToExtend.copy();
+    SoFullPath longPath = new SoFullPath( fullPathToExtend.copy());
     longPath.ref();
 
     // Now, truncate longPath to end at 'this'

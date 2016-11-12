@@ -112,12 +112,17 @@ SoNode, SoRayPickAction, SoSearchAction, SoNodeKitPath
  */
 public class SoPath extends SoBase implements Destroyable {
 	
-	protected final SoNodeList nodes = new SoNodeList();
-	protected final SbIntList indices = new SbIntList();
-	private int numPublic;
-	private int minNumPublic;
-	private boolean doAuditors;
-	private static SoType classTypeId;
+	protected static class SoPathImpl {
+		public final SoNodeList nodes = new SoNodeList(); //!< Pointers to nodes
+		protected final SbIntList indices = new SbIntList(); //!< Child indices
+		private int numPublic; //!< How many children are public
+		private int minNumPublic; //!< Minimum we KNOW are public
+		private boolean doAuditors; //!< TRUE if auditors to be maintained
+	}
+	
+	protected SoPathImpl impl = new SoPathImpl();
+	
+	private static SoType classTypeId; //!< TypeId of paths
 
 	/* (non-Javadoc)
 	 * @see com.openinventor.inventor.misc.SoBase#getTypeId()
@@ -125,6 +130,14 @@ public class SoPath extends SoBase implements Destroyable {
 	@Override
 	public SoType getTypeId() {
 		return classTypeId;
+	}
+	
+	/**
+	 * Java port. For SoFullPath
+	 * @param path
+	 */
+	protected SoPath(SoPath path) {
+		impl = path.impl;
 	}
 	
 	// Constructs an empty path. 
@@ -136,16 +149,16 @@ public class SoPath extends SoBase implements Destroyable {
 		                              "calling SoDB::init()");
 //		   #endif /* DEBUG */
 		   
-		       doAuditors = true;
-		       minNumPublic = 0;
-		       numPublic  = 0;
+		       impl.doAuditors = true;
+		       impl.minNumPublic = 0;
+		       impl.numPublic  = 0;
 	}
 	
 	public SoPath(int approxLength) {
 		
-	     doAuditors = true;
-	          numPublic  = 0;
-	          minNumPublic  = 0;
+		impl.doAuditors = true;
+		impl.numPublic  = 0;
+		impl.minNumPublic  = 0;
 	     	}
 	
 	// Constructs a path and sets the head node to the given node.
@@ -164,9 +177,9 @@ public class SoPath extends SoBase implements Destroyable {
 		                              "calling SoDB::init()");
 //		   #endif /* DEBUG */
 		   
-		       doAuditors = true;
-		       numPublic  = 0;
-		       minNumPublic  = 0;
+		       impl.doAuditors = true;
+		       impl.numPublic  = 0;
+		       impl.minNumPublic  = 0;
 		       setHead(node);
 		  	}
 	
@@ -188,7 +201,7 @@ public class SoPath extends SoBase implements Destroyable {
 		// The index value doesn't matter, since it should never be used
 		  append(node, -1);
 		 
-		  if (doAuditors)
+		  if (impl.doAuditors)
 		  startNotify();
 				
 	}
@@ -219,7 +232,7 @@ public class SoPath extends SoBase implements Destroyable {
 //	         #endif /* DEBUG */
 	         
 	             // Get real tail node of path
-	             tail = nodes.operator_square_bracket(getFullLength() - 1);
+	             tail = impl.nodes.operator_square_bracket(getFullLength() - 1);
 	         
 //	         #ifdef DEBUG
 	             // If there is one, make sure it can have children
@@ -258,7 +271,7 @@ public class SoPath extends SoBase implements Destroyable {
 		    }
 		   
 		    // Get real tail node of path
-		    tail = nodes.operator_square_bracket(getFullLength() - 1);
+		    tail = impl.nodes.operator_square_bracket(getFullLength() - 1);
 		   
 //		   #ifdef DEBUG
 		    // Make sure tail node can have children
@@ -295,9 +308,9 @@ public class SoPath extends SoBase implements Destroyable {
 	
 	// These return the first and last nodes in a path chain. 
 	public SoNode getHead() {
-		 return nodes.operator_square_bracket(0); 
+		 return impl.nodes.operator_square_bracket(0); 
 	}
-	public SoNode getTail() { return (nodes.operator_square_bracket(getLength() - 1)); }
+	public SoNode getTail() { return (impl.nodes.operator_square_bracket(getLength() - 1)); }
 	
 	/**
 	 * Returns a pointer to the i'th node in the chain. 
@@ -307,12 +320,18 @@ public class SoPath extends SoBase implements Destroyable {
 	 * @return
 	 */
 	public SoNode getNode(int i) {
-		 return (nodes.operator_square_bracket(i)); 
+		 return (impl.nodes.operator_square_bracket(i)); 
 	}
+	
+    //! Returns a pointer to the \p i'th node.
+    //! Passing 0 for \p i returns the tail node.
+    public SoNode getNodeFromTail(int i) 
+        { return (impl.nodes.operator_square_bracket(getLength() - 1 - i)); }
+
 	
 	// Return the index of the i'th node (within its parent) in the chain. 
 	public int getIndex(int i) {
-		 return (indices.operator_square_bracket(i)); 
+		 return (impl.indices.operator_square_bracket(i)); 
 	}
 	
 	//
@@ -327,11 +346,11 @@ public class SoPath extends SoBase implements Destroyable {
 		       SoPath This = (SoPath )this;
 		   
 		       // If we aren't sure how many are public, figure it out:
-		       if (numPublic == -1) {
+		       if (impl.numPublic == -1) {
 		   
 		           int lastPublicIndex = 0;
-		           if (minNumPublic > 1)
-		               lastPublicIndex = minNumPublic - 1;
+		           if (impl.minNumPublic > 1)
+		               lastPublicIndex = impl.minNumPublic - 1;
 		   
 		          // Last test is for the second to last node.
 		           // If it passes, then lastPublicIndex will be incremented to be the
@@ -339,12 +358,12 @@ public class SoPath extends SoBase implements Destroyable {
 		   
 		           for (  ; lastPublicIndex < (getFullLength() - 1) ; lastPublicIndex++) {
 		               // Children of this node will be private, so stop.
-		               if ( ! nodes.operator_square_bracket(lastPublicIndex).isOfType(SoGroup.getClassTypeId()))
+		               if ( ! impl.nodes.operator_square_bracket(lastPublicIndex).isOfType(SoGroup.getClassTypeId()))
 		                   break;
 		           }
-		           This.numPublic = This.minNumPublic = lastPublicIndex + 1;
+		           This.impl.numPublic = This.impl.minNumPublic = lastPublicIndex + 1;
 		       }
-		       return numPublic;
+		       return impl.numPublic;
 		   	}
 	
 	/**
@@ -358,7 +377,7 @@ public class SoPath extends SoBase implements Destroyable {
 	}
 	
 	public int getFullLength() {
-		return nodes.getLength();
+		return impl.nodes.getLength();
 	}
 	
 	//
@@ -371,14 +390,14 @@ public class SoPath extends SoBase implements Destroyable {
 		  // Optimization here: we just set numPublic to -1 to indicate that
 		  // we aren't sure how many are public, since keeping it up to date
 		  // can be fairly expensive if the path is changing a lot.
-		  numPublic = -1;
+		impl.numPublic = -1;
 		 
 		  // Append to lists
-		  nodes.append(node);
-		  indices.append(index);
+		impl.nodes.append(node);
+		impl.indices.append(index);
 		 
 		  // Tell the childlist of the node that the path cares about it
-		  if (doAuditors) {
+		  if (impl.doAuditors) {
 		  SoChildList childList = node.getChildren();
 		  if (childList != null) {
 		  childList.addPathAuditor(this);
@@ -422,23 +441,23 @@ createInstance()
 //		   #endif /* DEBUG */
 		   
 		    // Remove path from all affected nodes' auditors lists
-		    if (doAuditors)
+		    if (impl.doAuditors)
 		    for (i = start; i < getFullLength(); i++) {
-		    SoChildList childList = nodes.operator_square_bracket(i).getChildren();
+		    SoChildList childList = impl.nodes.operator_square_bracket(i).getChildren();
 		    if (childList != null) {
 		    childList.removePathAuditor(this);
 		    }
 		    }
 		   
 		    // Truncate both lists
-		    nodes.truncate(start);
-		    indices.truncate(start);
+		    impl.nodes.truncate(start);
+		    impl.indices.truncate(start);
 		   
-		    if (start < minNumPublic) {
-		    minNumPublic = numPublic = start;
+		    if (start < impl.minNumPublic) {
+		    	impl.minNumPublic = impl.numPublic = start;
 		    }
 		   
-		    if (doAuditors && doNotify)
+		    if (impl.doAuditors && doNotify)
 		    startNotify();
 		   		
 	}
@@ -447,7 +466,7 @@ createInstance()
 	public boolean containsNode(SoNode node) {
 		
 	     for (int i = 0; i < getFullLength(); i++)
-	    	           if (nodes.operator_square_bracket(i) == node)
+	    	           if (impl.nodes.operator_square_bracket(i) == node)
 	    	               return true;
 	    	   
 	    	       return false;
@@ -504,7 +523,7 @@ public  boolean
 	      
 	          // Find index of parent node in path
 	          for (i = 0; i < getFullLength(); i++)
-	              if (nodes.operator_square_bracket(i) == parent)
+	              if (impl.nodes.operator_square_bracket(i) == parent)
 	                  break;
 	      
 //	      #ifdef DEBUG
@@ -516,7 +535,7 @@ public  boolean
 //	      #endif /* DEBUG */
 	      
 	          // If there is a next node and it is the one being replaced, change it
-	          if (++i < getFullLength() && indices.operator_square_bracket(i) == index) {
+	          if (++i < getFullLength() && impl.indices.operator_square_bracket(i) == index) {
 	      
 	              // The children of the new node are most likely different from
 	              // those in the old one. So if the path continued below the
@@ -679,13 +698,13 @@ isRelevantNotification(SoNotList list)
 	   
 	       newPath.setHead(getNode(startFromNodeIndex));
 	       for (i = startFromNodeIndex + 1; i <= lastNodeIndex; i++)
-	           newPath.append(indices.operator_square_bracket(i));
+	           newPath.append(impl.indices.operator_square_bracket(i));
 	   
 	       return newPath;
 	   }
 	   
 	   protected void auditPath(boolean flag) {
-		   doAuditors = flag; 
+		   impl.doAuditors = flag; 
 	   }
 
 	   ////////////////////////////////////////////////////////////////////////
@@ -735,7 +754,7 @@ isRelevantNotification(SoNotList list)
 		          // unequal paths will exit this loop sooner.
 		      
 		          for (i = p1.getFullLength() - 1; i >= 0; --i)
-		              if (p1.nodes.operator_square_bracket(i) != p2.nodes.operator_square_bracket(i) || p1.indices.operator_square_bracket(i) != p2.indices.operator_square_bracket(i))
+		              if (p1.impl.nodes.operator_square_bracket(i) != p2.impl.nodes.operator_square_bracket(i) || p1.impl.indices.operator_square_bracket(i) != p2.impl.indices.operator_square_bracket(i))
 		                  return false;
 		      
 		          return true;
@@ -794,7 +813,7 @@ insertIndex(SoNode parent, int newIndex)
 
     // Find index of parent node in path
     for (i = 0; i < getFullLength(); i++)
-        if (nodes.operator_square_bracket(i) == parent)
+        if (impl.nodes.operator_square_bracket(i) == parent)
             break;
 
 //#ifdef DEBUG
@@ -806,8 +825,8 @@ insertIndex(SoNode parent, int newIndex)
 //#endif /* DEBUG */
 
     // Increment index of next node if there is one and if necessary
-    if (++i < getFullLength() && indices.operator_square_bracket(i) >= newIndex) {
-        indices.operator_square_bracket(i, indices.operator_square_bracket(i)+1);
+    if (++i < getFullLength() && impl.indices.operator_square_bracket(i) >= newIndex) {
+    	impl.indices.operator_square_bracket(i, impl.indices.operator_square_bracket(i)+1);
     }
 }
 
@@ -830,7 +849,7 @@ removeIndex(SoNode parent, int oldIndex)
 
     // Find index of parent node in path
     for (i = 0; i < getFullLength(); i++)
-        if (nodes.operator_square_bracket(i) == parent)
+        if (impl.nodes.operator_square_bracket(i) == parent)
             break;
 
 //#ifdef DEBUG
@@ -845,12 +864,12 @@ removeIndex(SoNode parent, int oldIndex)
     if (++i < getFullLength()) {
 
         // If the next node is the one being removed, truncate the path
-        if (indices.operator_square_bracket(i) == oldIndex)
+        if (impl.indices.operator_square_bracket(i) == oldIndex)
             truncate(i, false);
 
         // Decrement index of next node if it is after the removed one
-        else if (indices.operator_square_bracket(i) > oldIndex)
-            indices.operator_square_bracket(i,indices.operator_square_bracket(i)-1);
+        else if (impl.indices.operator_square_bracket(i) > oldIndex)
+        	impl.indices.operator_square_bracket(i,impl.indices.operator_square_bracket(i)-1);
     }
 }
 

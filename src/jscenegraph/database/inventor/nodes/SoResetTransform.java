@@ -36,6 +36,7 @@
 
 
 /*
+ * Copyright (C) 1990,91   Silicon Graphics, Inc.
  *
  _______________________________________________________________________
  ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
@@ -43,9 +44,9 @@
  |   $Revision: 1.1.1.1 $
  |
  |   Description:
- |      Defines the SoFontStyle class
+ |      This file defines the SoResetTransform node class.
  |
- |   Author(s): Chris Marrin
+ |   Author(s)          : Paul S. Strauss
  |
  ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
  _______________________________________________________________________
@@ -53,95 +54,71 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
+import jscenegraph.database.inventor.actions.SoGetMatrixAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
-import jscenegraph.database.inventor.elements.SoFontNameElement;
-import jscenegraph.database.inventor.elements.SoFontSizeElement;
-import jscenegraph.database.inventor.elements.SoOverrideElement;
+import jscenegraph.database.inventor.elements.SoGLModelMatrixElement;
+import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFBitMask;
-import jscenegraph.database.inventor.fields.SoSFEnum;
-import jscenegraph.database.inventor.misc.SoState;
-
-
-////////////////////////////////////////////////////////////////////////////////
-//! Simple 3D text shape node.
-/*!
-\class SoFontStyle
-\ingroup Nodes
-This node defines the current font family and style for all
-subsequent text shapes in the scene graph.
-
-\par File Format/Default
-\par
-\code
-FontStyle {
-  name "defaultFont"
-  size 10
-  family SERIF
-  style NONE
-}
-\endcode
-
-\par Action Behavior
-\par
-SoGLRenderAction, SoCallbackAction, SoGetBoundingBoxAction, SoRayPickAction
-<BR> Sets the font family and style in the current traversal state. 
-
-\par See Also
-\par
-SoAsciiText, SoFont, SoText2, SoText3
-*/
-////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoFontStyle extends SoFont {
+
+////////////////////////////////////////////////////////////////////////////////
+//! Node that resets the current transformation to identity.
+/*!
+\class SoResetTransform
+\ingroup Nodes
+This node resets the current transformation to identity. It can be
+used to apply an absolute world space transformation afterwards, such
+as translating to a specific point from within a hierarchy.
+An SoResetTransform node should probably be used under an
+SoSeparator or SoTransformSeparator so it won't change
+transformations for the rest of the scene graph.
+An SoResetTransform node can also be used to reset the current
+bounding box to empty during traversal of an
+SoGetBoundingBoxAction, if the \b whatToReset  field has the
+\b BBOX  bit set.
+
+\par File Format/Default
+\par
+\code
+ResetTransform {
+whatToReset TRANSFORM
+}
+\endcode
+
+\par Action Behavior
+\par
+SoGLRenderAction, SoCallbackAction, SoRayPickAction
+<BR> If specified, resets current transformation matrix to identity. 
+\par
+SoGetBoundingBoxAction
+<BR> If specified, resets current transformation matrix to identity and current computed bounding box to be empty. 
+\par
+SoGetMatrixAction
+<BR> Returns identity matrix. 
+
+\par See Also
+\par
+SoTransform
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+public class SoResetTransform extends SoTransformation {
 	
-	public enum Family {
-		SERIF(0),
-		SANS(1),
-		TYPEWRITER(2);
-		
-		private int value;
-		
-		Family(int value) {
-			this.value = value;
-		}
-		
-		public int getValue() {
-			return value;
-		}
-	}
-	
-	public enum Style {
-		NONE(0),
-		BOLD(1),
-		ITALIC(2);
-		
-		private int value;
-		
-		Style(int value) {
-			this.value = value;
-		}
-		
-		public int getValue() {
-			return value;
-		}
-	}
-	
-	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoFontStyle.class,this);
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoResetTransform.class,this);
 	   
 	   public                                                                     
 	    static SoType       getClassTypeId()        /* Returns class type id */   
-	                                    { return SoSubNode.getClassTypeId(SoFontStyle.class);  }                   
+	                                    { return SoSubNode.getClassTypeId(SoResetTransform.class);  }                   
 	  public  SoType      getTypeId()      /* Returns type id      */
 	  {
 		  return nodeHeader.getClassTypeId();
@@ -151,195 +128,178 @@ public class SoFontStyle extends SoFont {
 		  return nodeHeader.getFieldData();
 	  }
 	  public  static SoFieldData[] getFieldDataPtr()                              
-	        { return SoSubNode.getFieldDataPtr(SoFontStyle.class); }    	  	
+	        { return SoSubNode.getFieldDataPtr(SoResetTransform.class); }    	  	
 	
 	
-	
-	public final SoSFEnum family = new SoSFEnum();
-	public final SoSFBitMask style = new SoSFBitMask();
-	
-	private
-    static String[][] fontList =
-    {
-        { "Times", "Timesbd", 
-          "Timesi", "Timesbi" }, 
-        { "Arial", "Arialbd", 
-          "Ariali", "Arialbi" }, 
-        { "Cour", "Courbd", 
-          "Couri", "Courbi" }, 
-    };	
-	
+
+    //! Which things get reset:
+	public enum ResetType {
+        TRANSFORM       (0x01),                 //!< Transformation
+        BBOX            (0x02);                  //!< Bounding box
+		private int value;
+		ResetType(int value) {
+			this.value = value;
+		}
+		public int getValue() {
+			return value;
+		}
+    };
+
+    //! \name Fields
+    //@{
+
+    //! Specifies which items to reset when the node is traversed.
+    public final SoSFBitMask         whatToReset = new SoSFBitMask();    
+
 
 ////////////////////////////////////////////////////////////////////////
 //
-//  Constructor
-//  
-public SoFontStyle()
+// Description:
+//    Constructor
+//
+// Use: public
+
+public SoResetTransform()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    nodeHeader.SO_NODE_CONSTRUCTOR(/*SoFontStyle*/);
-    nodeHeader.SO_NODE_ADD_SFIELD(family,"family", (Family.SERIF.getValue()));
-    nodeHeader.SO_NODE_ADD_SFIELD(style,"style", (Style.NONE.getValue()));
+	nodeHeader.SO_NODE_CONSTRUCTOR(/*SoResetTransform*/);
+	nodeHeader.SO_NODE_ADD_SFIELD(whatToReset,"whatToReset", (ResetType.TRANSFORM.getValue()));
 
     // Set up static info for enumerated type field
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Family.SERIF);
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Family.SANS);
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Family.TYPEWRITER);
-
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Style.NONE);
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Style.BOLD);
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Style.ITALIC);
+	nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(ResetType.TRANSFORM);
+	nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(ResetType.BBOX);
 
     // Set up info in enumerated type field
-    nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(family,"family", "Family");
-    nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(style,"style", "Style");
+	nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(whatToReset,"whatToReset", "ResetType");
 
     isBuiltIn = true;
 }
 
-////////////////////////////////////////////////////////////////////////
-//
-//  Destructor
-//  
-public void destructor()
-//
-////////////////////////////////////////////////////////////////////////
-{
-}
 
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Gets the font name based on the family and style
-//
-// Use: protected
-
-protected String
-getFontName()
-//
-////////////////////////////////////////////////////////////////////////
-{   
-    int f = family.getValue();
-    int s = style.getValue();
-    
-    if (family.isIgnored()) f = Family.SERIF.getValue();
-    if (style.isIgnored()) s = Style.NONE.getValue();
-    
-    if (f < 0 || f > 2) f = 0;
-    if (s < 0 || s > 3) s = 0;
-    
-    return fontList[f][s];
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Handles actions
+//    Implements most actions.
 //
 // Use: extender
 
-private void
-SoFontStyle_doAction(SoAction action)
+void
+ doAction(SoAction action)
 //
 ////////////////////////////////////////////////////////////////////////
-{   
-    SoState state = action.getState();
+{
+    // If has effect on transform
+    if (! whatToReset.isIgnored() && (whatToReset.getValue() & ResetType.TRANSFORM.getValue())!=0)
+        SoModelMatrixElement.makeIdentity(action.getState(), this);
+}
 
-    // set font to the given font style
-    if ((!family.isIgnored() || !style.isIgnored()) 
-        && !SoOverrideElement.getFontNameOverride(state)
-                                                        ) {
-        
-        String font = getFontName();
-        
-        if (isOverride()) {
-            SoOverrideElement.setFontNameOverride(state, this, true);
-        }
-        SoFontNameElement.set(state, this, new SbName(font));
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Handles callback action
+//
+// Use: extender
+
+public void
+ callback(SoCallbackAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+     doAction(action);
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Handles GL render action
+//
+// Use: extender
+
+public void
+ GLRender(SoGLRenderAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // If has effect on transform
+    if (! whatToReset.isIgnored() && (whatToReset.getValue() & ResetType.TRANSFORM.getValue())!=0)
+        SoGLModelMatrixElement.makeIdentity(action.getState(), this);
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Changes transformation used when computing bounding box. Also
+//    sets bounding box to empty if so specified.
+//
+// Use: extender
+
+public void
+ getBoundingBox(SoGetBoundingBoxAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Do regular transform stuff
+     doAction(action);
+
+    // If supposed to reset bounding box to empty
+    if ((whatToReset.getValue() & ResetType.BBOX.getValue())!=0) {
+        action.getXfBoundingBox().makeEmpty();
+        action.resetCenter();
     }
-    
-    if (! size.isIgnored()
-        && ! SoOverrideElement.getFontSizeOverride(state)
-                                                        ) {
-        if (isOverride()) {
-            SoOverrideElement.setFontSizeOverride(state, this, true);
-        }
-        SoFontSizeElement.set(state, /*this,*/ size.getValue());
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Returns transformation matrix.
+//
+// Use: extender
+
+protected void
+ getMatrix(SoGetMatrixAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // If has effect on transform
+    if (! whatToReset.isIgnored() && (whatToReset.getValue() & ResetType.TRANSFORM.getValue())!=0) {
+
+        // Overwrite the current matrices with identity
+        action.getMatrix().makeIdentity();
+        action.getInverse().makeIdentity();
     }
 }
 
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Does callback action thing.
+//    Handles pick action.
 //
 // Use: extender
 
-public void
-callback(SoCallbackAction action)
+protected void
+ pick(SoPickAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoFontStyle_doAction(action);
+     doAction(action);
 }
+    
+    
 
 ////////////////////////////////////////////////////////////////////////
 //
-// Description:
-//    Does GL render action.
+//Description:
+//This initializes the SoResetTransform class.
 //
-// Use: extender
+//Use: internal
 
-public void
-GLRender(SoGLRenderAction action)
-//
-////////////////////////////////////////////////////////////////////////
-{
-    SoFontStyle_doAction(action);
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Does pick action...
-//
-// Use: extender
-
-public void
-pick(SoPickAction action)
-//
-////////////////////////////////////////////////////////////////////////
-{
-    SoFontStyle_doAction(action);
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Does get bounding box action...
-//
-// Use: extender
-
-public void
-getBoundingBox(SoGetBoundingBoxAction action)
-//
-////////////////////////////////////////////////////////////////////////
-{
-    SoFontStyle_doAction(action);
-}
-	
-
-////////////////////////////////////////////////////////////////////////
-//
-//  This initializes the SoFontStyle class.
-//  
 public static void initClass()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoSubNode.SO__NODE_INIT_CLASS(SoFontStyle.class, "FontStyle", SoFont.class);
+SoSubNode.SO__NODE_INIT_CLASS(SoResetTransform.class, "ResetTransform", SoTransformation.class);
 }
 
-
+    
 }

@@ -221,9 +221,9 @@ public SoCube()
 {
   nodeHeader.SO_NODE_CONSTRUCTOR();
 
-  nodeHeader.SO_NODE_ADD_SFIELD(width,"width",  (2.0));
-  nodeHeader.SO_NODE_ADD_SFIELD(height,"height", (2.0));
-  nodeHeader.SO_NODE_ADD_SFIELD(depth,"depth",     (2.0));
+  nodeHeader.SO_NODE_ADD_SFIELD(width,"width",  (2.0f));
+  nodeHeader.SO_NODE_ADD_SFIELD(height,"height", (2.0f));
+  nodeHeader.SO_NODE_ADD_SFIELD(depth,"depth",     (2.0f));
 
   isBuiltIn = true;
 

@@ -91,6 +91,19 @@ public class SoButtonEvent extends SoEvent {
        
        private  State           state;       
          
+
+       ////////////////////////////////////////////////////////////////////////
+       //
+       //Constructor
+       //
+       public SoButtonEvent()
+       //
+       ////////////////////////////////////////////////////////////////////////
+       {
+    	   state = SoButtonEvent.State.UNKNOWN;
+       }
+
+       
        public void setState(SoButtonEvent.State s) {
     	   state = s; 
        }

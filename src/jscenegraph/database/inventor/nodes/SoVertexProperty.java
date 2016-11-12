@@ -304,8 +304,8 @@ public SoVertexProperty()
 
     // Initialize these with default values.  They'll be ignored if
     // the corresponding fields have no values:
-    nodeHeader.SO_NODE_ADD_SFIELD(materialBinding,"materialBinding", (SoVertexProperty.Binding.OVERALL));
-    nodeHeader.SO_NODE_ADD_SFIELD(normalBinding,"normalBinding", (SoVertexProperty.Binding.PER_VERTEX_INDEXED));
+    nodeHeader.SO_NODE_ADD_SFIELD(materialBinding,"materialBinding", (SoVertexProperty.Binding.OVERALL.getValue()));
+    nodeHeader.SO_NODE_ADD_SFIELD(normalBinding,"normalBinding", (SoVertexProperty.Binding.PER_VERTEX_INDEXED.getValue()));
 
     // Set up static info for enum type fields:
 

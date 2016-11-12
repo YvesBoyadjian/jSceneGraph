@@ -21,7 +21,7 @@ import jscenegraph.nodekits.inventor.nodekits.SoNodeKit;
  */
 public class SoMeVis {
 
-	   public
+	   public static
 
 		      //! Init all MeVis classes
 

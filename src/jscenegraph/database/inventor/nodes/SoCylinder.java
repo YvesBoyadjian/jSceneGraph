@@ -81,6 +81,7 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.CharPtr;
 import jscenegraph.port.FloatPtr;
+import jscenegraph.port.VectorOfSbVec3f;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -335,7 +336,7 @@ getSize(final float[] rad, final float[] hHeight)
   hHeight[0] = (height.isIgnored() ? 1.0f : height.getValue() / 2.0f);
 }
 
-private boolean ADD_TRIANGLE(final List<SbVec3f> points,final List<Integer> indices, boolean winding) {
+private boolean ADD_TRIANGLE(final VectorOfSbVec3f points,final List<Integer> indices, boolean winding) {
 	int currentIndex = (int)points.size(); 
 	indices.add(currentIndex-3); 
 	indices.add(winding ? currentIndex-1 : currentIndex - 2); 
@@ -344,7 +345,7 @@ private boolean ADD_TRIANGLE(final List<SbVec3f> points,final List<Integer> indi
 	return winding;
 }
 
-private void ADD_CENTER_TRIANGLE(final List<SbVec3f> points,final List<Integer> indices, int centerIndex) { 
+private void ADD_CENTER_TRIANGLE(final VectorOfSbVec3f points,final List<Integer> indices, int centerIndex) { 
 	int currentIndex = (int)points.size(); 
 	indices.add(currentIndex-1); 
 	indices.add(centerIndex); 
@@ -396,8 +397,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
     _cache.useTexCoords = doTextures;
 
     final List<Integer> indices = new ArrayList<Integer>();
-    final List<SbVec3f> points = new ArrayList<SbVec3f>();
-    final List<SbVec3f> normals = new ArrayList<SbVec3f>();
+    final VectorOfSbVec3f points = new VectorOfSbVec3f();
+    final VectorOfSbVec3f normals = new VectorOfSbVec3f();
     final List<SbVec2f> texCoords = new ArrayList<SbVec2f>();
     int currentIndex = 0;
     boolean winding;

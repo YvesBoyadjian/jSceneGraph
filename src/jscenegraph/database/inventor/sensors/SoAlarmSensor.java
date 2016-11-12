@@ -108,7 +108,7 @@ public class SoAlarmSensor extends SoTimerQueueSensor {
 	 * @param absTime
 	 */
 	public void setTime(SbTime absTime) {
-		  time.operator_equal(absTime);
+		  time.copyFrom(absTime);
 		  timeSet = true;		  		
 	}
 	

@@ -377,7 +377,7 @@ public class SoSubNode {
    /// given default values.
    ///
    
-   public void SO_NODE_ADD_SFIELD(SoSField field,String fieldName, Object defValue) {
+   public <T> void SO_NODE_ADD_SFIELD(SoSField<T> field,String fieldName, T defValue) {
  	   SO__NODE_CHECK_CONSTRUCT();
         if (firstInstance())                    {                                
         fieldData.get(thisClass)[0].addField(thisParent, fieldName,                   

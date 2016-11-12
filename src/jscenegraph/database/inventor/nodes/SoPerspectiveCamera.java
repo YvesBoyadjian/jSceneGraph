@@ -149,7 +149,7 @@ public SoPerspectiveCamera()
 ////////////////////////////////////////////////////////////////////////
 {
     nodeHeader.SO_NODE_CONSTRUCTOR(/*SoPerspectiveCamera*/);
-    nodeHeader.SO_NODE_ADD_SFIELD(heightAngle,"heightAngle",    (SbBasic.M_PI_4));        // 45 degrees
+    nodeHeader.SO_NODE_ADD_SFIELD(heightAngle,"heightAngle",    ((float)SbBasic.M_PI_4));        // 45 degrees
     isBuiltIn = true;
 }
 
@@ -226,7 +226,7 @@ public SoPerspectiveCamera()
 	          //      h = height (radius of sphere)
 	          //      d = distance to eye
 	          //      tan(alpha) gives us h/d
-	          float hOverD = (float)Math.tan(heightAngle.getValue()  / 2.0);
+	          float hOverD = (float)Math.tan(heightAngle.getValue()  / 2.0f);
 	          if (viewportMapping.getValue()!=ViewportMapping.ADJUST_CAMERA.getValue() &&
 	            viewportMapping.getValue()!=ViewportMapping.LEAVE_ALONE.getValue() &&
 	            aspect < 1.0) {

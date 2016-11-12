@@ -78,10 +78,12 @@ import jscenegraph.database.inventor.elements.SoGLTextureEnabledElement;
 import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFFloat;
+import jscenegraph.database.inventor.fields.SoSFInt32;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.CharPtr;
 import jscenegraph.port.FloatPtr;
+import jscenegraph.port.VectorOfSbVec3f;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +156,10 @@ public class SoSphere extends SoShape {
 	
 	 public final SoSFFloat radius = new SoSFFloat();
 	 
+	    //! Allows to explicitly specify the subdivision of the sphere.
+	    //! (if set to <= 0, this is autodetected by the SoComplexityElement)
+	 public final SoSFInt32           subdivision = new SoSFInt32();
+
     //! The state of the last sphere tesselation,
     //! so that the VBO can be reused if nothing changed.
     private class CacheState extends SimpleVertexArrayCache {
@@ -165,7 +171,7 @@ public class SoSphere extends SoShape {
       int depth;
     };
 
-    CacheState _cache;
+    private final CacheState _cache = new CacheState();
 	 
 // Computes S and T texture coordinates from point on surface
 private final float COMPUTE_S( SbVec3f point) {                                              
@@ -198,6 +204,7 @@ public SoSphere()
 {
   nodeHeader.SO_NODE_CONSTRUCTOR(/*SoSphere*/);
   nodeHeader.SO_NODE_ADD_SFIELD(radius,"radius", (1.0f));
+  nodeHeader.SO_NODE_ADD_SFIELD(subdivision,"subdivision", (0));
   isBuiltIn = true;
 }
 
@@ -377,7 +384,7 @@ computeDepth(SoAction action)
   return depth;
 }
 
-private final boolean ADD_TRIANGLE(List<SbVec3f> points, List<Integer> indices, boolean winding) { 
+private final boolean ADD_TRIANGLE(VectorOfSbVec3f points, List<Integer> indices, boolean winding) { 
 	int currentIndex = (int)points.size(); 
 	indices.add(currentIndex-3); 
 	indices.add(winding ? currentIndex-1 : currentIndex - 2); 
@@ -410,8 +417,8 @@ public void GLRenderVertexArray(SoGLRenderAction action, boolean sendNormals, bo
     _cache.useTexCoords = doTextures;
 
     List<Integer> indices = new ArrayList<Integer>();
-    List<SbVec3f> points = new ArrayList<SbVec3f>();
-    List<SbVec3f> normals = new ArrayList<SbVec3f>();
+    VectorOfSbVec3f points = new VectorOfSbVec3f();
+    VectorOfSbVec3f normals = new VectorOfSbVec3f();
     List<SbVec2f> texCoords = new ArrayList<SbVec2f>();
     int currentIndex = 0;
 

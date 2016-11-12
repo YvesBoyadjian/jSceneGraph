@@ -114,6 +114,18 @@ public class SoMouseButtonEvent extends SoButtonEvent {
 	           SoButtonEvent.getClassTypeId(), new SbName("MouseButtonEvent"));
 	   }
 	   
+	  ////////////////////////////////////////////////////////////////////////
+	  //
+	  //Constructor
+	  //
+	  public SoMouseButtonEvent()
+	  //
+	  ////////////////////////////////////////////////////////////////////////
+	  {
+		  button = SoMouseButtonEvent.Button.ANY;
+		  doubleClick = false;
+	  }
+
 	  	
 	/**
 	 * set/get which button generated the event, 
@@ -130,6 +142,12 @@ public class SoMouseButtonEvent extends SoButtonEvent {
 		 return button; 
 	}
 	
+    //! set if the button press is a double click; MEVIS Inventor only
+    public void setIsDoubleClick(boolean b) { doubleClick = b; }
+
+    //! get if the button press is a double click; MEVIS Inventor only
+    public boolean isDoubleClick() { return doubleClick; }
+
 	//
 	   // Convenience routine - this returns TRUE if the event is a mouse button
 	   // release event matching the passed button.

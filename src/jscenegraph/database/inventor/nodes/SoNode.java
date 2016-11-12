@@ -458,7 +458,7 @@ getByName( SbName name, SoNodeList list)
 //		        SoAsciiText.initClass();
 		        SoBaseColor.initClass();
 		        SoCallback.initClass();
-//		        SoClipPlane.initClass();
+		        SoClipPlane.initClass();
 //		        SoColorIndex.initClass();
 		        SoComplexity.initClass();
 //		        SoCone.initClass();
@@ -507,7 +507,7 @@ getByName( SbName name, SoNodeList list)
 //		       SoProfileCoordinate2.initClass();
 //		       SoProfileCoordinate3.initClass();
 //		       SoQuadMesh.initClass();
-//		       SoResetTransform.initClass();
+		       SoResetTransform.initClass();
 		       SoRotation.initClass();
 //		       SoRotationXYZ.initClass();
 		       SoScale.initClass();
@@ -524,7 +524,7 @@ getByName( SbName name, SoNodeList list)
 //		       SoTextureCoordinateEnvironment.initClass();
 //		       SoTextureCoordinatePlane.initClass();
 		       SoTexture2.initClass();
-//		       SoTexture2Transform.initClass();
+		       SoTexture2Transform.initClass();
 		       SoTransform.initClass();
 		       SoTransformSeparator.initClass();
 		       SoTranslation.initClass();
@@ -680,7 +680,13 @@ getByName( SbName name, SoNodeList list)
 			  SoFieldData[][]    parentFieldData) {
 		  return SO__NODE_INIT_CLASS(className,classPrintName,parentClass,parentFieldData,false);
 	  }
-	  	
+
+	  protected static void SO__NODE_INIT_CLASS(
+			  Class className, String classPrintName, 
+			  Class<? extends SoBase> parentClass) {
+		  SoSubNode.SO__NODE_INIT_CLASS(className, classPrintName, parentClass);
+	  }
+
 	  protected static SoType SO__NODE_INIT_CLASS(
 			  Class className, String classPrintName, 
 			  Class<? extends SoBase> parentClass,

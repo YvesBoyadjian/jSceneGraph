@@ -63,6 +63,11 @@ package jscenegraph.database.inventor.nodes;
 
 import javax.media.opengl.GL2;
 
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.widgets.Display;
+
+import com.jogamp.opengl.swt.GLCanvas;
+
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SoFullPath;
 import jscenegraph.database.inventor.SoPath;
@@ -84,8 +89,6 @@ import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.GLXContext;
 
-import com.jogamp.newt.Display;
-import com.jogamp.newt.Window;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -222,8 +225,8 @@ public class SoLocateHighlight extends SoSeparator {
 	   {
 		   nodeHeader.SO_NODE_CONSTRUCTOR();
 	   
-		   nodeHeader.SO_NODE_ADD_SFIELD( mode, "mode",(Modes.AUTO));
-		   nodeHeader.SO_NODE_ADD_SFIELD( style, "style",(Styles.EMISSIVE));
+		   nodeHeader.SO_NODE_ADD_SFIELD( mode, "mode",(Modes.AUTO.getValue()));
+		   nodeHeader.SO_NODE_ADD_SFIELD( style, "style",(Styles.EMISSIVE.getValue()));
 		   nodeHeader.SO_NODE_ADD_SFIELD( color, "color",new SbColor(.3f,.3f,.3f));
 	  
 	       // Set up static info for enum fields
@@ -421,7 +424,7 @@ handleEvent(SoHandleEventAction action)
         // check to see if the mouse is over our geometry...
         boolean underTheMouse = false;
         final SoPickedPoint pp = action.getPickedPoint();
-        SoFullPath pPath = (pp != null) ? (SoFullPath ) pp.getPath() : null;
+        SoFullPath pPath = (pp != null) ? new SoFullPath ( pp.getPath()) : null;
         if (pPath != null && pPath.containsPath(action.getCurPath())) {
             // Make sure I'm the lowest LocHL in the pick path!
             underTheMouse = true;
@@ -473,7 +476,7 @@ redrawHighlighted(
     // If we are about to highlight, and there is something else highlighted,
     // that something else needs to unhighlight.
     if (doHighlight && currentHighlightPath != null && 
-        !(((SoFullPath )action.getCurPath()).operator_equals(currentHighlightPath))) {
+        !(new SoFullPath (action.getCurPath()).operator_equals(currentHighlightPath))) {
         
         SoNode tail = currentHighlightPath.getTail();
         if (tail.isOfType( SoLocateHighlight.getClassTypeId()))
@@ -491,7 +494,7 @@ redrawHighlighted(
 
         if (currentHighlightPath != null)
             currentHighlightPath.unref();
-        currentHighlightPath = (SoFullPath ) action.getCurPath().copy();
+        currentHighlightPath = new SoFullPath ( action.getCurPath().copy());
         currentHighlightPath.ref();
         
         // We will be rendering this new path to highlight it
@@ -517,7 +520,7 @@ redrawHighlighted(
     
     SoState state = action.getState();
     
-    final Window[] window = new Window[1];
+    final GLCanvas[] window = new GLCanvas[1];
     final GLXContext[] context = new GLXContext[1];
     final Display[] display = new Display[1];
     final SoGLRenderAction[] glAction = new SoGLRenderAction[1];
@@ -602,7 +605,7 @@ isHighlighted(SoAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoFullPath actionPath = (SoFullPath ) action.getCurPath();
+    SoFullPath actionPath = new SoFullPath ( action.getCurPath());
     return (currentHighlightPath != null &&
             currentHighlightPath.getTail() == actionPath.getTail() && // nested SoHL!
             currentHighlightPath.operator_equals(actionPath));

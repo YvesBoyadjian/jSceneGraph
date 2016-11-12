@@ -113,7 +113,16 @@ public class SbPlane implements Mutable {
             normalVec.normalize();
              distance = normalVec.dot(p0);
          }
-     /**
+
+        //! Construct a plane given normal and distance from origin along normal.
+        //! Orientation is given by the normal vector n.
+        public SbPlane(final SbVec3f n, float d) {
+            normalVec.copyFrom(n);
+            normalVec.normalize();
+            distance = d;        	
+        }
+
+        /**
 	 * Construct a plane given normal and a point to pass through 
 	 * Orientation is given by the normal vector n. 
 	 * 

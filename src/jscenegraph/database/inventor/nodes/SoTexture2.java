@@ -288,9 +288,9 @@ public SoTexture2()
 
     nodeHeader.SO_NODE_ADD_SFIELD(filename,"filename", (""));
     nodeHeader.SO_NODE_ADD_SFIELD(image,"image", /*(new SbVec2s(0, 0), 0, 0)*/null);
-    nodeHeader.SO_NODE_ADD_SFIELD(wrapS,"wrapS", (Wrap.REPEAT));
-    nodeHeader.SO_NODE_ADD_SFIELD(wrapT,"wrapT", (Wrap.REPEAT));
-    nodeHeader.SO_NODE_ADD_SFIELD(model,"model", (Model.MODULATE));
+    nodeHeader.SO_NODE_ADD_SFIELD(wrapS,"wrapS", (Wrap.REPEAT.getValue()));
+    nodeHeader.SO_NODE_ADD_SFIELD(wrapT,"wrapT", (Wrap.REPEAT.getValue()));
+    nodeHeader.SO_NODE_ADD_SFIELD(model,"model", (Model.MODULATE.getValue()));
     nodeHeader.SO_NODE_ADD_SFIELD(blendColor,"blendColor", (new SbColor(0,0,0)));
 
     // Set up enumerations for texture model

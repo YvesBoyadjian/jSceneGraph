@@ -77,18 +77,24 @@ import jscenegraph.database.inventor.nodes.SoNode;
  */
 public class SoFullPath extends SoPath {
 	
-	protected SoFullPath(int approxLength) {
-		super(approxLength);
+	SoPath castedPath;
+	
+	  protected SoFullPath(int approxLength) {
+		  super(approxLength);		  
+	  }
+		    
+	public SoFullPath(SoPath path) {
+		super(path);
 	}
 
 	// These return the first and last nodes in a path chain. 
 	public SoNode getTail() {
-		 return (nodes.operator_square_bracket(getFullLength() - 1)); 
+		 return (impl.nodes.operator_square_bracket(getFullLength() - 1)); 
 	}
 	
 	// java port
 	public static final SoNode getTail(SoPath path) {
-		return (path.nodes.operator_square_bracket(path.getFullLength() - 1));
+		return (path.impl.nodes.operator_square_bracket(path.getFullLength() - 1));
 	}
 	
 	/**
@@ -102,13 +108,13 @@ public class SoFullPath extends SoPath {
 	
     //! Returns a pointer to the \p i'th node. Passing 0 for \p i returns the tail node.
     public SoNode             getNodeFromTail(int i) 
-        { return (nodes.operator_square_bracket(getFullLength() - 1 - i)); }
+        { return (impl.nodes.operator_square_bracket(getFullLength() - 1 - i)); }
 
     //! Returns the index of the
     //! \p i'th node (within its parent) in the chain, counting backward from
     //! the tail node. Passing 0 for \p i returns the tail node's index.
     public int                 getIndexFromTail(int i) 
-        { return (indices.operator_square_bracket(getFullLength() - 1 - i)); }
+        { return (impl.indices.operator_square_bracket(getFullLength() - 1 - i)); }
 
 	public int getLength() {
 		 return getFullLength(); 

@@ -199,7 +199,7 @@ public SoComplexity()
 {
 	nodeHeader.SO_NODE_CONSTRUCTOR();
 
-	nodeHeader.SO_NODE_ADD_SFIELD(type,"type",  (SoComplexityTypeElement.getDefault()));
+	nodeHeader.SO_NODE_ADD_SFIELD(type,"type",  (SoComplexityTypeElement.getDefault().getValue()));
 	nodeHeader.SO_NODE_ADD_SFIELD(value,"value", (SoComplexityElement.getDefault()));
 	nodeHeader.SO_NODE_ADD_SFIELD(textureQuality,"textureQuality",
                       (SoTextureQualityElement.getDefault()));

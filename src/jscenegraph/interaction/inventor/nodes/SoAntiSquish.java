@@ -158,6 +158,10 @@ public class SoAntiSquish extends SoTransformation {
 		    			return null;
 		    	}
 		    }
+		    
+		    public int getValue() {
+		    	return value;
+		    }
 		    };
 		   
 	public final SoSFEnum sizing = new SoSFEnum();
@@ -202,7 +206,7 @@ public SoAntiSquish()
     nodeHeader.SO_NODE_CONSTRUCTOR(/*SoAntiSquish*/);
     isBuiltIn = true;
 
-    nodeHeader.SO_NODE_ADD_SFIELD(sizing,"sizing",     (Sizing.AVERAGE_DIMENSION) );
+    nodeHeader.SO_NODE_ADD_SFIELD(sizing,"sizing",     (Sizing.AVERAGE_DIMENSION.getValue()) );
     nodeHeader.SO_NODE_ADD_SFIELD(recalcAlways,"recalcAlways",         (true) );
 
     // Set up static info for enumerated type field

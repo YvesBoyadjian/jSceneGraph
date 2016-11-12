@@ -43,6 +43,10 @@ public class SoPolygonOffsetElement extends SoReplacedElement {
 			         default: return null;
 		        	 }
 		         }
+		         
+		         public int getValue() {
+		        	 return value;
+		         }
 		      };
 
 	//TODO

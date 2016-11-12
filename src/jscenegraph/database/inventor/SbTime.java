@@ -57,6 +57,8 @@
 
 package jscenegraph.database.inventor;
 
+import java.time.Instant;
+
 import jscenegraph.port.Mutable;
 import net.sourceforge.jpcap.util.Timeval;
 
@@ -114,10 +116,10 @@ public class SbTime implements Mutable {
 	
 	// Get the current time (seconds since Jan 1, 1970). 
 	public static SbTime getTimeOfDay() {
-		long currentTimeMillis = System.currentTimeMillis();
-		long sec = currentTimeMillis / 1000;
-		long millisec = currentTimeMillis - sec *1000;
-		int usec = (int)millisec * 1000;
+		Instant now = Instant.now();
+		long sec = now.getEpochSecond();
+		int nanos = now.getNano();
+		int usec =  nanos / 1000;
 		return new SbTime(sec,usec);
 	}
 	
@@ -147,16 +149,24 @@ setToTimeOfDay()
 	public double              getValue()
           { return (double) t.getSeconds() + (double) t.getMicroSeconds() / 1000000.0; }
   
+    //! Get time in milliseconds (for Xt).
+    public long       getMsecValue()                     // System long
+        { return t.getSeconds() * 1000 + t.getMicroSeconds() / 1000; }
+
  	
-	// copy operator (java port)
-	public void operator_equal(SbTime other) {
-		t = other.t;
+    //! Equality operators.
+    public boolean operator_not_equal(final SbTime tm)
+        { return ! (this.operator_equal(tm)); }
+
+	// comparison operator
+	public boolean operator_equal(SbTime other) {
+		return t.compareTo(other.t) == 0;
 	}
 	
 	// add operator (java port)
 	public SbTime operator_add(SbTime t1) {
 		long tm_sec = t.getSeconds() + t1.t.getSeconds();
-		long tm_usec = t.getMicroSeconds() + t1.t.getMicroSeconds();
+		long tm_usec = (long)t.getMicroSeconds() + t1.t.getMicroSeconds();
 		 
 	    if (tm_usec >= 1000000) {
 				   tm_sec += 1;
@@ -230,7 +240,7 @@ operator_mul(double s)
 	@Override
 	public void copyFrom(Object other) {
 		SbTime otherTime = (SbTime)other;
-		operator_equal(otherTime);
+		t = otherTime.t;
 	}
 	
     //! Set time from milliseconds.

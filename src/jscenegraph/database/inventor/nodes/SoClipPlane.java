@@ -41,10 +41,10 @@
  _______________________________________________________________________
  ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
  |
- |   $Revision $
+ |   $Revision: 1.1.1.1 $
  |
  |   Description:
- |      This file defines the SoPickStyle node class.
+ |      This file defines the SoClipPlane node class.
  |
  |   Author(s)          : Paul S. Strauss
  |
@@ -54,61 +54,68 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.database.inventor.SbPlane;
+import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
-import jscenegraph.database.inventor.elements.SoOverrideElement;
-import jscenegraph.database.inventor.elements.SoPickStyleElement;
+import jscenegraph.database.inventor.elements.SoClipPlaneElement;
+import jscenegraph.database.inventor.elements.SoGLClipPlaneElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
-import jscenegraph.database.inventor.fields.SoSFEnum;
-import jscenegraph.database.inventor.misc.SoState;
-import jscenegraph.port.Offset;
-
-
-////////////////////////////////////////////////////////////////////////////////
-//! Picking style node.
-/*!
-\class SoPickStyle
-\ingroup Nodes
-This node determines how subsequent geometry nodes in the scene graph
-are to be picked, as indicated by the \b style  field.
-
-
-Note that this is the only way to change the pick behavior of shapes;
-drawing style, complexity, and other rendering-related properties have
-no effect on picking.
-
-\par File Format/Default
-\par
-\code
-PickStyle {
-  style SHAPE
-}
-\endcode
-
-\par Action Behavior
-\par
-SoRayPickAction, SoCallbackAction
-<BR> Sets the current pick style in the state. 
-
-\par See Also
-\par
-SoComplexity, SoDrawStyle, SoRayPickAction
-*/
-////////////////////////////////////////////////////////////////////////////////
+import jscenegraph.database.inventor.fields.SoSFBool;
+import jscenegraph.database.inventor.fields.SoSFPlane;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoPickStyle extends SoNode {
 
-	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoPickStyle.class,this);
+////////////////////////////////////////////////////////////////////////////////
+//! Clipping plane node.
+/*!
+\class SoClipPlane
+\ingroup Nodes
+This node clips all subsequent shapes in the scene graph to the
+half-space defined by the plane field. The half-space is the side
+of the plane in the direction of the plane normal. 
+For example, if the plane is positioned at the origin 
+and the normal is pointing down the positive X axis,
+everything in the negative X space will be clipped away.
+
+
+Any number of
+clipping planes may be active simultaneously, although the graphics
+library may place a limit on this number during rendering.
+
+\par File Format/Default
+\par
+\code
+ClipPlane {
+  plane 1 0 0 0
+  on TRUE
+}
+\endcode
+
+\par Action Behavior
+\par
+SoGLRenderAction, SoCallbackAction, SoRayPickAction
+<BR> Adds the plane to the current list of clipping planes in the state. 
+
+\par See Also
+\par
+SoCamera, SoShapeHints
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+public class SoClipPlane extends SoNode {
+
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoClipPlane.class,this);
 	   
 	   public                                                                     
 	    static SoType       getClassTypeId()        /* Returns class type id */   
-	                                    { return SoSubNode.getClassTypeId(SoPickStyle.class);  }                   
+	                                    { return SoSubNode.getClassTypeId(SoClipPlane.class);  }                   
 	  public  SoType      getTypeId()      /* Returns type id      */
 	  {
 		  return nodeHeader.getClassTypeId();
@@ -118,58 +125,16 @@ public class SoPickStyle extends SoNode {
 		  return nodeHeader.getFieldData();
 	  }
 	  public  static SoFieldData[] getFieldDataPtr()                              
-	        { return SoSubNode.getFieldDataPtr(SoPickStyle.class); }    	  	
+	        { return SoSubNode.getFieldDataPtr(SoClipPlane.class); }    	  	
 	
-	
-	  public enum Style {
-		    SHAPE(SoPickStyleElement.Style.SHAPE.getValue()),
-		    BOUNDING_BOX(SoPickStyleElement.Style.BOUNDING_BOX.getValue()),
-		    UNPICKABLE(SoPickStyleElement.Style.UNPICKABLE.getValue());
-		    
-		    int value;
-		    Style(int value) {
-		    	this.value = value;
-		    }
-		    public int getValue() {
-		    	return value;
-		    }
-		    };
-		   
-		   
-		   
-	public final SoSFEnum style = new SoSFEnum();
-		   
-		  
-	/* (non-Javadoc)
-	 * @see com.openinventor.inventor.fields.SoFieldContainer#plus(int)
-	 */
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    //! \name Fields
+    //@{
 
-	 ////////////////////////////////////////////////////////////////////////
-	  //
-	  // Description:
-	  //    This initializes the SoPickStyle class.
-	  //
-	  // Use: internal
-	  
-	 public static void
-	  initClass()
-	  //
-	  ////////////////////////////////////////////////////////////////////////
-	  {
-	      SoSubNode.SO__NODE_INIT_CLASS(SoPickStyle.class, "PickStyle", SoNode.class);
-	  
-	      // Enable elements for picking actions:
-	      //SO_ENABLE(SoCallbackAction, SoPickStyleElement);
-	      SoCallbackAction.enableElement(SoPickStyleElement.class);
-	      //SO_ENABLE(SoPickAction,     SoPickStyleElement);
-	      SoPickAction.enableElement(SoPickStyleElement.class);
-	  }
+    //! Plane defining half-space.
+    public final SoSFPlane           plane = new SoSFPlane();          
 
+    //! Whether clipping plane is active.
+    public final SoSFBool            on = new SoSFBool();             
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -178,20 +143,15 @@ public class SoPickStyle extends SoNode {
 //
 // Use: public
 
-public SoPickStyle()
+public SoClipPlane()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    nodeHeader.SO_NODE_CONSTRUCTOR(/*SoPickStyle*/);
-    nodeHeader.SO_NODE_ADD_SFIELD(style,"style", (SoPickStyleElement.getDefault().getValue()));
+	nodeHeader.SO_NODE_CONSTRUCTOR(/*SoClipPlane*/);
 
-    // Set up static info for enumerated type field
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Style.SHAPE);
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Style.BOUNDING_BOX);
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Style.UNPICKABLE);
-
-    // Set up info in enumerated type field
-    nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(style,"style", "Style");
+    // Default clipping plane defines the half-space with non-negative x
+	nodeHeader.SO_NODE_ADD_SFIELD(plane,"plane", (new SbPlane(new SbVec3f(1.0f, 0.0f, 0.0f), 0.0f)));
+	nodeHeader.SO_NODE_ADD_SFIELD(on,"on",    (true));
 
     isBuiltIn = true;
 }
@@ -199,54 +159,98 @@ public SoPickStyle()
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Handles most actions.
+//    Destructor
 //
-// Use: extender
+// Use: private
 
-public void SoPickStyle_doAction(SoAction action)
+public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoState state = action.getState();
+	super.destructor();
+}
 
-    if (! style.isIgnored()
-        && ! SoOverrideElement.getPickStyleOverride(state)) {
-        if (isOverride()) {
-            SoOverrideElement.setPickStyleOverride(state, this, true);
-        }
-        SoPickStyleElement.set(state,
-                                SoPickStyleElement.Style.fromValue( style.getValue()));
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Typical action method.
+//
+// Use: extender
+
+public void
+SoClipPlane_doAction(SoAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Add clip plane only if it is active
+    if (! on.isIgnored() && on.getValue() == false)
+        return;
+
+    if (! plane.isIgnored()) {
+        SoClipPlaneElement.add(action.getState(), this, plane.getValue());
     }
 }
 
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Handles callback action.
+//    Performs callback action
 //
 // Use: extender
 
-public void
-callback(SoCallbackAction action)
+public void callback(SoCallbackAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoPickStyle_doAction(action);
+    SoClipPlane_doAction(action);
 }
 
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Handles pick action.
+//    Performs GL rendering on a clipPlane node.
 //
 // Use: extender
 
-public void
-pick(SoPickAction action)
+public void GLRender(SoGLRenderAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoPickStyle_doAction(action);
+    SoClipPlane_doAction(action);
 }
-	 
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Performs picking on a clipPlane node.
+//
+// Use: extender
+
+public void pick(SoPickAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoClipPlane_doAction(action);
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    This initializes the SoClipPlane class.
+//
+// Use: internal
+
+public static void initClass()
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoSubNode.SO__NODE_INIT_CLASS(SoClipPlane.class, "ClipPlane", SoNode.class);
+
+    // Enable clip plane element
+    SO_ENABLE(SoCallbackAction.class, SoClipPlaneElement.class);
+    SO_ENABLE(SoPickAction.class,     SoClipPlaneElement.class);
+    SO_ENABLE(SoGLRenderAction.class, SoGLClipPlaneElement.class);
+}
+
 }

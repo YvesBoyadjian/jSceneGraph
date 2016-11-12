@@ -260,11 +260,11 @@ public SoShapeHints()
     nodeHeader.SO_NODE_CONSTRUCTOR(/*SoShapeHints*/);
 
     nodeHeader.SO_NODE_ADD_SFIELD(vertexOrdering,"vertexOrdering",
-                      (SoShapeHintsElement.getDefaultVertexOrdering()));
+                      (SoShapeHintsElement.getDefaultVertexOrdering().getValue()));
     nodeHeader.SO_NODE_ADD_SFIELD(shapeType,"shapeType",
-                      (SoShapeHintsElement.getDefaultShapeType()));
+                      (SoShapeHintsElement.getDefaultShapeType().getValue()));
     nodeHeader.SO_NODE_ADD_SFIELD(faceType,"faceType",
-                      (SoShapeHintsElement.getDefaultFaceType()));
+                      (SoShapeHintsElement.getDefaultFaceType().getValue()));
     nodeHeader.SO_NODE_ADD_SFIELD(creaseAngle,"creaseAngle",
                       (SoCreaseAngleElement.getDefault()));
 

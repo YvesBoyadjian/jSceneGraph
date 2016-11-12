@@ -218,6 +218,12 @@ getValue(final SbVec3f axis, final float[] radians)
 	          return this;	     		
 	}
 	
+    //! Returns the inverse of a rotation.
+    public SbRotation          inverse() 
+        { final SbRotation q = new SbRotation(this); return q.invert(); }
+
+
+	
 	// Sets value of rotation from 4 individual components of a quaternion. 
 	public SbRotation setValue(float q0, float q1, float q2, float q3) {
 		

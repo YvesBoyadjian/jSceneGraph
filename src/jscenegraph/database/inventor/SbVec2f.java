@@ -145,6 +145,17 @@ public class SbVec2f implements Mutable {
 		vec[i] = value;
 	}
 
+
+	//
+	// Nondestructive unary negation - returns a new vector
+	//
+	
+	public SbVec2f operator_minus() 
+	{
+	    return new SbVec2f(-vec[0], -vec[1]);
+	}
+
+	
     //! Component-wise scalar multiplication and division operators.
     public SbVec2f    operator_div_equal(float d)
         { return operator_mul_equal (1.0f / d); }

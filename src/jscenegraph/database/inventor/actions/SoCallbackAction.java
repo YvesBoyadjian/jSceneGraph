@@ -573,7 +573,7 @@ beginTraversal(SoNode node)
 public SoNode getCurPathTail()
 {
 //#ifdef DEBUG
-    if ( currentNode != SoFullPath.getTail(getCurPath())){
+    if ( currentNode != new SoFullPath(getCurPath()).getTail()){
         SoDebugError.post("SoCallbackAction::getCurPathTail\n", 
         "Path tail inconsistent.  Did you change the scene graph\n"+
         "during a callback action?\n");

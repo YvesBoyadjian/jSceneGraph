@@ -206,7 +206,7 @@ public SoMaterialBinding()
     nodeHeader.SO_NODE_CONSTRUCTOR(/*SoMaterialBinding*/);
 
     nodeHeader.SO_NODE_ADD_SFIELD(value,"value",
-                         (SoMaterialBindingElement.getDefault()));
+                         (SoMaterialBindingElement.getDefault().getValue()));
 
     // Set up static info for enumerated type field
     nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Binding.OVERALL);

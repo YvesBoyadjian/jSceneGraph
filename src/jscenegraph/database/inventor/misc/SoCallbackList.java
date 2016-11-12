@@ -101,7 +101,7 @@ public class SoCallbackList {
 		    //
 		    //  Destructor
 		    //
-		   		   public void close() {
+		   		   public void destructor() {
 			   
 			     int len = list.getLength();
 			      

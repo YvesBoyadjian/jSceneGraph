@@ -120,6 +120,11 @@ SoBase, SoNode, SoEngine, SoField, SoInput, SoFile, SoPath, SoOneShotSensor, SoD
  *
  */
 public class SoDB {
+
+	/**
+	 * The thread used to run JSceneGraph
+	 */
+	private final Thread soDBThread;
 	
 	 /////////////////////////////////////////////////////////////////////////////
 	    //
@@ -245,6 +250,13 @@ public class SoDB {
 	       getSensorManager().setDelaySensorTimeout(t);
 	   }
 	   	
+	   /**
+	    * Private constructor
+	    */
+	   private SoDB() {
+		   soDBThread = Thread.currentThread();
+	   }
+	   
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -298,8 +310,8 @@ getDelaySensorTimeout()
 	 */
 	public static void startNotify() {
 		
-		if( !SwingUtilities.isEventDispatchThread()) {
-			throw new IllegalStateException("Not in AWT thread");
+		if( Thread.currentThread() != globalDB.soDBThread) {
+			throw new IllegalStateException("Not in SoDB thread");
 		}
 		
 		
@@ -314,7 +326,7 @@ getDelaySensorTimeout()
 
 	// Enables/disables realTime sensor processing. 
 	public static void enableRealTimeSensor(boolean enable) {
-	     if (enable && realTimeSensor.getInterval() != SbTime.zero()) {
+	     if (enable && realTimeSensor.getInterval().operator_not_equal(SbTime.zero())) {
 	    	   
 	    	           // If we are enabling the sensor now, call the callback once
 	    	           // to set the current time. Since the sensor may become
@@ -375,7 +387,7 @@ init()
 {
     // Initialize global DB only once.
     if (globalDB == null) {
-
+    	
         globalDB = new SoDB();
 
         // Initialize the runtime type system

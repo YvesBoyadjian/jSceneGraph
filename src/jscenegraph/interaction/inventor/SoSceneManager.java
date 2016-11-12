@@ -126,7 +126,24 @@ public class SoSceneManager {
 //    #endif
         }
     }
-        
+     
+     
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//      Gets antialiasing on GL rendering action.
+//
+// use: public
+//
+public void getAntialiasing(final boolean[] smoothing, final int[] numPasses)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    smoothing[0] = renderAction.isSmoothing();
+    numPasses[0] = renderAction.getNumPasses();
+}
+
+     
     
  	/**
 	 * Apply an SoGLRenderAction to the scene graph managed here. 
@@ -501,6 +518,26 @@ sceneSensorCallback(SoSceneManager mgr, SoSensor sensor)
 	public void setRedrawPriority(int priority)  {
 		  sceneSensor.setPriority(priority);		
 	}
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Destructor
+//
+public void destructor()
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // delete actions
+    if (raCreatedHere) {
+        renderAction.destructor(); renderAction = null;
+    }
+    if (heaCreatedHere) {
+        handleEventAction.destructor(); handleEventAction = null;
+    }
+    // detach the scene
+    setSceneGraph(null);
+    sceneSensor.destructor(); sceneSensor = null;
+}	
 	
 	 ////////////////////////////////////////////////////////////////////////
 	   //

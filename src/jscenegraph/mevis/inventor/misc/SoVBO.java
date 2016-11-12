@@ -38,8 +38,8 @@
 package jscenegraph.mevis.inventor.misc;
 
 import java.nio.Buffer;
-import java.nio.IntBuffer;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 import javax.media.opengl.GL2;
 
@@ -47,6 +47,7 @@ import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.CharPtr;
 import jscenegraph.port.Destroyable;
 
 
@@ -235,7 +236,23 @@ public void unbind(GL2 gl2)
 
 public void updateData( GL2 gl2, Object data )
 {
-  gl2.glBufferSubData(_type, 0, _numBytes, (Buffer)data);
+	Buffer buffer;
+	if(data instanceof Buffer) {
+		buffer = (Buffer)data;
+	}
+	else if(data instanceof CharPtr) {
+		CharPtr charPtr = (CharPtr)data;
+		if(charPtr.getByteOffset() == 0) {
+			buffer = charPtr.getBuffer();
+		}
+		else {
+			throw new IllegalArgumentException("CharPtr has non null offset");
+		}
+	}
+	else {
+		throw new IllegalArgumentException("Unknown data object");		
+	}
+  gl2.glBufferSubData(_type, 0, _numBytes, buffer);
 }
 
 public boolean isValid(SoState state)

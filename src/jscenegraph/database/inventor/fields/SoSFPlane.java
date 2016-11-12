@@ -36,15 +36,15 @@
 
 
 /*
- * Copyright (C) 1990,91   Silicon Graphics, Inc.
+ * Copyright (C) 1990,91,92   Silicon Graphics, Inc.
  *
  _______________________________________________________________________
  ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
  |
  |   $Revision: 1.1.1.1 $
  |
- |   Description:
- |      This file contains the definition of the SoTempPath class.
+ |   Classes:
+ |      SoSFPlane
  |
  |   Author(s)          : Paul S. Strauss
  |
@@ -52,34 +52,39 @@
  _______________________________________________________________________
  */
 
-package jscenegraph.database.inventor.misc;
+package jscenegraph.database.inventor.fields;
 
-import jscenegraph.database.inventor.SoFullPath;
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-///
-////\class SoTempPath
-///
-///  This class is internal to Inventor. It allows "temporary" paths to
-///  be created - these paths do not support the same notification
-///  behavior as SoPaths, and are therefore faster to construct and
-///  modify. They are used during traversal to maintain the current
-///  path through a graph. Since such paths are short-lived, there is
-///  no reason to pay the price of the auditor overhead.
-///
-//////////////////////////////////////////////////////////////////////////////
+import jscenegraph.database.inventor.SbPlane;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoTempPath extends SoFullPath {
 
-	public SoTempPath(int approxLength) {
-		super(approxLength);
-	     auditPath(false);           // Don't want overhead of auditors
-	     impl.nodes.addReferences(false); // Don't bother ref/unref nodes	     		
+////////////////////////////////////////////////////////////////////////////////
+//! Field containing a plane equation.
+/*!
+\class SoSFPlane
+\ingroup Fields
+A field containing a plane equation (an SbPlane).
+
+
+SoSFPlanes are written to file as four floating point values
+separated by whitespace.  The first three are the normal direction of
+the plane, the fourth is the distance of the plane from the origin
+(in the direction of the normal).
+
+\par See Also
+\par
+SbPlane, SoField, SoSField, SoMFPlane
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+public class SoSFPlane extends SoSField<SbPlane> {
+
+	@Override
+	protected SbPlane constructor() {
+		return new SbPlane();
 	}
+
 }

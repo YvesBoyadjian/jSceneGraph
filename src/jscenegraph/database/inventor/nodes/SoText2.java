@@ -202,8 +202,8 @@ public SoText2()
     nodeHeader.SO_NODE_CONSTRUCTOR(/*SoText2*/);
 
     nodeHeader.SO_NODE_ADD_MFIELD(string,"string",   (""));
-    nodeHeader.SO_NODE_ADD_SFIELD(spacing,"spacing",  (1.));
-    nodeHeader.SO_NODE_ADD_SFIELD(justification,"justification",    (Justification.LEFT));
+    nodeHeader.SO_NODE_ADD_SFIELD(spacing,"spacing",  (1.f));
+    nodeHeader.SO_NODE_ADD_SFIELD(justification,"justification",    (Justification.LEFT.getValue()));
 
     // Set up static info for enumerated type field
     nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Justification.LEFT);

@@ -60,6 +60,7 @@ package jscenegraph.database.inventor.sensors;
 import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoField;
+import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.nodes.SoNode;
@@ -98,7 +99,7 @@ public abstract class SoDataSensor extends SoDelayQueueSensor {
 	
 	private SoSensorCB deleteFunc;
 	private Object deleteData;
-	private SoNode trigNode;
+	private SoBase trigNode;
 	private SoField trigField; 
 	private SoPath trigPath;
 	private boolean doTrigPath;
@@ -207,7 +208,7 @@ public void destructor()
 	  SoNotRec nodeNotRec = list.getFirstRecAtNode();
 	  // nodeNotRec may be NULL if a path change causes notification.
 	  if (nodeNotRec != null) {
-	  trigNode = (SoNode ) nodeNotRec.getBase();
+	  trigNode = (SoBase ) nodeNotRec.getBase();
 	  }
 	  else trigNode = null;
 	 
@@ -278,7 +279,7 @@ public void destructor()
 //
 // Use: public
 
-public SoNode 
+public SoBase
 getTriggerNode() 
 //
 ////////////////////////////////////////////////////////////////////////

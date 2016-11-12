@@ -986,8 +986,6 @@ endShape()
 {
     int i;
     
-    // java port
-    GL2 gl2 = SoGLCacheContextElement.get(primAction.getState());
     final GLU glu = new GLUgl2();
 
     switch (primShapeType) {

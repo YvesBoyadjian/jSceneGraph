@@ -205,7 +205,7 @@ setAnySurrogatePath( final SbName partName,
         SoInteractionKit owner = null;
         for (int i = partPath.getLength() - 1;  i >= 0; i-- ) {
             SoNode n = partPath.getNode(i);
-            if ( n != ((SoFullPath )partPath).getTail() &&
+            if ( n != (new SoFullPath (partPath)).getTail() &&
                  n.isOfType( SoInteractionKit.getClassTypeId() ) ) {
                     owner = (SoInteractionKit ) n;
                     owner.ref();

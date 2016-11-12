@@ -98,8 +98,8 @@ public class Timeval implements Comparable<Timeval>
     return microseconds;
   }
 
-  long seconds;
-  int microseconds;
+  private long seconds;
+  private int microseconds;
 
   public static final String _rcsid = 
   "$Id: Timeval.java,v 1.2 2008/04/04 23:09:54 matthewe Exp $";

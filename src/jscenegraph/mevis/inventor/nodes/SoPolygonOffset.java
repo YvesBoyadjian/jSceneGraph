@@ -42,10 +42,18 @@ public class SoPolygonOffset extends SoNode {
 	        { return SoSubNode.getFieldDataPtr(SoPolygonOffset.class); }    	  	
 	
 	  enum Style {
-		   FILLED,// = SoPolygonOffsetElement::FILLED,
-		    LINES,// = SoPolygonOffsetElement::LINES,
-		    POINTS,// = SoPolygonOffsetElement::POINTS,
-		    ALL //= SoPolygonOffsetElement::ALL
+		   FILLED(SoPolygonOffsetElement.Style.FILLED.getValue()),
+		    LINES(SoPolygonOffsetElement.Style.LINES.getValue()),
+		    POINTS(SoPolygonOffsetElement.Style.POINTS.getValue()),
+		    ALL(SoPolygonOffsetElement.Style.ALL.getValue());
+		    
+		  private int value;
+		  Style(int value) {
+			  this.value = value;
+		  }
+		  public int getValue() {
+			  return value;
+		  }
 		    };
 		   
 	public final 	    SoSFFloat factor = new SoSFFloat();
@@ -69,7 +77,7 @@ public SoPolygonOffset()
 
 	nodeHeader.SO_NODE_ADD_SFIELD(factor,"factor", (1.f));
 	nodeHeader.SO_NODE_ADD_SFIELD(units,"units",  (1.f));
-	nodeHeader.SO_NODE_ADD_SFIELD(styles,"styles", (Style.FILLED));
+	nodeHeader.SO_NODE_ADD_SFIELD(styles,"styles", (Style.FILLED.getValue()));
 	nodeHeader.SO_NODE_ADD_SFIELD(on,"on",     (true));
 
 	nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Style.FILLED);

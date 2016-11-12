@@ -157,7 +157,7 @@ public SoPickedPoint(final SoPath _path, final SoState _state,
 
     // Make room in the detail list for one detail per node in the
     // path. Set all the detail pointers to NULL.
-    n = (( SoFullPath ) path).getLength();
+    n = ( new SoFullPath(path)).getLength();
     details.set(n - 1, null);           // Allocates space
     for (i = n - 2; i >= 0; --i)
         details.set(i, null);
@@ -256,7 +256,7 @@ getDetail(SoNode node)
 
     // Test for default case, corresponding to tail of path
     if (node == null)
-        index = (/*( SoFullPath )*/ path).getFullLength() - 1;
+        index = ( new SoFullPath ( path)).getLength() - 1;
 
     else
         index = getNodeIndex(node);
@@ -546,7 +546,7 @@ getNodeIndex(final SoNode node)
 
     // Search from bottom up for node in path, since details are
     // usually examined near the bottom
-    for (i = (/*( SoFullPath )*/ path).getFullLength() - 1; i >= 0; i--)
+    for (i = ( new SoFullPath ( path)).getLength() - 1; i >= 0; i--)
         if (path.getNode(i) == node)
             return i;
 
@@ -575,7 +575,7 @@ getMatrix( SoNode node)
 
     // Construct a path from the root down to this node. Use the given
     // path if it's the same
-    if (node == null || node == SoFullPath.getTail(path))
+    if (node == null || node == new SoFullPath(path).getTail())
         xfPath = path;
 
     else {

@@ -55,6 +55,7 @@
 
 package jscenegraph.database.inventor.misc;
 
+import jscenegraph.database.inventor.SoFullPath;
 import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoPathList;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -319,7 +320,7 @@ computeArraySize(final SoPathList list)
 
 // Returns path i from SoPathList list as an SoFullPath
 	public SoPath GET_PATH(final SoPathList list, int i) {
-		return /*(SoFullPath )*/ list.operator_square_bracket(i);
+		return new SoFullPath ( list.operator_square_bracket(i));
 	}
 
 ////////////////////////////////////////////////////////////////////////

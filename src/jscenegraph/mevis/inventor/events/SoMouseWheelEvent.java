@@ -90,4 +90,13 @@ public class SoMouseWheelEvent extends SoEvent {
             classTypeId = SoType.createType(SoEvent.getClassTypeId(), new SbName("MouseWheelEvent"));
         }
 	
+       //! set the wheel rotation (should only be called by the event producer, not by the event user
+       public void  setWheelRotation(short rot) {
+    	   _wheelRotation = rot;    	   
+       }
+       
+       //! set the wheel's orientation
+       public void  setWheelOrientation(Orientation orient) {
+    	   _orientation = orient;
+       }
 }

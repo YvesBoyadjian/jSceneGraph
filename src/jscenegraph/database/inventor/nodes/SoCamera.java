@@ -233,7 +233,7 @@ public SoCamera()
 {
 	nodeHeader.SO_NODE_CONSTRUCTOR(/*SoCamera.class*/);
 
-	nodeHeader.SO_NODE_ADD_SFIELD(viewportMapping,"viewportMapping",  (ViewportMapping.ADJUST_CAMERA));
+	nodeHeader.SO_NODE_ADD_SFIELD(viewportMapping,"viewportMapping",  (ViewportMapping.ADJUST_CAMERA.getValue()));
 	nodeHeader.SO_NODE_ADD_SFIELD(position, "position",        new SbVec3f(0.0f, 0.0f, 1.0f));
 	nodeHeader.SO_NODE_ADD_SFIELD(orientation,"orientation",      new SbRotation(0.0f, 0.0f, 0.0f, 1.0f));
 	nodeHeader.SO_NODE_ADD_SFIELD(aspectRatio,"aspectRatio",      (SO_ASPECT_SQUARE));
