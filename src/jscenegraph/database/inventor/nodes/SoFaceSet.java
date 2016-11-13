@@ -56,8 +56,8 @@ package jscenegraph.database.inventor.nodes;
 
 import java.nio.IntBuffer;
 
-import javax.media.opengl.GL2;
-import javax.media.opengl.GL3;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;

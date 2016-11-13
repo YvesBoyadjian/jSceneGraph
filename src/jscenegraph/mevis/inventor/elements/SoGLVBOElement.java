@@ -39,7 +39,7 @@ package jscenegraph.mevis.inventor.elements;
 
 import java.nio.ByteBuffer;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.elements.SoElement;
 import jscenegraph.database.inventor.misc.SoState;

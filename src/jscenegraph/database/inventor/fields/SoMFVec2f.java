@@ -57,7 +57,6 @@ package jscenegraph.database.inventor.fields;
 import java.nio.ByteBuffer;
 
 import jscenegraph.database.inventor.SbVec2f;
-import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.port.Util;
 
 

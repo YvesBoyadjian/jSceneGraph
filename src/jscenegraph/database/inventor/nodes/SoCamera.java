@@ -54,13 +54,8 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import static javax.media.opengl.GL.GL_FRONT;
-import static javax.media.opengl.GL2.GL_LINE_STIPPLE;
-import static javax.media.opengl.GL2.GL_POLYGON_STIPPLE;
-import static javax.media.opengl.GL2GL3.GL_FILL;
-import static javax.media.opengl.GL2GL3.GL_LINE;
-
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
+import static com.jogamp.opengl.GL2.*;
 
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;

@@ -54,7 +54,7 @@
 
 package jscenegraph.database.inventor.misc;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SoTypeList;
 import jscenegraph.database.inventor.actions.SoAction;

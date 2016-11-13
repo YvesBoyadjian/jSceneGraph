@@ -3,12 +3,8 @@
  */
 package jscenegraph.interaction.inventor;
 
-import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
-import static javax.media.opengl.GL.GL_DEPTH_BITS;
-import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
-import static javax.media.opengl.GL.GL_LEQUAL;
-
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
+import static com.jogamp.opengl.GL2.*;
 
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbName;

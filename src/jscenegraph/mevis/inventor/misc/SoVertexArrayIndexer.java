@@ -37,9 +37,7 @@
 
 package jscenegraph.mevis.inventor.misc;
 
-import java.nio.IntBuffer;
-
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.misc.SoState;

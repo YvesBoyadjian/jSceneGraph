@@ -63,7 +63,7 @@ import static jscenegraph.database.inventor.libFL.FLcontext.flUniGetBitmap;
 
 import java.nio.ByteBuffer;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbDict;

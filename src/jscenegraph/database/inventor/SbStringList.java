@@ -58,9 +58,6 @@
 
 package jscenegraph.database.inventor;
 
-import jscenegraph.database.inventor.SbPList;
-
-
 ///////////////////////////////////////////////////////////////////////////////
 ///
 ////  \class SbStringList

@@ -56,7 +56,7 @@ package jscenegraph.database.inventor.elements;
 
 import java.nio.Buffer;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;

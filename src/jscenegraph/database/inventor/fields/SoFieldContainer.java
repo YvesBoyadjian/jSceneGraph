@@ -67,7 +67,6 @@ import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.mevis.inventor.SoProfiling;
-import jscenegraph.port.Mutable;
 import jscenegraph.port.Offset;
 
 ////////////////////////////////////////////////////////////////////////////////

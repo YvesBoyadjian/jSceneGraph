@@ -54,20 +54,13 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import static javax.media.opengl.GL.GL_ARRAY_BUFFER;
-import static javax.media.opengl.GL.GL_FLOAT;
-import static javax.media.opengl.GL.GL_UNSIGNED_BYTE;
-import static javax.media.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
-import static javax.media.opengl.fixedfunc.GLPointerFunc.GL_NORMAL_ARRAY;
-import static javax.media.opengl.fixedfunc.GLPointerFunc.GL_TEXTURE_COORD_ARRAY;
-import static javax.media.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
-
-import javax.media.opengl.GL2;
-import javax.media.opengl.glu.GLU;
-import javax.media.opengl.glu.GLUtessellator;
-import javax.media.opengl.glu.GLUtessellatorCallback;
-import javax.media.opengl.glu.GLUtessellatorCallbackAdapter;
-import javax.media.opengl.glu.gl2.GLUgl2;
+import com.jogamp.opengl.GL2;
+import static com.jogamp.opengl.GL2.*;
+import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLUtessellator;
+import com.jogamp.opengl.glu.GLUtessellatorCallback;
+import com.jogamp.opengl.glu.GLUtessellatorCallbackAdapter;
+import com.jogamp.opengl.glu.gl2.GLUgl2;
 
 import jscenegraph.database.inventor.SbBox2f;
 import jscenegraph.database.inventor.SbBox3f;

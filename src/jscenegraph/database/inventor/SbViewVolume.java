@@ -71,6 +71,7 @@
 package jscenegraph.database.inventor;
 
 import static jscenegraph.database.inventor.SbBasic.M_PI_2;
+
 import jscenegraph.port.Mutable;
 
 

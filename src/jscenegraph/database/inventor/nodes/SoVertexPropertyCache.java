@@ -60,9 +60,8 @@ import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import javax.media.opengl.GL2;
-
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;

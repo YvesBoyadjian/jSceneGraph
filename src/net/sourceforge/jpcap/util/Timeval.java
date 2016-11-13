@@ -39,8 +39,6 @@ package net.sourceforge.jpcap.util;
 
 import java.util.Date;
 
-import java.lang.Comparable;
-
 
 /**
  * POSIX.4 timeval for Java.

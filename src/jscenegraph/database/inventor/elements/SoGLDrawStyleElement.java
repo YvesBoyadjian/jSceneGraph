@@ -54,12 +54,8 @@
 
 package jscenegraph.database.inventor.elements;
 
-import static javax.media.opengl.GL.GL_FRONT_AND_BACK;
-import static javax.media.opengl.GL2GL3.GL_FILL;
-import static javax.media.opengl.GL2GL3.GL_LINE;
-import static javax.media.opengl.GL2GL3.GL_POINT;
-
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
+import static com.jogamp.opengl.GL2.*;
 
 import jscenegraph.database.inventor.misc.SoState;
 

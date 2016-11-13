@@ -54,9 +54,8 @@
 
 package jscenegraph.database.inventor.elements;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
-import jscenegraph.database.inventor.SbIntList;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;

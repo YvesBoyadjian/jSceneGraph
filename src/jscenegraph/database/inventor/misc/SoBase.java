@@ -57,8 +57,6 @@
 
 package jscenegraph.database.inventor.misc;
 
-import javax.swing.SwingUtilities;
-
 import jscenegraph.database.inventor.SbDict;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;

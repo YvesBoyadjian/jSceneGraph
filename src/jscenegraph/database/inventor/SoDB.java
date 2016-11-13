@@ -54,8 +54,6 @@
 
 package jscenegraph.database.inventor;
 
-import javax.swing.SwingUtilities;
-
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.elements.SoElement;

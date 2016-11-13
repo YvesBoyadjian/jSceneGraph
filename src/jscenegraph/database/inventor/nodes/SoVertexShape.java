@@ -54,18 +54,11 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import static javax.media.opengl.GL.GL_ARRAY_BUFFER;
-import static javax.media.opengl.GL.GL_FLOAT;
-import static javax.media.opengl.GL.GL_UNSIGNED_BYTE;
-import static javax.media.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
-import static javax.media.opengl.fixedfunc.GLPointerFunc.GL_NORMAL_ARRAY;
-import static javax.media.opengl.fixedfunc.GLPointerFunc.GL_TEXTURE_COORD_ARRAY;
-import static javax.media.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
-
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
+import static com.jogamp.opengl.GL2.*;
 
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec2f;

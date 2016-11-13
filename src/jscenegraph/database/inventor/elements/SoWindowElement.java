@@ -54,7 +54,6 @@
 
 package jscenegraph.database.inventor.elements;
 
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 
 import com.jogamp.opengl.swt.GLCanvas;

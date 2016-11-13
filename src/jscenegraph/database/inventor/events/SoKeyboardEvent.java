@@ -54,8 +54,6 @@
 
 package jscenegraph.database.inventor.events;
 
-import java.util.Hashtable;
-
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
 

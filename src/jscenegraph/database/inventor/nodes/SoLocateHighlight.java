@@ -61,11 +61,9 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import javax.media.opengl.GL2;
-
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.swt.GLCanvas;
 
 import jscenegraph.database.inventor.SbColor;

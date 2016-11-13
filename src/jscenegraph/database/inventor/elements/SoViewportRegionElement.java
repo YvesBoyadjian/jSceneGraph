@@ -186,7 +186,7 @@ matches(SoElement elt)
        return result;
    }
      
-  public static void initClass(Class<?> klass) {
+  public static void initClass(Class<? extends SoElement> klass) {
 	  
 	     //SO_ELEMENT_INIT_CLASS(SoViewportRegionElement, SoElement);
 	     

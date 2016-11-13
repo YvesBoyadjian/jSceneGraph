@@ -3,7 +3,7 @@
  */
 package jscenegraph.database.inventor.elements;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.misc.SoState;

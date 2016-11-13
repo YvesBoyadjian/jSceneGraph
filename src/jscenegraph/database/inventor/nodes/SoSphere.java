@@ -57,7 +57,7 @@ package jscenegraph.database.inventor.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbSphere;

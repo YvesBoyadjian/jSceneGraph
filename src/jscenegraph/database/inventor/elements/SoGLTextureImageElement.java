@@ -5,8 +5,8 @@ package jscenegraph.database.inventor.elements;
 
 import java.nio.ByteBuffer;
 
-import javax.media.opengl.GL2;
-import javax.media.opengl.glu.GLU;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.glu.GLU;
 
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec2s;

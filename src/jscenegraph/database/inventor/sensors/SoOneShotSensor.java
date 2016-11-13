@@ -55,9 +55,6 @@
 
 package jscenegraph.database.inventor.sensors;
 
-import jscenegraph.database.inventor.sensors.SoDelayQueueSensor;
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //! Sensor for one-time only callbacks.
 /*!
