@@ -70,6 +70,8 @@
 
 package jscenegraph.database.inventor;
 
+import java.nio.FloatBuffer;
+
 import jscenegraph.port.Mutable;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,6 +150,14 @@ public class SbVec3f implements Cloneable, Mutable {
 	
 	// Returns vector components. 
     public final float[] getValue() { return vec; }
+    
+    /**
+     * For JOGL
+     * @return
+     */
+    public final FloatBuffer getValueGL() {
+    	return FloatBuffer.wrap(vec);
+    }
 	
     //
 // Returns 3 individual components
@@ -412,5 +422,18 @@ public float y() {
 //java port
 public float z() {
 	return getValue()[2];
+}
+
+/**
+ * Allocates an array of SbVec2f
+ * @param num
+ * @return
+ */
+public static SbVec3f[] allocate(int num) {
+	SbVec3f[] retVal = new SbVec3f[num];
+	for(int i=0; i< num;i++) {
+		retVal[i] = new SbVec3f();
+	}
+	return retVal;
 }
 }

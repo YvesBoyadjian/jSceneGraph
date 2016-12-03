@@ -461,7 +461,7 @@ getByName( SbName name, SoNodeList list)
 		        SoClipPlane.initClass();
 //		        SoColorIndex.initClass();
 		        SoComplexity.initClass();
-//		        SoCone.initClass();
+		        SoCone.initClass();
 //		        SoCoordinate3.initClass();
 //		        SoCoordinate4.initClass();
 		        SoCube.initClass();

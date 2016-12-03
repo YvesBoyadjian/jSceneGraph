@@ -199,5 +199,18 @@ public class SbVec2f implements Mutable {
 	public static int sizeof() {
 		return 2 * Float.SIZE / Byte.SIZE;
 	}
+	
+	/**
+	 * Allocates an array of SbVec2f
+	 * @param num
+	 * @return
+	 */
+	public static SbVec2f[] allocate(int num) {
+		SbVec2f[] retVal = new SbVec2f[num];
+		for(int i=0; i< num;i++) {
+			retVal[i] = new SbVec2f();
+		}
+		return retVal;
+	}
  }
 
