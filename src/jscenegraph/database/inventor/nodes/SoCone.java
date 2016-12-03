@@ -213,6 +213,13 @@ public class SoCone extends SoShape {
 
     //@}
 
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Constructor
+//
+//Use: public
+
     //! Creates a cone node with default settings.
     public SoCone() {
     	nodeHeader.SO_NODE_CONSTRUCTOR(/*SoCone*/);
@@ -239,13 +246,35 @@ public class SoCone extends SoShape {
     	  }    	
     }
 
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Turns on a part of the cone. (Convenience function.)
+//
+//Use: public
+
     //! Turns on/off a part of the cone. (Convenience functions)
     public void                addPart(SoCone.Part part) {
     	  parts.setValue(parts.getValue() | part.getValue());    	
     }
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Turns off a part of the cone. (Convenience function.)
+//
+//Use: public
+
     public void                removePart(SoCone.Part part) {
     	  parts.setValue(parts.getValue() & ~part.getValue());
     }
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Returns whether a given part is on or off. (Convenience function.)
+//
+//Use: public
 
     //! Returns whether a given part is on or off. (Convenience function)
     public boolean                hasPart(SoCone.Part part) {
@@ -257,6 +286,13 @@ public class SoCone extends SoShape {
     	return ((PARTS & (PART.getValue())) != 0);
     }
    
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Performs GL rendering of a cone.
+//
+//Use: protected
+
     //! Implements actions
     public void        GLRender(SoGLRenderAction action) {
 	  // First see if the object is visible and should be rendered now
@@ -290,6 +326,13 @@ public class SoCone extends SoShape {
 	  }    	
     }
     
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Implements ray picking
+//
+//Use: protected
+
     public void        rayPick(SoRayPickAction action) {
   // First see if the object is pickable
   if (! shouldRayPick(action))
@@ -452,6 +495,13 @@ public class SoCone extends SoShape {
     public static void         initClass() {
         SO__NODE_INIT_CLASS(SoCone.class, "Cone", SoShape.class);    	
     }
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Generates triangles representing a cone.
+//
+//Use: protected
 
     //! Generates triangles representing a cone
     protected void        generatePrimitives(SoAction action) {
@@ -767,6 +817,13 @@ public class SoCone extends SoShape {
 
     
 
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Computes bounding box of cone.
+//
+//Use: protected
+
     //! Computes bounding box of cone
     public void        computeBBox(SoAction action, final SbBox3f box,
                                     final SbVec3f center) {
@@ -795,6 +852,13 @@ public class SoCone extends SoShape {
     	
     }
     
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Destructor
+//
+//Use: private
+
     public void destructor() {
     	super.destructor();
     }
@@ -816,6 +880,16 @@ public class SoCone extends SoShape {
     };
 
     private final CacheState _cache = new CacheState();
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Computes number of sides per circular cross-section and number
+//of sections, based on complexity, then computes ring of x,z
+//coordinates around base of cone and stores in baseCoords. It
+//computes and stores normals in sideNormals, too.
+//
+//Use: private
 
     //! Computes number of sides and sections to use to represent
     //! cone (based on complexity), then computes ring of x,z
@@ -915,6 +989,13 @@ public class SoCone extends SoShape {
     	
     }
 
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Computes real bottom radius, half-height.
+//
+//Use: private
+
     //! Computes real radius and half-height
     private void                getSize(final float[] rad, final float[] hHeight)  {
     	  rad[0]  = (bottomRadius.isIgnored() ? 1.0f : bottomRadius.getValue());
@@ -931,6 +1012,14 @@ public class SoCone extends SoShape {
 	 return tmp;
  }
     
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Generic rendering of cone with or without normals, with or
+//without texture coordinates.
+//
+//Use: private
 
     //! These render the cone
     private void                GLRenderGeneric(SoGLRenderAction action,
@@ -1136,6 +1225,14 @@ public class SoCone extends SoShape {
     }
     	
     }
+    
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Renders cone with normals and without texture coordinates.
+//
+//Use: private
+
     private void                GLRenderNvertTnone(SoGLRenderAction action) {
     	    final SbVec3f scale = new SbVec3f(), tmp = new SbVec3f();
     	    final float[] s1 = new float[1], s2 = new float[1];
@@ -1598,6 +1695,18 @@ public class SoCone extends SoShape {
 
     	
     }
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Computes intersection of given ray with an infinite cone with
+//its apex at (0,0,0) and a cross-section of radius 1 at y = -1.
+//The equation of this cone is   x*x - y*y + z*z = 0. This returns
+//FALSE if no intersection was found. Otherwise, it fills in
+//enterPoint and exitPoint with the two intersections, ordered by
+//distance from the start of the ray.
+//
+//Use: private
 
     //! Computes intersection of ray with infinite canonical cone
     private boolean                intersectInfiniteCone(final SbLine ray,
