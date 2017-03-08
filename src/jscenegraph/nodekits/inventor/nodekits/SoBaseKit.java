@@ -59,15 +59,6 @@ public class SoBaseKit extends SoNode {
 			    return nodekitCatalog[0];                                                    
 			}
 	
-	/* (non-Javadoc)
-	 * @see com.openinventor.inventor.fields.SoFieldContainer#plus(int)
-	 */
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	/**
 	 * Returns the SoNodekitCatalog for this instance of SoBaseKit. 
 	 * While each instance of a given class creates its own distinct 

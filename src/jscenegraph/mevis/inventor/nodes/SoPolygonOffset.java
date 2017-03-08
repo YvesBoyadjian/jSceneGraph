@@ -62,15 +62,6 @@ public class SoPolygonOffset extends SoNode {
 	public final	    SoSFBool on = new SoSFBool();
 		    	
 
-	/* (non-Javadoc)
-	 * @see com.openinventor.inventor.fields.SoFieldContainer#plus(int)
-	 */
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 public SoPolygonOffset()
 {
 	nodeHeader.SO_NODE_CONSTRUCTOR(/*SoPolygonOffset*/);

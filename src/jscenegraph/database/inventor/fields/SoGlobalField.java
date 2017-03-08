@@ -218,12 +218,6 @@ create(final SbName name, SoType type, final boolean[] alreadyExists)
 	   }
 	   
 	
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	/**
 	 * Find a global field with the given name. 
 	 * This returns NULL if there is none. 

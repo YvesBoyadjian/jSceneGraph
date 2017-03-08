@@ -25,6 +25,12 @@ public class SoCalculator extends SoEngine {
 	public final SoEngineOutput oa = new SoEngineOutput(),ob = new SoEngineOutput(),oc = new SoEngineOutput(),od = new SoEngineOutput();
 	public final SoEngineOutput oA = new SoEngineOutput(),oB = new SoEngineOutput(),oC = new SoEngineOutput(),oD = new SoEngineOutput();
 	 	
+	public SoCalculator() {
+		super();
+		engineHeader = SoSubEngine.SO_ENGINE_HEADER(SoCalculator.class,this);
+	   	
+		//TODO
+	}
 	
 	/* (non-Javadoc)
 	 * @see com.openinventor.inventor.engines.SoEngine#evaluate()
@@ -40,15 +46,6 @@ public class SoCalculator extends SoEngine {
 	 */
 	@Override
 	public SoEngineOutputData getOutputData() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.openinventor.inventor.fields.SoFieldContainer#plus(int)
-	 */
-	@Override
-	public Object plus(Offset offset) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -315,12 +315,6 @@ public abstract class SoShape extends SoNode {
 		nodeHeader.SO_NODE_CONSTRUCTOR();
 	}
 	
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	 ////////////////////////////////////////////////////////////////////////
 	   //
 	   // Description:

@@ -49,12 +49,6 @@ public class SoNodeKitListPart extends SoNode {
 	
 	private boolean areTypesLocked;
 
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	// Gets and sets the type of node used as the container. 
 	//
 	   // Returns type of container.

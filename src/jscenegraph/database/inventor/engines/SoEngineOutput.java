@@ -96,6 +96,22 @@ public class SoEngineOutput {
 	  final SoFieldList connections = new SoFieldList();
 	  private SoEngine container;
 	  
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Constructor.  EngineOutputs may only be constructed inside
+//    SoEngine instances.
+//
+// Use: internal
+
+public SoEngineOutput()
+//
+////////////////////////////////////////////////////////////////////////
+{
+    enabled = true;
+    container = null;
+}
+
 	  // Returns the type of field this output can connect to. 
 	  public SoType getConnectionType() {
 		  
@@ -248,5 +264,5 @@ getForwardConnections(SoFieldList list)
     public SoField            operator_square_bracket(int i)
         { return connections.get(i); }
 
-    
+    public void setContainer(SoEngine eng)     { container = eng; }    
 }

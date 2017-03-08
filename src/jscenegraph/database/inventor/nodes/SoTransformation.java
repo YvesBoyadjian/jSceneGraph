@@ -98,12 +98,6 @@ public class SoTransformation extends SoNode {
 	  public  static SoFieldData[] getFieldDataPtr()                              
 	        { return SoSubNode.getFieldDataPtr(SoTransformation.class); }    	  	
 	
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	 ////////////////////////////////////////////////////////////////////////
 	  //
 	  // Description:

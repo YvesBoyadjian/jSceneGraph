@@ -139,7 +139,12 @@ public abstract class SoFieldContainer extends SoBase {
 	 }
 
 	// Java Port
-	public abstract Object plus(Offset offset);
+		/* (non-Javadoc)
+		 * @see jscenegraph.database.inventor.fields.SoFieldContainer#plus(jscenegraph.port.Offset)
+		 */
+		public final Object plus(Offset offset) {
+			return offset.plus(this);
+		}
 	
 	/**
 	 * Notification at this Field Container is enabled (if flag == TRUE) 

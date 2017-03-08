@@ -330,12 +330,6 @@ search(SoSearchAction action)
 		 callbackFunc = func; callbackData = userData; 
 	}
 
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	 ////////////////////////////////////////////////////////////////////////
 	   //
 	   // Description:

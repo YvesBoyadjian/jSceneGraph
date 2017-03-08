@@ -209,12 +209,6 @@ public static final float SO_ASPECT_VISTAVISION  = 2.301f;        /* Vistavision
 	   
 	public final  SoSFFloat focalDistance = new SoSFFloat();
 	  
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:

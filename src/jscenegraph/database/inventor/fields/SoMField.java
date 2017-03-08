@@ -331,5 +331,34 @@ deleteValues(int start,       // Starting index
     valueChanged();
 }
 
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//This is equivalent to the SoField::set() method, but operates on
+//only the value given by the index.
+//
+//Use: public
+
+public boolean set1(int index, String valueString)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	//TODO
+	return false;
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//This is equivalent to the SoField::get() method, but operates on
+//only the value given by the index.
+//
+//Use: public
+
+public String get1(int index) {
+	String valueString = "";
+	//TODO
+	return valueString;
+}
 	    
 }

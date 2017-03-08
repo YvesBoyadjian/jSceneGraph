@@ -246,11 +246,11 @@ addNodeId( SoNode node)
 //#endif /* DEBUG */
 
     int                 i;
-    long id = (long)node.getNodeId();
+    int id = node.getNodeId();
 
     // Search through list for correct place for id
     for (i = 0; i < nodeIds.getLength(); i++)
-        if (id <= ( Long) nodeIds.operator_square_bracket(i))
+        if (id <= (int) nodeIds.operator_square_bracket(i))
             break;
 
     // Otherwise, i will contain the index where the new element belongs
@@ -259,7 +259,7 @@ addNodeId( SoNode node)
         
     // Insert it in the list if it is not already there:
     else { 
-        if (id != ( Long) nodeIds.operator_square_bracket(i))
+        if (id != (int) nodeIds.operator_square_bracket(i))
             nodeIds.insert((Object) id, i);
     }
 }

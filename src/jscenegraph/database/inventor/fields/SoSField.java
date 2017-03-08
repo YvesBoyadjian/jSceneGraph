@@ -100,9 +100,9 @@ SoField, SoMField
  */
 public abstract class SoSField<T extends Object> extends SoField {
 	
-	private static SoType classTypeId;
-	
-	public static SoType getClassTypeId() { return new SoType(classTypeId); }
+//	private static SoType classTypeId;
+//	
+//	public static SoType getClassTypeId() { return new SoType(classTypeId); }
 	
 	protected T value;
 	

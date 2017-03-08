@@ -140,15 +140,6 @@ public class SoPickStyle extends SoNode {
 	public final SoSFEnum style = new SoSFEnum();
 		   
 		  
-	/* (non-Javadoc)
-	 * @see com.openinventor.inventor.fields.SoFieldContainer#plus(int)
-	 */
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	 ////////////////////////////////////////////////////////////////////////
 	  //
 	  // Description:

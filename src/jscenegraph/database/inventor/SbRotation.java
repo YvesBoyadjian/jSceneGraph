@@ -517,6 +517,25 @@ operator_mul_equal(final SbRotation q)
 	     
 	}
 
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Returns 4 individual components of rotation quaternion.
+//
+// Use: public
+
+public void getValue(final float[] q0q1q2q3)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	q0q1q2q3[0] = quat[0];
+	q0q1q2q3[1] = quat[1];
+	q0q1q2q3[2] = quat[2];
+	q0q1q2q3[3] = quat[3];
+}
+
+	
 ////////////////////////////////////////////////////////////////////////
 //
 //Description:

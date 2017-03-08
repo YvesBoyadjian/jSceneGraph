@@ -107,7 +107,7 @@ public abstract class SoFieldConverter extends SoEngine {
 	        { return ( SoEngineOutputData[])outputData; }                  
 	  private                                                                    
 	    static SoType       classTypeId;    /* Type id              */            
-	  private  static boolean       firstInstance = true;  /* True for first ctor call */        
+	  //private  static boolean       firstInstance = true;  /* True for first ctor call */        
 	  private  static final SoFieldData[]  inputData = new SoFieldData[1];     /* Info on input fields */            
 	  private  static final SoEngineOutputData[]  outputData = new SoEngineOutputData[1];            /* Info on outputs */ 
 	  private  static final SoFieldData[][]    parentInputData = new SoFieldData[1][];      /* parent's fields */ 
@@ -126,7 +126,9 @@ public SoFieldConverter()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    firstInstance = SO_ENGINE_CONSTRUCTOR(SoFieldConverter.class,inputData,outputData,parentInputData[0],parentOutputData[0],firstInstance);
+	engineHeader = SoSubEngine.SO_ENGINE_HEADER(SoElapsedTime.class,this);
+	   
+    engineHeader.SO_ENGINE_CONSTRUCTOR(SoFieldConverter.class,inputData,outputData,parentInputData[0],parentOutputData[0]);
 }
 
 	  
@@ -201,7 +203,7 @@ getForwardConnections(final SoFieldList list)
 	   //
 	   ////////////////////////////////////////////////////////////////////////
 	   {
-	       classTypeId = SO__ENGINE_INIT_ABSTRACT_CLASS(SoFieldConverter.class, "FieldConverter",
+	       classTypeId = SoSubEngine.SO__ENGINE_INIT_ABSTRACT_CLASS(SoFieldConverter.class, "FieldConverter",
 	                                          SoEngine.class, parentInputData, parentOutputData);
 	   }
 	   	

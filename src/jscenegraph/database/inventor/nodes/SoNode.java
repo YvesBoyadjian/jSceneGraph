@@ -155,11 +155,6 @@ public abstract class SoNode extends SoFieldContainer {
   
  
 	@Override
-	public Object plus(Offset offset) {
-		return null;
-	}
-
-	@Override
 	public SoType getTypeId() {
 		return classTypeId;
 	}
@@ -509,7 +504,7 @@ getByName( SbName name, SoNodeList list)
 //		       SoQuadMesh.initClass();
 		       SoResetTransform.initClass();
 		       SoRotation.initClass();
-//		       SoRotationXYZ.initClass();
+		       SoRotationXYZ.initClass();
 		       SoScale.initClass();
 		       SoShapeHints.initClass();
 		       SoSphere.initClass();

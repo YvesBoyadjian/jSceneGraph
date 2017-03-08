@@ -164,10 +164,6 @@ protected SoBase()
 	// Returns the type identifier for a specific instance.
 	public abstract SoType getTypeId();
 	
-	public int offset(Object field) {
-		return 0;
-	}
-	
 	/**
 	 * Returns TRUE if this object is of the type specified in type 
 	 * or is derived from that type. 

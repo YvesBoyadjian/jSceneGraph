@@ -166,15 +166,6 @@ public class SoDrawStyle extends SoNode {
 		  public final SoSFUShort linePattern = new SoSFUShort();
 		   		  
 		  
-	/* (non-Javadoc)
-	 * @see com.openinventor.inventor.fields.SoFieldContainer#plus(int)
-	 */
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	 ////////////////////////////////////////////////////////////////////////
 	   //
 	   // Description:

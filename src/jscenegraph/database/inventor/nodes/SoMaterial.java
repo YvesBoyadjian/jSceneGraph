@@ -163,16 +163,6 @@ public class SoMaterial extends SoNode {
     protected final SoVBO[] _vbo = new SoVBO[1];
 
 
-	/* (non-Javadoc)
-	 * @see com.openinventor.inventor.fields.SoFieldContainer#plus(int)
-	 */
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:

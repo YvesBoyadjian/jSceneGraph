@@ -123,12 +123,6 @@ public class SoLight extends SoNode {
 	
 	public final SoSFColor color = new SoSFColor();
 
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	 ////////////////////////////////////////////////////////////////////////
 	   //
 	   // Description:

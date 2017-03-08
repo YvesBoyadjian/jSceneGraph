@@ -55,6 +55,7 @@
 
 package jscenegraph.database.inventor.engines;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -104,7 +105,9 @@ SoBoolOperation, SoCalculator, SoComposeMatrix, SoComposeRotation, SoComposeRota
  */
 public abstract class SoEngine extends SoFieldContainer {
 
-	   private
+	protected SoSubEngine engineHeader; 
+	
+	private
 		        static final SoType       classTypeId = new SoType();            //!< Type identifier
 		   	
 	boolean needsEvaluation;
@@ -123,43 +126,6 @@ public abstract class SoEngine extends SoFieldContainer {
 	
 	protected abstract void evaluate();
 	
-//////////////////////////////////////////////////////////////////////////////
-///
-/// Macro to be called within each constructor
-///
-
-protected boolean SO_ENGINE_CONSTRUCTOR(Class className, 
-		final SoFieldData[] inputData, 
-		final SoEngineOutputData[] outputData,
-		final SoFieldData[] parentInputData,
-		final SoEngineOutputData[] parentOutputData, boolean firstInstance) {                                    
-    int _value_false= 0;
-    
-    do {                                                                      
-        SO__ENGINE_CHECK_INIT(className);                                     
-        if (inputData[0] == null) {                                              
-            inputData[0] = new SoFieldData(parentInputData != null ?                     
-                                        parentInputData[0] : null);             
-            outputData[0] = new SoEngineOutputData(parentOutputData != null ?            
-                                                parentOutputData[0] : null);    
-        }                                                                     
-        else                                                                  
-            firstInstance = false;                                            
-        isBuiltIn = false;                                                    
-    } while (_value_false != 0);
-    return firstInstance;
-    }
-
-protected void SO__ENGINE_CHECK_INIT(Class className) {                                      
-    if (classTypeId == SoType.badType()) {                                   
-        SoDebugError.post("SO_ENGINE_CONSTRUCTOR",                           
-                           "Can't construct an engine of type "+               
-                           className.getSimpleName()+                              
-                           "until initClass() has been called");              
-        return;                                                               
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -170,10 +136,12 @@ protected void SO__ENGINE_CHECK_INIT(Class className) {
 //
 // Use: protected
 
-public SoEngine()
+protected SoEngine()
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	this.engineHeader = engineHeader;
+	
     needsEvaluation = true;
     notifying = false;
 //#ifdef DEBUG
@@ -602,7 +570,7 @@ shouldCopy()
 		    
 		        // Field converters
 		        SoFieldConverter.initClass();  // Must come first
-//		        SoBuiltinFieldConverter.initClass();
+		        SoBuiltinFieldConverter.initClass();
 //		        SoConvToTrigger.initClass();
 		    
 		        //
@@ -626,7 +594,7 @@ shouldCopy()
 //		       SoComputeBoundingBox.initClass();
 //		       SoConcatenate.initClass();
 //		       SoCounter.initClass();
-//		       SoElapsedTime.initClass();
+		       SoElapsedTime.initClass();
 //		       SoGate.initClass();
 //		       SoOnOff.initClass();
 //		       SoOneShot.initClass();
@@ -638,31 +606,52 @@ shouldCopy()
 		  		
 	}
 	
-	protected static SoType SO__ENGINE_INIT_ABSTRACT_CLASS(Class<? extends SoEngine> className, String classPrintName,
-            Class<? extends SoEngine> parent, final SoFieldData[][] parentInputData, final SoEngineOutputData[][] parentOutputData) {
-		try {
-			Method getClassTypeId;
-			getClassTypeId = parent.getMethod("getClassTypeId");
-			try {
-				SoType parentType;
-				parentType = (SoType)getClassTypeId.invoke(null);
-		        SoType classTypeId = SoType.createType(parentType, new SbName(classPrintName));
-		        Method getInputDataPtr = parent.getMethod("getInputDataPtr");
-		        Method getOutputDataPtr = parent.getMethod("getOutputDataPtr");
-		        parentInputData[0] = (SoFieldData[])getInputDataPtr.invoke(null);                          
-		        parentOutputData[0] = (SoEngineOutputData[])getOutputDataPtr.invoke(null);                        
-				return classTypeId;
-			} catch (IllegalArgumentException e) {
-				throw new IllegalStateException(e);
-			} catch (IllegalAccessException e) {
-				throw new IllegalStateException(e);
-			} catch (InvocationTargetException e) {
-				throw new IllegalStateException(e);
-			}
-		} catch (SecurityException e) {
-			throw new IllegalStateException(e);
-		} catch (NoSuchMethodException e) {
-			throw new IllegalStateException(e);
+	/**
+	 * Java port : Gets offset of this field in engine
+	 * @param output
+	 * @return -1 if invalid offset
+	 */
+	public String fieldName(SoEngineOutput output) {
+		SoEngine container  = output.getContainer();
+		if(this != container) {
+			return ""; // wrong container
 		}
+		Field[] publicFields = container.getClass().getFields();
+		for(Field publicField : publicFields) {			
+			try {
+				Object field = publicField.get(container);
+				if(field == output) {
+					String fieldName = publicField.getName();
+					return fieldName;
+				}
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return "";
 	}
+
+	/**
+	 * Java port 
+	 * @param offset
+	 * @return null if not found
+	 */
+	public SoEngineOutput plus(String offset) {
+		
+		Field[] publicFields = getClass().getFields();
+		for(Field publicField : publicFields) {
+			if(publicField.getName().equals(offset)) {
+				try {
+					return (SoEngineOutput)publicField.get(this);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return null;
+	}
+
 }

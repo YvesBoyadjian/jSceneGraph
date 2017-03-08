@@ -139,11 +139,6 @@ public class SoGroup extends SoNode implements Destroyable {
 
 	protected SoChildList children;
 	
-	@Override
-	public Object plus(Offset offset) {
-		return null;
-	}
-
 	 ////////////////////////////////////////////////////////////////////////
 	    //
 	    // Description:

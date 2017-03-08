@@ -56,6 +56,8 @@
 
 package jscenegraph.database.inventor.engines;
 
+import java.util.UUID;
+
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoType;
@@ -87,11 +89,11 @@ public class SoEngineOutputData {
 	
 	private class SoOutputEntry {
 		final SbName name = new SbName(); // Name of output
-		Offset offset; // Offset of output within object
+		String offset; // Offset of output within object
 		final SoType type = new SoType(); // Type of output
 		public void copyFrom(SoOutputEntry fromOutput) {
 			name.copyFrom(fromOutput.name);
-			offset.copyFrom(fromOutput.offset);
+			offset = fromOutput.offset;
 			type.copyFrom(fromOutput.type);
 		}
 	}
@@ -123,6 +125,29 @@ public SoEngineOutputData( SoEngineOutputData from)
 }
 
 	
+    //! Adds an output to current data, given name of output,
+    //! a pointer to field within the engine, and the type of output.
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Adds an output to current outputData.  Called inside SoEngine
+//    subclass constructors, from SO_ENGINE_ADD_OUTPUT macro.
+//
+// Use: internal
+
+public void                addOutput(final SoEngine defEngine,
+                                  final String outputName,
+                                  final SoEngineOutput output,
+                                  final SoType type) {
+    SoOutputEntry newOutput = new SoOutputEntry();
+
+    newOutput.name.copyFrom( new SbName(outputName));
+    newOutput.offset = outputName;
+    newOutput.type.copyFrom(type);
+
+    outputs.append( newOutput);
+    }
 	
 	// Returns number of outputs. 
 	public int getNumOutputs() {
@@ -151,7 +176,7 @@ getOutputName(int index)
 	public SoEngineOutput getOutput(SoEngine func, int index) {
 		
 		SoOutputEntry soOutputEntry = (SoOutputEntry)outputs.operator_square_bracket(index);
-		Offset offset = soOutputEntry.offset;
+		String offset = soOutputEntry.offset;
 		
 		  // This generates a CC warning; there's not much we can do about it...
 		  return (SoEngineOutput ) func.plus(offset);
@@ -159,7 +184,7 @@ getOutputName(int index)
 	
 	// Returns index of output, given the output and the engine it is in. 
 	public int getIndex(SoEngine func, SoEngineOutput output) {
-	     int offset = func.offset(output); // java port
+	     String offset = func.fieldName(output); // java port
 	      
 	          // Loop through the list looking for the correct offset:
 	          // (we'll assume this won't be very slow, since the list will

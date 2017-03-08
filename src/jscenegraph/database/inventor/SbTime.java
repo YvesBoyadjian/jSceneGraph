@@ -58,6 +58,7 @@
 package jscenegraph.database.inventor;
 
 import java.time.Instant;
+import java.util.Date;
 
 import jscenegraph.port.Mutable;
 import net.sourceforge.jpcap.util.Timeval;
@@ -107,6 +108,11 @@ public class SbTime implements Mutable {
 	// Constructor taking seconds + microseconds. 
 	public SbTime(long sec, int usec) {
 		t = new Timeval(sec,usec);
+	}
+	
+	// java port
+	public SbTime(SbTime src) {
+		t = new Timeval(src.t.getSeconds(),src.t.getMicroSeconds());
 	}
 
 	// Get a zero time. 
@@ -248,5 +254,210 @@ operator_mul(double s)
         { 
     	t = new Timeval( msec/1000, (int)(1000 * (msec % 1000))); 
         }
+    
+    //! Convert to a string.  The default format is seconds with 3 digits of fraction
+    //! precision.  \p fmt is a character string that consists of field descriptors and
+    //! text characters, in a manner analogous to cftime (3C) and printf (3S).
+    //! Each field descriptor consists of a % character followed by another character
+    //! which specifies the replacement for the field descriptor.  All other characters
+    //! are copied from \p fmt into the result.  The following field descriptors are
+    //! supported:
+    //! \code
+    //! %   the `%' character
+    //! D   total number of days
+    //! H   total number of hours 
+    //! M   total number of minutes
+    //! S   total number of seconds
+    //! I   total number of milliseconds
+    //! U   total number of microseconds
+    //! h   hours remaining after the days (00-23)
+    //! m   minutes remaining after the hours (00-59)
+    //! s   seconds remaining after the minutes (00-59)
+    //! i   milliseconds remaining after the seconds (000-999)
+    //! u   microseconds remaining after the seconds (000000-999999)
+    //! \endcode
+    //! The uppercase descriptors are formatted with a leading `em' for negative 
+    //! times; the lowercase descriptors are formatted fixed width, with leading 
+    //! zeros.  For example, a reasonable format string might be
+    //! "elapsedtime:%Mminutes,%sseconds". The default value of \p fmt,
+    //! "%S.%i", formats the time as seconds with 3 digits of fractional precision.
+    // java port
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Converts to a formatted string.  The format string supports the following:
+//
+//      %%                      the '%' character
+//      %D                      total number of days
+//      %H                      total number of hours 
+//      %M                      total number of minutes
+//      %S                      total number of seconds
+//      %I                      total number of milliseconds
+//      %U                      total number of microseconds
+//      %h      00-23           hours remaining after the days
+//      %m      00-59           minutes remaining after the hours
+//      %s      00-59           seconds remaining after the minutes
+//      %i      000-999         milliseconds remaining after the seconds
+//      %u      000000-999999   microseconds remaining after the seconds
+//
+// uppercase descriptors are formatted with a leading '-' for negative times
+// lowercase descriptors are formatted fixed width with leading zeros
+//
+// Use: public
+
+    public String                    format() {
+    	return format("%S.%i");
+    }
+    public String                    format(String fmtStr) {
+    boolean                negative;
+    Timeval      tv;
+
+    // turn into sign-magnitude form
+    if (t.getSeconds() >= 0) {
+        negative = false;
+        tv = t;
+    }
+    else {
+        negative = true;
+        tv = this.operator_minus().t;
+    }
+
+    // first calculate total durations
+    int tday = (int)(tv.getSeconds() / (60*60*24));
+    int thour = (int)(tv.getSeconds() / (60*60));
+    int tmin = (int)(tv.getSeconds() / 60);
+    int tsec = (int)(tv.getSeconds());
+    int tmilli = (int)(1000*tv.getSeconds() + tv.getMicroSeconds() / 1000);
+    int tmicro = (int)(1000000*tv.getSeconds() + tv.getMicroSeconds());
+
+    // then calculate remaining durations
+    int rhour = thour - 24*tday;
+    int rmin = tmin - 60*thour;
+    int rsec = tsec - 60*tmin;
+    int rmilli = tmilli - 1000*tsec;
+    int rmicro = tmicro - 1000000*tsec;
+    
+    char[] buf = new char[200];
+    int s = 0;
+    int fmt = 0;
+
+    for (; fmt<fmtStr.length(); fmt++) {
+        if (fmtStr.charAt(fmt) != '%') {
+            buf[s] = fmtStr.charAt(fmt); s++;
+        }
+        else {
+        	fmt++;
+            switch(fmtStr.charAt(fmt)) {
+              case 0:
+                fmt--;  // trailing '%' in format string
+                break;
+
+              case '%':
+                buf[s] = '%';     // "%%" in format string
+                s++;
+                break;
+
+              case 'D':
+                if (negative){ buf[s] = '-'; s++;}
+                s += sprintf(s, "%ld", tday, buf);
+                break;
+
+              case 'H':
+                if (negative){ buf[s] = '-'; s++;}
+                s += sprintf(s, "%ld", thour, buf);
+                break;
+
+              case 'M':
+                if (negative) { buf[s] = '-'; s++;}
+                s += sprintf(s, "%ld", tmin, buf);
+                break;
+
+              case 'S':
+                if (negative) { buf[s] = '-'; s++;}
+                s += sprintf(s, "%ld", tsec, buf);
+                break;
+
+              case 'I':
+                if (negative) { buf[s] = '-'; s++;}
+                s += sprintf(s, "%ld", tmilli, buf);
+                break;
+
+              case 'U':
+                if (negative) { buf[s] = '-'; s++;}
+                s += sprintf(s, "%ld", tmicro, buf);
+                break;
+
+              case 'h':
+                s += sprintf(s, "%.2ld", rhour, buf);
+                break;
+
+              case 'm':
+                s += sprintf(s, "%.2ld", rmin, buf);
+                break;
+
+              case 's':
+                s += sprintf(s, "%.2ld", rsec, buf);
+                break;
+
+              case 'i':
+                s += sprintf(s, "%.3ld", rmilli, buf);
+                break;
+
+              case 'u':
+                s += sprintf(s, "%.6ld", rmicro, buf);
+                break;
+
+              default:
+                buf[s] = '%'; s++;    // echo any bad '%?'
+                buf[s] = fmtStr.charAt(fmt); s++;   // specifier
+            }
+        }
+        if (s >= buf.length-7) // don't overshoot the buffer
+            break;
+    }
+    buf[s] = 0;
+
+    return new String(buf);
+    }
 	
+    private int sprintf(final int s, String format, int value, char[] buf) {
+    	String result = String.format(format, value);
+    	int len = result.length();
+    	int sc =s;
+    	for(int i=0 ; i<len;i++) {
+    		char c = result.charAt(i);
+    		buf[sc] = c;
+    		sc++;
+    	}
+		return sc - s;
+	}
+
+    //! Convert to a date string, interpreting the time as seconds since
+    //! Jan 1, 1970.  The default format gives "Tuesday, 01/26/93 11:23:41 AM".
+    //! See the cftime() reference page for explanation of the format string.
+    ////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Formats as an absolute date/time, using unix "strftime" mechanism.
+//
+// Use: public
+
+	// java port
+    public String formatDate() {
+    	return formatDate("%A, %D %r");
+    }
+public String formatDate(String fmt)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    String buf;
+
+    Date date = t.getDate();
+    
+    //strftime(buf, sizeof(buf), fmt, localtime(&seconds));
+    buf = date.toString(); //TODO
+    return buf;
+}
+
+    
 }

@@ -234,11 +234,6 @@ public class SbName implements Mutable, Destroyable {
 		       return true;
 		  	}
 	
-	// java port
-	public void copyFrom(SbName other) {
-		entry = other.entry;
-	}
-
 	@Override
 	public void copyFrom(Object other) {
 		SbName sbName = (SbName)other;

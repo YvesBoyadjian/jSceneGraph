@@ -162,11 +162,6 @@ public class SoMaterialBinding extends SoNode {
 		        //! Specifies how to bind materials to shapes.
 		        public final SoSFEnum            value = new SoSFEnum();
 		        
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	 ////////////////////////////////////////////////////////////////////////
 	   //

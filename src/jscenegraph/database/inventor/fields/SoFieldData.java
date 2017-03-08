@@ -89,7 +89,7 @@ public class SoFieldData implements Destroyable {
 	private final SbPList fields; //!< List of fields (SoFieldEntry)
 	private final SbPList enums = new SbPList(); //!< List of enums (SoEnumEntry)
 	
-	private class SoFieldEntry implements Destroyable {
+	private static class SoFieldEntry implements Destroyable {
 		public final SbName name = new SbName(); // Name of field
 		public Offset offset; // Offset of field within object
 		
@@ -193,7 +193,7 @@ public class SoFieldData implements Destroyable {
 	   {
 	       SoFieldEntry newField = new SoFieldEntry();
 	       newField.name.copyFrom(new SbName(fieldName));
-	       newField.offset = new Offset(field, defobj);
+	       newField.offset = new Offset(fieldName);
 	   
 	       fields.append((Object) newField);
 	   }

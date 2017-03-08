@@ -58,6 +58,8 @@ import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.elements.SoElement;
 import jscenegraph.database.inventor.engines.SoEngine;
+import jscenegraph.database.inventor.engines.SoFieldConverter;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.events.SoEvent;
 import jscenegraph.database.inventor.fields.SoField;
@@ -268,6 +270,38 @@ getDelaySensorTimeout()
 ////////////////////////////////////////////////////////////////////////
 {
     return getSensorManager().getDelaySensorTimeout();
+}
+
+public
+    //! Registers a field conversion engine that can be used to
+    //! convert from one type of field to another. The type id's of the
+    //! two fields are passed in, as is the type id of the field
+    //! converter engine (derived from SoFieldConverter).
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Registers a field conversion engine that can be used to
+//convert from one type of field to another. The type id's of the
+//two fields are passed in, as is the type id of the field
+//converter engine (derived from SoFieldConverter).
+//
+//Use: extender, static
+
+    static void         addConverter(SoType fromField, SoType toField,
+                                     SoType converterEngine) {
+	
+//#ifdef DEBUG
+    // Make sure the converter is of the correct type
+    if (! converterEngine.isDerivedFrom(SoFieldConverter.getClassTypeId())) {
+        SoDebugError.post("SoDB::addConverter",
+        "class \""+converterEngine.getName().getString()+"\" is not derived from SoFieldConverter"
+                           );
+        return;
+    }
+//#endif
+
+    conversionDict.enter(getConversionKey(fromField, toField),
+                          converterEngine);
 }
 
 	

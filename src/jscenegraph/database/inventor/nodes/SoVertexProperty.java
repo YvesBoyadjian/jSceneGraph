@@ -263,16 +263,6 @@ public class SoVertexProperty extends SoNode {
   
  	
 
-	/* (non-Javadoc)
-	 * @see com.openinventor.inventor.fields.SoFieldContainer#plus(int)
-	 */
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:

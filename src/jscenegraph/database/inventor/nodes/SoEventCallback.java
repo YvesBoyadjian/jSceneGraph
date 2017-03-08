@@ -143,12 +143,6 @@ public class SoEventCallback extends SoNode implements Destroyable {
     private static final SoFieldData[] fieldData = new SoFieldData[1];                                   
     private static final SoFieldData[][]    parentFieldData = new SoFieldData[1][];	
 
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	 ////////////////////////////////////////////////////////////////////////
 	    //
 	    // Constructor

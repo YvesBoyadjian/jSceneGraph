@@ -128,15 +128,6 @@ public class SoFont extends SoNode {
 	
 	public final SoSFFloat size = new SoSFFloat();
 
-	/* (non-Javadoc)
-	 * @see com.openinventor.inventor.fields.SoFieldContainer#plus(int)
-	 */
-	@Override
-	public Object plus(Offset offset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	 ////////////////////////////////////////////////////////////////////////
 	   //
 	   // Description:
