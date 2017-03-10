@@ -361,11 +361,11 @@ public abstract class SoAction implements Destroyable {
 	     	   	
 	   	
 	     //! Returns path code based on where current node (the node at the
-	         //! end of the current path) lies with respect to the path(s) the
-	         //! action is being applied to. If this returns IN_PATH, indices is
-	         //! set to point to an array of indices corresponding to the
-	         //! children that continue the paths and numIndices is set to the
-	         //! number of such children.
+	     //! end of the current path) lies with respect to the path(s) the
+	     //! action is being applied to. If this returns IN_PATH, indices is
+	     //! set to point to an array of indices corresponding to the
+	     //! children that continue the paths and numIndices is set to the
+	     //! number of such children.
 	    public     PathCode    getPathCode(int[] numIndices, final int[][] indices)
 	             {   if (appliedTo.curPathCode == PathCode.IN_PATH) {
 	                     usePathCode(numIndices, indices);

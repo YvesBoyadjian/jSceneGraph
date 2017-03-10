@@ -380,7 +380,7 @@ private void GLRenderVertexArray(SoGLRenderAction action,
   mb.sendFirst();
 
   boolean cacheValid = 
-    _cache.scale == scale &&
+    _cache.scale.operator_equal_equal(scale) &&
     _cache.curParts == curParts &&
     _cache.numSides == numSides[0] &&
     _cache.numSections == numSections[0] &&

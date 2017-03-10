@@ -420,7 +420,7 @@ createPathToAnyPart(final SbName partName,
 	   }
 	   	 
 	              
-		public static void  SO__KIT_INIT_CLASS(Class className,String classPrintName,Class< ? extends SoBaseKit> parentClass) {
+		public static void  SO__KIT_INIT_CLASS(Class<? extends SoBaseKit> className,String classPrintName,Class< ? extends SoBaseKit> parentClass) {
 			SO__NODE_INIT_CLASS(className, classPrintName, parentClass,parentFieldData);
 		    int _value_false= 0;                                                      
 		    do {                                                                      
