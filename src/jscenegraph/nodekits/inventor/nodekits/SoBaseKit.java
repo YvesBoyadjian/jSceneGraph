@@ -237,7 +237,7 @@ createPathToAnyPart(final SbName partName,
 {
     // Return if pathToExtend is non-NULL but doesn't contain 'this'
     if (   pathToExtend != null &&
-         (new SoFullPath(pathToExtend)).containsNode(this) == false ) {
+         (SoFullPath.cast(pathToExtend)).containsNode(this) == false ) {
 //#ifdef DEBUG
             SoDebugError.post("SoBaseKit::createPathToAnyPart",
             "The given pathToExtend does not contain this node.Returning NULL");
@@ -253,7 +253,7 @@ createPathToAnyPart(final SbName partName,
     if ( pathToExtend == null )
         return (SoNodeKitPath) thePath;
 
-    final SoFullPath fullPathToExtend = new SoFullPath( pathToExtend);
+    final SoFullPath fullPathToExtend = SoFullPath.cast( pathToExtend);
 
     thePath.ref();
     fullPathToExtend.ref();
@@ -261,7 +261,7 @@ createPathToAnyPart(final SbName partName,
     // Create a copy of 'fullPathToExtend' with 'thePath' tacked onto it
 
     // First, copy fullPathToExtend into longPath
-    SoFullPath longPath = new SoFullPath( fullPathToExtend.copy());
+    SoFullPath longPath = SoFullPath.cast( fullPathToExtend.copy());
     longPath.ref();
 
     // Now, truncate longPath to end at 'this'

@@ -630,7 +630,7 @@ createPathToAnyPart( final SbName nameOfPart,
             SoNodekitParts interParts 
                 = ((SoBaseKit )firstNode).nodekitPartsList;
             boolean[] secondExistedBefore = new boolean[1];
-            secondPath = new SoFullPath(
+            secondPath = SoFullPath.cast(
                 interParts.createPathToAnyPart( new SbName(remainderString), makeIfNeeded,
                                 leafCheck, publicCheck, secondExistedBefore ));
             if ( secondPath != null)
@@ -977,7 +977,7 @@ getSingleNamePathToPart(final  SbName nameOfPart,
                 SoNodekitParts interParts = intermediary.nodekitPartsList;
                 final boolean[] secondExistedBefore = new boolean[1];
                 SoFullPath pathB = 
-                    new SoFullPath ( interParts.createPathToAnyPart(nameOfPart,
+                    SoFullPath.cast ( interParts.createPathToAnyPart(nameOfPart,
                                 makeIfNeeded, leafCheck, 
                                 publicCheck, secondExistedBefore ));
                 if (pathA != null)
@@ -1560,7 +1560,7 @@ private SoFullPath
          }
      }
  
-     SoFullPath answer = new SoFullPath ( new SoPath( rootPointer ));
+     SoFullPath answer = SoFullPath.cast ( new SoPath( rootPointer ));
      answer.ref();
      for( int i = count - 1; i >= 0; i-- ) {
          answer.append( backwardsKidIndexArray[i] );
@@ -1597,7 +1597,7 @@ addPaths( final SoFullPath pathA,
         return null;
 
     // copy pathA into answer
-    SoFullPath answer = new SoFullPath ( pathA.copy());
+    SoFullPath answer = SoFullPath.cast ( pathA.copy());
     answer.ref();
 
     // append entries in pathB, but leave out the head, since it already

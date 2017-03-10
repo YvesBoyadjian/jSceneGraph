@@ -83,8 +83,20 @@ public class SoFullPath extends SoPath {
 		  super(approxLength);		  
 	  }
 		    
-	public SoFullPath(SoPath path) {
+	private SoFullPath(SoPath path) {
 		super(path);
+	}
+	
+	/**
+	 * Java port
+	 * @param path
+	 * @return
+	 */
+	public static SoFullPath cast(SoPath path) {
+		if(path == null) {
+			return null;
+		}
+		return new SoFullPath(path);
 	}
 
 	// These return the first and last nodes in a path chain. 

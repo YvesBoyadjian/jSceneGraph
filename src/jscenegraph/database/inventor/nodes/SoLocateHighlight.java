@@ -422,7 +422,7 @@ handleEvent(SoHandleEventAction action)
         // check to see if the mouse is over our geometry...
         boolean underTheMouse = false;
         final SoPickedPoint pp = action.getPickedPoint();
-        SoFullPath pPath = (pp != null) ? new SoFullPath ( pp.getPath()) : null;
+        SoFullPath pPath = (pp != null) ? SoFullPath.cast ( pp.getPath()) : null;
         if (pPath != null && pPath.containsPath(action.getCurPath())) {
             // Make sure I'm the lowest LocHL in the pick path!
             underTheMouse = true;
@@ -474,7 +474,7 @@ redrawHighlighted(
     // If we are about to highlight, and there is something else highlighted,
     // that something else needs to unhighlight.
     if (doHighlight && currentHighlightPath != null && 
-        !(new SoFullPath (action.getCurPath()).operator_equals(currentHighlightPath))) {
+        !(SoFullPath.cast (action.getCurPath()).operator_equals(currentHighlightPath))) {
         
         SoNode tail = currentHighlightPath.getTail();
         if (tail.isOfType( SoLocateHighlight.getClassTypeId()))
@@ -492,7 +492,7 @@ redrawHighlighted(
 
         if (currentHighlightPath != null)
             currentHighlightPath.unref();
-        currentHighlightPath = new SoFullPath ( action.getCurPath().copy());
+        currentHighlightPath = SoFullPath.cast ( action.getCurPath().copy());
         currentHighlightPath.ref();
         
         // We will be rendering this new path to highlight it
@@ -603,7 +603,7 @@ isHighlighted(SoAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoFullPath actionPath = new SoFullPath ( action.getCurPath());
+    SoFullPath actionPath = SoFullPath.cast ( action.getCurPath());
     return (currentHighlightPath != null &&
             currentHighlightPath.getTail() == actionPath.getTail() && // nested SoHL!
             currentHighlightPath.operator_equals(actionPath));

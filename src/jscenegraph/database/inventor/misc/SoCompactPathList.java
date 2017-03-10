@@ -320,7 +320,7 @@ computeArraySize(final SoPathList list)
 
 // Returns path i from SoPathList list as an SoFullPath
 	public SoPath GET_PATH(final SoPathList list, int i) {
-		return new SoFullPath ( list.operator_square_bracket(i));
+		return SoFullPath.cast ( list.operator_square_bracket(i));
 	}
 
 ////////////////////////////////////////////////////////////////////////

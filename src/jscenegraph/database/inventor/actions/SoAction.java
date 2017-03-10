@@ -540,7 +540,7 @@ apply(final SoPathList sortedList,
     appliedTo.origPathList   = origPathList;
     appliedTo.isLastPathList = isLastPathList;
     appliedTo.curPathCode    =
-        ((new SoFullPath( sortedList.operator_square_bracket(0))).getLength() == 1 ?
+        ((SoFullPath.cast( sortedList.operator_square_bracket(0))).getLength() == 1 ?
          PathCode.BELOW_PATH : PathCode.IN_PATH);
 
     curPath.setHead(sortedList.operator_square_bracket(0).getHead());
@@ -725,7 +725,7 @@ apply(final SoPathList sortedList,
 	     
 	                 // Otherwise, if cur path length is now the same as the path
 	                 // being applied to, we must at the last node in that path
-	                 else if (l == ( new SoFullPath ( appliedTo.path)).getLength())
+	                 else if (l == ( SoFullPath.cast( appliedTo.path)).getLength())
 	                     appliedTo.curPathCode = PathCode.BELOW_PATH;
 	     
 	                 // Otherwise, we're still IN_PATH
@@ -963,7 +963,7 @@ public SoNode
 getCurPathTail() 
 {
 //#ifdef DEBUG
-    if (curPath.getTail() != (new SoFullPath(getCurPath())).getTail()){
+    if (curPath.getTail() != (SoFullPath.cast(getCurPath())).getTail()){
         SoDebugError.post("SoAction::getCurPathTail\n", 
         "Inconsistent path tail.  Did you change the scene graph\n"+
         "During traversal?\n");
