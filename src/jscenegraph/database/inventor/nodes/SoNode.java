@@ -462,7 +462,7 @@ getByName( SbName name, SoNodeList list)
 		       SoCylinder.initClass();
 		       SoDirectionalLight.initClass();
 		       SoDrawStyle.initClass();
-//		       SoEnvironment.initClass();
+		       SoEnvironment.initClass();
 		       SoEventCallback.initClass();
 		       SoFaceSet.initClass();
 //		       SoFile.initClass();

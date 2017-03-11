@@ -264,7 +264,7 @@ protected void SO__ENGINE_CHECK_INIT(Class<? extends SoEngine> className) {
 ///  Internal initialization macros
 ///
 
-public static SoType SO__ENGINE_INIT_CLASS(Class className, String classPrintName, Class parentClass, 
+public static SoType SO__ENGINE_INIT_CLASS(final Class className, String classPrintName, Class parentClass, 
 		final SoFieldData[][] parentInputData, final SoEngineOutputData[][] parentOutputData) {
 	
 	SoType classTypeId = null;

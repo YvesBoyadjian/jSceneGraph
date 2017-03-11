@@ -1155,7 +1155,7 @@ transform(SbMatrix matrix)
     public float               getNearDist()         { return nearDist; }
 
     //! Returns distance from projection point to far plane.
-    float               getFarDist()         { return nearDist + nearToFar; }
+    public float               getFarDist()         { return nearDist + nearToFar; }
 
     //! Returns bounds of viewing frustum.
     public float               getWidth()       { return (lrfO.operator_minus(llfO)).length(); }
