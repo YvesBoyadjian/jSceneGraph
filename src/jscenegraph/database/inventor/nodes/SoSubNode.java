@@ -395,11 +395,12 @@ public class SoSubNode {
 	   SoNode that = thisParent;
 	   
        SO__NODE_CHECK_CONSTRUCT(/*__FILE__*/);
-       if (firstInstance())
-           fieldData.get(that.getClass())[0].addField(that, fieldName,
+       if (firstInstance()){
+           fieldData.get(thisClass)[0].addField(thisParent, fieldName,
                                field);
+       }
        field.setValue(defValue[0]);
-       field.setContainer(that);
+       field.setContainer(thisParent);
    }
  
    /////////////////////////////////////////////////

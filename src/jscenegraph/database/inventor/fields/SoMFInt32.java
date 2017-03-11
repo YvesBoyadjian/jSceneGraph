@@ -81,6 +81,11 @@ separated by commas; for example:
  */
 public class SoMFInt32 extends SoMField<Integer> {
 
+	/**
+	 * java port
+	 * @param start
+	 * @param newValues
+	 */
     public void setValues(int start, int[] newValues) {
     	Integer[] newIValues = new Integer[newValues.length];
     	for(int i=0;i<newValues.length;i++) {
@@ -89,6 +94,26 @@ public class SoMFInt32 extends SoMField<Integer> {
     	super.setValues(start,newIValues);
     }
 
+                /**
+                 * java port                                                              
+                 * @param start
+                 * @param localNum
+                 * @param newValues
+                 */
+    public void setValues(int start, int localNum, int[] newValues)             
+{                                                                             
+    int newNum = start + localNum, i;                                         
+                                                                              
+    if (newNum > getNum())                                                    
+        makeRoom(newNum);                                                     
+                                                                              
+    for (i = 0; i < localNum; i++)                                                    
+        values[start + i] = newValues[i];                                     
+                                                                              
+    valueChanged();                                                           
+}                                                                             
+                                                                              
+    
 	@Override
 	protected Integer constructor() {
 		return new Integer(0);
