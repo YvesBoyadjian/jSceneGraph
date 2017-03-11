@@ -184,9 +184,15 @@ public class SoVertexPropertyCache {
             vertexFunc = new SoVPCacheFunc() {
     			@Override
     			public void run(GL2 gl2, Object array) {
-    				float[] v = (float[])array;
-    				int v_offset = 0;
-    				gl2.glVertex3fv(v, v_offset);
+    				if(array instanceof FloatBuffer) {
+    					FloatBuffer floatBuffer = (FloatBuffer)array;
+    					gl2.glVertex3fv(floatBuffer);
+    				}
+    				else {
+    					float[] v = (float[])array;
+    					int v_offset = 0;
+    					gl2.glVertex3fv(v, v_offset);
+    				}
     			}
             };
             vertexStride = SbVec3f.sizeof();
@@ -458,6 +464,10 @@ public class SoVertexPropertyCache {
 //        { (*colorFunc)(cp); }
 //  public   void        sendTexCoord( char *tcp) 
 //        { (*texCoordFunc)(tcp); }
+  
+  void        sendNormal(GL2 gl2, FloatBuffer np)
+  { (normalFunc).run(gl2, np); }
+
 
   public    int         getNumVertices()  { return numVerts; }
   public    int         getNumNormals()  { return numNorms; }
@@ -474,19 +484,19 @@ public class SoVertexPropertyCache {
         { 
 	  	int offset = normalStride*i/(Float.SIZE/Byte.SIZE);
 	  	int length = normalPtr.length - offset;
-	  	return FloatBuffer.wrap(normalPtr, offset, length);
+	  	return Buffers.copyFloatBuffer(FloatBuffer.wrap(normalPtr, offset, length));
 	  }
   public   Buffer getColors(int i) 
         { 
 	  	int offset = colorStride*i/(Integer.SIZE/Byte.SIZE);
 	  	int length = colorPtr.length - offset;
-	  	return IntBuffer.wrap(Util.toIntArray(colorPtr), offset, length);
+	  	return Buffers.copyIntBuffer(IntBuffer.wrap(Util.toIntArray(colorPtr), offset, length));
 	  }
   public   Buffer getTexCoords(int i) 
         { 
 	  	int offset = texCoordStride*i/(Float.SIZE/Byte.SIZE);
 	  	int length = texCoordPtr.length - offset;
-	  	return FloatBuffer.wrap(texCoordPtr, offset, length);
+	  	return Buffers.copyFloatBuffer(FloatBuffer.wrap(texCoordPtr, offset, length));
 	  }
         
   public    boolean colorIsInVtxProp()  {return colorIsInVP;}

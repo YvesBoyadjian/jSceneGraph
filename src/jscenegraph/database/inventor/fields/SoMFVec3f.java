@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.fields;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.port.Util;
@@ -169,6 +170,63 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
           
               valueChanged();
           }
+          
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Sets values from array of arrays of 3 floats. This can be useful
+//    in some applications that have vectors stored in this manner and
+//    want to keep them that way for efficiency.
+//
+// Use: public
+
+public void setValues(int start,                 // Starting index
+                     int num,                   // Number of values to set
+                     final float xyz[][/*3*/])      // Array of vector values
+//
+////////////////////////////////////////////////////////////////////////
+{
+    int newNum = start + num;
+    int i;
+
+    if (newNum > getNum())
+        makeRoom(newNum);
+
+    for (i = 0; i < num; i++)
+    	((SbVec3f)values[start + i]).setValue(xyz[i]);
+
+    valueChanged();
+}
+
+/**
+ * java port
+ * @param start
+ * @param num
+ * @param skyBoxVertices
+ */
+public void setValues(int start, int num, float[][][] xyz3d) {
+	int xyzLength = 0;
+	int xyz3dLength = xyz3d.length;
+	for(int i=0;i<xyz3dLength;i++) {
+		if(xyz3d[i] != null) {
+			xyzLength += xyz3d[i].length;
+		}
+	}
+	float[][] xyz = new float[xyzLength][];
+	int j=0;
+	for(int i=0;i<xyz3dLength;i++) {
+		if(xyz3d[i] != null) {
+			float[][] iArray = xyz3d[i];
+			int iLength = iArray.length;
+			for(int k=0;k<iLength;k++) {
+				xyz[j] = xyz3d[i][k];
+				j++;
+			}
+		}
+	}
+	setValues(start,num,xyz);
+}                            
+          
 
 		@Override
 		protected SbVec3f constructor() {
@@ -178,5 +236,5 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		@Override
 		protected SbVec3f[] arrayConstructor(int length) {
 			return new SbVec3f[length];
-		}                            
+		}
 }

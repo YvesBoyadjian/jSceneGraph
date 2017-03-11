@@ -456,7 +456,7 @@ getByName( SbName name, SoNodeList list)
 //		        SoColorIndex.initClass();
 		        SoComplexity.initClass();
 		        SoCone.initClass();
-//		        SoCoordinate3.initClass();
+		        SoCoordinate3.initClass();
 //		        SoCoordinate4.initClass();
 		        SoCube.initClass();
 		       SoCylinder.initClass();
@@ -522,7 +522,7 @@ getByName( SbName name, SoNodeList list)
 		       SoTransform.initClass();
 		       SoTransformSeparator.initClass();
 		       SoTranslation.initClass();
-//		       SoTriangleStripSet.initClass();
+		       SoTriangleStripSet.initClass();
 //		       SoUnits.initClass();
 //		       SoUnknownNode.initClass();
 		       SoVertexProperty.initClass();

@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.elements;
 
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
@@ -116,10 +117,9 @@ init(SoState state)
   public SbVec3f get(int index)
          {
 // #ifdef DEBUG
-//     if (index < 0 || index >= numNormals)
-//         SoDebugError::post("SoNormalElement::get",
-//                            "Index (%d) is out of range 0 - %d",
-//                            index, numNormals - 1);
+     if (index < 0 || index >= numNormals)
+         SoDebugError.post("SoNormalElement::get",
+                            "Index ("+index+") is out of range 0 - "+(numNormals - 1));
 // #endif /* DEBUG */
              return normals[index];
          }

@@ -155,6 +155,8 @@ copy()
     public void                        setFaceIndex(int i) { faceIndex = i; }
     public void                        setPartIndex(int i) { partIndex = i; }
 
+    //! Return a pointer to the point details.
+    public SoPointDetail[]             getPoints()             { return point; }
 
     
 ////////////////////////////////////////////////////////////////////////
