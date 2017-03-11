@@ -56,8 +56,6 @@
 package jscenegraph.database.inventor.engines;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;

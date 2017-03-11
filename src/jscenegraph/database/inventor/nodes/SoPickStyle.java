@@ -63,7 +63,6 @@ import jscenegraph.database.inventor.elements.SoPickStyleElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.misc.SoState;
-import jscenegraph.port.Offset;
 
 
 ////////////////////////////////////////////////////////////////////////////////

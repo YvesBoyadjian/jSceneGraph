@@ -66,7 +66,6 @@ import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.database.inventor.fields.SoSFTime;
 import jscenegraph.database.inventor.fields.SoSFTrigger;
-import jscenegraph.port.Offset;
 
 /**
  * @author Yves Boyadjian

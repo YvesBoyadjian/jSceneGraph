@@ -15,7 +15,6 @@ import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoChildList;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.nodekits.inventor.SoNodeKitPath;
-import jscenegraph.port.Offset;
 
 /**
  * @author Yves Boyadjian

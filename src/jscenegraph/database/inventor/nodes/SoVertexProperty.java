@@ -83,7 +83,6 @@ import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
-import jscenegraph.port.Offset;
 
 
 ////////////////////////////////////////////////////////////////////////////////

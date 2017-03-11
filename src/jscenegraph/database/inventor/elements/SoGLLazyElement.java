@@ -992,12 +992,12 @@ reallySend(final SoState state, int bitmask)
                 case LIGHT_MODEL_CASE :
                     if (glState.GLLightModel == ivState.lightModel) break;
                     if (ivState.lightModel == SoLazyElement.LightModel.PHONG.getValue()){
-                        gl2.glEnable(gl2.GL_LIGHTING);
-                        if (colorIndex)gl2.glShadeModel(gl2.GL_FLAT);
+                        gl2.glEnable(GL2.GL_LIGHTING);
+                        if (colorIndex)gl2.glShadeModel(GL2.GL_FLAT);
                     }
                     else {
-                        gl2.glDisable(gl2.GL_LIGHTING);
-                        if (colorIndex) gl2.glShadeModel(gl2.GL_SMOOTH);
+                        gl2.glDisable(GL2.GL_LIGHTING);
+                        if (colorIndex) gl2.glShadeModel(GL2.GL_SMOOTH);
                     }
                     glState.GLLightModel = ivState.lightModel;
                     realSendBits |= masks.LIGHT_MODEL_MASK.getValue();
@@ -1012,10 +1012,10 @@ reallySend(final SoState state, int bitmask)
                     realSendBits |= masks.COLOR_MATERIAL_MASK.getValue();               
                     glState.GLColorMaterial = ivState.colorMaterial;
                     if (ivState.colorMaterial){
-                            gl2.glColorMaterial(gl2.GL_FRONT_AND_BACK, gl2.GL_DIFFUSE);
-                            gl2.glEnable(gl2.GL_COLOR_MATERIAL);
+                            gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE);
+                            gl2.glEnable(GL2.GL_COLOR_MATERIAL);
                         }
-                    else gl2.glDisable(gl2.GL_COLOR_MATERIAL);
+                    else gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 //#ifdef DEBUG
                     if ((glState.GLLightModel == LightModel.BASE_COLOR.getValue()) &&
                         (glState.GLColorMaterial)){
@@ -1061,7 +1061,7 @@ reallySend(final SoState state, int bitmask)
                             0xff0000)>>> 16) * 1.0f/255;
                         col4[0] = ((ivState.packedColors[0] & 
                             0xff000000)>>>24) * 1.0f/255;
-                        gl2.glMaterialfv(gl2.GL_FRONT_AND_BACK, gl2.GL_DIFFUSE, col4,0);
+                        gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, col4,0);
                     }             
                     break;
                                       
@@ -1075,7 +1075,7 @@ reallySend(final SoState state, int bitmask)
                     }
                     if (!sendit) break;
                     realSendBits |= masks.AMBIENT_MASK.getValue();
-                    gl2.glMaterialfv(gl2.GL_FRONT_AND_BACK,gl2.GL_AMBIENT,
+                    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK,GL2.GL_AMBIENT,
                         glState.GLAmbient,0); 
                     break;
 
@@ -1089,7 +1089,7 @@ reallySend(final SoState state, int bitmask)
                     }
                     if (!sendit) break;
                     realSendBits |= masks.EMISSIVE_MASK.getValue();
-                    gl2.glMaterialfv(gl2.GL_FRONT_AND_BACK,gl2.GL_EMISSION,
+                    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK,GL2.GL_EMISSION,
                         glState.GLEmissive,0); 
                     break;
 
@@ -1103,7 +1103,7 @@ reallySend(final SoState state, int bitmask)
                     }
                     if (!sendit) break;
                     realSendBits |= masks.SPECULAR_MASK.getValue();
-                    gl2.glMaterialfv(gl2.GL_FRONT_AND_BACK,gl2.GL_SPECULAR,
+                    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK,GL2.GL_SPECULAR,
                         glState.GLSpecular,0); 
                     break;
 
@@ -1112,7 +1112,7 @@ reallySend(final SoState state, int bitmask)
                         SO_LAZY_SHINY_THRESHOLD) break;
                     realSendBits |= masks.SHININESS_MASK.getValue();
                     glState.GLShininess=ivState.shininess;
-                    gl2.glMaterialf(gl2.GL_FRONT_AND_BACK,gl2.GL_SHININESS,
+                    gl2.glMaterialf(GL2.GL_FRONT_AND_BACK,GL2.GL_SHININESS,
                         glState.GLShininess*128.0f); 
                     break;
                     
@@ -1122,10 +1122,10 @@ reallySend(final SoState state, int bitmask)
                     realSendBits |= masks.BLENDING_MASK.getValue();              
                     glState.GLblending = ivState.blending;
                     if (ivState.blending == true){
-                        gl2.glEnable(gl2.GL_BLEND);                     
+                        gl2.glEnable(GL2.GL_BLEND);                     
                     }
                     // blend is being turned off:
-                    else gl2.glDisable(gl2.GL_BLEND);                                                   
+                    else gl2.glDisable(GL2.GL_BLEND);                                                   
                     break;
                                  
                 case TRANSPARENCY_CASE :                
@@ -1133,12 +1133,12 @@ reallySend(final SoState state, int bitmask)
                     if (ivState.stippleNum == glState.GLStippleNum) break;
                     
                     if (ivState.stippleNum == 0){
-                        gl2.glDisable(gl2.GL_POLYGON_STIPPLE);
+                        gl2.glDisable(GL2.GL_POLYGON_STIPPLE);
                     }
                     else{
                         sendStipple(state, ivState.stippleNum);
                         if (glState.GLStippleNum <= 0)
-                            gl2.glEnable(gl2.GL_POLYGON_STIPPLE);
+                            gl2.glEnable(GL2.GL_POLYGON_STIPPLE);
                     }
                     glState.GLStippleNum = ivState.stippleNum;                  
                                         
@@ -1899,7 +1899,7 @@ sendStipple( SoState state, int patIndex )
                 }
 
                 // Create and send the list
-                gl2.glNewList(patternListBase + patIndex, gl2.GL_COMPILE_AND_EXECUTE);
+                gl2.glNewList(patternListBase + patIndex, GL2.GL_COMPILE_AND_EXECUTE);
                 gl2.glPolygonStipple(patterns[patIndex],0);
                 gl2.glEndList();
 
@@ -2194,7 +2194,7 @@ sendDiffuseByIndex(int index)
         col4[2] = ((ivState.packedColors[index] & 0xff00) >>  8) * 1.0f/255;
         col4[1] = ((ivState.packedColors[index] & 0xff0000)>> 16) * 1.0f/255;
         col4[0] = ((ivState.packedColors[index] & 0xff000000)>>24) * 1.0f/255;
-        gl2.glMaterialfv(gl2.GL_FRONT_AND_BACK, gl2.GL_DIFFUSE, col4,0);
+        gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, col4,0);
     }
     return;
 }

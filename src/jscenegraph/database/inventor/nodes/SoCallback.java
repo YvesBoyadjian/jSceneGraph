@@ -67,7 +67,6 @@ import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.fields.SoFieldContainer;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.misc.SoState;
-import jscenegraph.port.Offset;
 
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -14,7 +14,6 @@ import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.database.inventor.nodes.SoSwitch;
-import jscenegraph.port.Offset;
 
 
 /**

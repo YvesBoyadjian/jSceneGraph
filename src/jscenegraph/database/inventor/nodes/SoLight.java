@@ -63,7 +63,6 @@ import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.fields.SoSFColor;
 import jscenegraph.database.inventor.fields.SoSFFloat;
-import jscenegraph.port.Offset;
 
 
 ////////////////////////////////////////////////////////////////////////////////

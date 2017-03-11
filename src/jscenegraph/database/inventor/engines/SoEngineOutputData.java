@@ -56,13 +56,10 @@
 
 package jscenegraph.database.inventor.engines;
 
-import java.util.UUID;
-
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
-import jscenegraph.port.Offset;
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -54,8 +54,13 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import static com.jogamp.opengl.GL.GL_FRONT;
+import static com.jogamp.opengl.GL2.GL_LINE_STIPPLE;
+import static com.jogamp.opengl.GL2.GL_POLYGON_STIPPLE;
+import static com.jogamp.opengl.GL2GL3.GL_FILL;
+import static com.jogamp.opengl.GL2GL3.GL_LINE;
+
 import com.jogamp.opengl.GL2;
-import static com.jogamp.opengl.GL2.*;
 
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
@@ -92,7 +97,6 @@ import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.database.inventor.fields.SoSFRotation;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
 import jscenegraph.database.inventor.misc.SoState;
-import jscenegraph.port.Offset;
 
 
 ////////////////////////////////////////////////////////////////////////////////

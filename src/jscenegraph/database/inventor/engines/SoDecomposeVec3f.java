@@ -5,7 +5,6 @@ package jscenegraph.database.inventor.engines;
 
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
-import jscenegraph.port.Offset;
 
 
 /**

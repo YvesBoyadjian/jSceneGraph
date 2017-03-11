@@ -56,7 +56,6 @@ package jscenegraph.database.inventor.nodes;
 
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.fields.SoFieldData;
-import jscenegraph.port.Offset;
 
 
 ////////////////////////////////////////////////////////////////////////////////

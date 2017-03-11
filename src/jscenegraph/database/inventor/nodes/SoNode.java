@@ -82,7 +82,6 @@ import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoChildList;
 import jscenegraph.database.inventor.misc.SoNotList;
-import jscenegraph.port.Offset;
 
 
 ////////////////////////////////////////////////////////////////////////////////

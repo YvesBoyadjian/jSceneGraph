@@ -56,7 +56,6 @@ package jscenegraph.database.inventor.fields;
 
 import java.lang.reflect.InvocationTargetException;
 
-import jscenegraph.database.inventor.SoType;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.Mutable;
 

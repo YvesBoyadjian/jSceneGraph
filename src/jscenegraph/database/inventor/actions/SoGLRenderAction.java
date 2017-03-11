@@ -54,8 +54,18 @@
 
 package jscenegraph.database.inventor.actions;
 
+import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
+import static com.jogamp.opengl.GL.GL_LINE_SMOOTH;
+import static com.jogamp.opengl.GL.GL_ONE;
+import static com.jogamp.opengl.GL.GL_ONE_MINUS_SRC_ALPHA;
+import static com.jogamp.opengl.GL.GL_SRC_ALPHA;
+import static com.jogamp.opengl.GL2.GL_ACCUM;
+import static com.jogamp.opengl.GL2.GL_LOAD;
+import static com.jogamp.opengl.GL2.GL_RETURN;
+import static com.jogamp.opengl.GL2ES1.GL_POINT_SMOOTH;
+
 import com.jogamp.opengl.GL2;
-import static com.jogamp.opengl.GL2.*;
 
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbName;

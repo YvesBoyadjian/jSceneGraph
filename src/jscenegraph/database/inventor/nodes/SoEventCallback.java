@@ -63,7 +63,6 @@ import jscenegraph.database.inventor.actions.SoHandleEventAction;
 import jscenegraph.database.inventor.events.SoEvent;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.port.Destroyable;
-import jscenegraph.port.Offset;
 
 
 ////////////////////////////////////////////////////////////////////////////////

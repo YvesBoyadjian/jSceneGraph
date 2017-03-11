@@ -64,7 +64,6 @@ import jscenegraph.database.inventor.SbDict;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
-import jscenegraph.port.Offset;
 
 /**
  * @author Yves Boyadjian
@@ -98,6 +97,10 @@ public class SoGlobalField extends SoFieldContainer {
 	}
 	
 
+    //! Create a new global field with the given name and of the given
+    //! type, if one doesn't yet exists.  This returns NULL if one
+    //! can't be created for some reason. "alreadyExists" will be set
+    //! to TRUE if a global field of the same name and type already exists.
 //////////////////////////////////////////////////////////////////////////////
 //
 // Description:

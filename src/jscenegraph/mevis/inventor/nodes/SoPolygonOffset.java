@@ -16,7 +16,6 @@ import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.mevis.inventor.elements.SoGLPolygonOffsetElement;
 import jscenegraph.mevis.inventor.elements.SoPolygonOffsetElement;
-import jscenegraph.port.Offset;
 
 
 /**

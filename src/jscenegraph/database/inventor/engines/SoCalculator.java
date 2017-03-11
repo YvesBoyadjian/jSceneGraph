@@ -7,7 +7,6 @@ import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.fields.SoMFFloat;
 import jscenegraph.database.inventor.fields.SoMFString;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
-import jscenegraph.port.Offset;
 
 
 /**

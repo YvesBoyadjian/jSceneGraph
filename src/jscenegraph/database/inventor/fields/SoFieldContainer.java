@@ -446,14 +446,8 @@ unrefCopy(int size , Object instPtr)
 
 		@Override
 		public void apply(Object key, Object instPtr) {
-		     SoFieldContainer inst = (SoFieldContainer ) instPtr;
-		      
-		          // Set the notifyEnabled bit to TRUE if it wasn't already done
-		          if (! inst.notifyEnabled)
-		              inst.notifyEnabled = true;
-		      
-		          inst.unref();
-		     		}
+			SoFieldContainer.unrefCopy((Integer)key, (SoFieldContainer ) instPtr);
+   		}
 		
 	};
 	
