@@ -421,7 +421,7 @@ findCopy( SoFieldContainer orig,
 // Use: private, static
 
 private static void
-unrefCopy(int size , Object instPtr)
+unrefCopy(Object key , Object instPtr)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -446,7 +446,7 @@ unrefCopy(int size , Object instPtr)
 
 		@Override
 		public void apply(Object key, Object instPtr) {
-			SoFieldContainer.unrefCopy((Integer)key, (SoFieldContainer ) instPtr);
+			SoFieldContainer.unrefCopy(key, (SoFieldContainer ) instPtr);
    		}
 		
 	};
