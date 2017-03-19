@@ -785,7 +785,7 @@ public abstract class SoField implements Destroyable {
 	public boolean set(String valueString) {
 
 		final SoInput in = new SoInput();
-		in.setBuffer((Object) valueString, valueString.length());
+		in.setBuffer(valueString, valueString.length());
 		return read(in, new SbName("<field passed to SoField.set>"));
 	}
 	

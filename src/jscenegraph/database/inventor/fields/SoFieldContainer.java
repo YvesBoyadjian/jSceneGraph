@@ -61,6 +61,7 @@ package jscenegraph.database.inventor.fields;
 import jscenegraph.database.inventor.SbDict;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoBase;
@@ -455,4 +456,24 @@ unrefCopy(Object key , Object instPtr)
 	public SoType getTypeId() {
 		return classTypeId;
 	}
+	
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads stuff into instance of subclass of SoFieldContainer.
+//    Returns FALSE on error.
+//
+// Use: protected
+
+public boolean readInstance(SoInput in, 
+                               short flags/* flags not used */)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final boolean[] notBuiltIn = new boolean[1]; // Not used
+    return getFieldData().read(in, this, true, notBuiltIn);
+}
+
+	
 }

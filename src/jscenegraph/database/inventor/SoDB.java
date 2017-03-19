@@ -121,6 +121,10 @@ SoBase, SoNode, SoEngine, SoField, SoInput, SoFile, SoPath, SoOneShotSensor, SoD
  */
 public class SoDB {
 
+	public interface SoDBHeaderCB {
+		void run(Object userData, SoInput in);
+	}
+
 	/**
 	 * The thread used to run JSceneGraph
 	 */

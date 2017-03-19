@@ -120,7 +120,7 @@ SoField, SoSField
 public class SoSFImage extends SoSField<Object> {
 	
   private
-    SbVec2s             size;           //!< Width and height of image
+    final SbVec2s             size = new SbVec2s();           //!< Width and height of image
     private int         numComponents;  //!< Number of components per pixel
     private byte[]     bytes;          //!< Array of pixels
 
@@ -177,7 +177,7 @@ setValue(final SbVec2s s, int nc, byte[] b)
         bytes = null;
     }
 
-    size = s;
+    size.copyFrom(s);
     numComponents = nc;
     
     int numBytes = size.getValue()[0]*size.getValue()[1]*numComponents;

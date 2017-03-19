@@ -54,6 +54,14 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+
+import javax.imageio.ImageIO;
+
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbColor;
@@ -582,6 +590,7 @@ static boolean readImage(final String fname, final int[] w, final int[] h, final
         return true;
 
     final SoInput in = new SoInput();
+    try {
     if (!in.openFile(fname, true)) {
         return false;
     }
@@ -603,25 +612,55 @@ static boolean readImage(final String fname, final int[] w, final int[] h, final
     if (!in.openFile(fname.getString(), TRUE))
         return FALSE;
 */
-    if (ReadGIFImage(in, w, h, nc, bytes))
+    if (ReadImage(in, w, h, nc, bytes))
         return true;
 
-    if (ReadJPEGImage(in.getCurFile(), w, h, nc, bytes)!=0)
-        return true;
+    //java port
+//    if (ReadJPEGImage(in.getCurFile(), w, h, nc, bytes)!=0)
+//        return true;
 
     return false;
+    } finally {
+    	in.destructor();
+    }
 }
 
-private static boolean ReadGIFImage(final SoInput in, final int[] w, final int[] h, final int[] nc,  
+private static boolean ReadImage(final SoInput in, final int[] w, final int[] h, final int[] nc,  
         byte[][] bytes) {
-	
-	//TODO
-	return false;
+
+    FILE fp = in.getCurFile();
+    
+    if (fp == null) return false;
+    
+    try {
+		BufferedImage image = ImageIO.read(fp.getInputStream());
+		
+		if(image == null) {
+			return false;
+		}
+		w[0] = image.getWidth();
+		h[0] = image.getHeight();
+	    
+	    nc[0] = 3;
+	    
+	    int nbPixels = w[0]*h[0];
+	    
+	    byte[] bytesRGB = new byte[nbPixels*3];
+	    int j=0;
+	    for(int i=0; i< nbPixels;i++) {
+	    	int x = i%w[0];
+	    	int y = h[0] - i/w[0] -1;
+	    	int rgb = image.getRGB(x, y);
+	    	bytesRGB[j] = (byte)((rgb & 0x00FF0000) >>> 16) ; j++;
+	    	bytesRGB[j] = (byte)((rgb & 0x0000FF00) >>> 8); j++;
+	    	bytesRGB[j] = (byte)((rgb & 0x000000FF) >>> 0); j++;	    	
+	    }
+	    bytes[0] = bytesRGB;
+	    
+	    return true;
+	} catch (IOException e) {
+		return false;
+	}
 }
-private static int ReadJPEGImage(FILE infile, final int[] w, final int[] h, final int[] nc,  
-        byte[][] bytes) {
-	
-	//TODO
-	return 0;
-}
+
 }

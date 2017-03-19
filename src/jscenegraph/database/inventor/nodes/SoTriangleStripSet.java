@@ -228,6 +228,7 @@ private interface PMTSS  {
 
 	static {
 		renderFunc[0] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmOn(action);			
+		renderFunc[1] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmOnT(action);			
 	}
 
 ////////////////////////////////////////////////////////////////////////
@@ -797,6 +798,51 @@ private void OmOn(SoGLRenderAction action ) {
 	    vertexPtrIndex += vertexStride;
 	}
 	if (v < nv) { // Leftovers
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2, vertexPtr); vertexPtrIndex += vertexStride;
+	}
+	gl2.glEnd();
+	++numVertsIndex;
+    }
+}
+
+
+private void OmOnT (SoGLRenderAction action ) {
+
+	GL2 gl2 = action.getCacheContext();
+
+    // Send one normal, if there are any normals in vpCache:
+    if (vpCache.getNumNormals() > 0)
+	vpCache.sendNormal(gl2, (FloatBuffer)vpCache.getNormals(0));
+    Buffer vertexPtr = vpCache.getVertices(startIndex.getValue());
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer texCoordPtr = vpCache.getTexCoords(startIndex.getValue());
+    final int texCoordStride = vpCache.getTexCoordStride();
+    SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
+    final int numStrips = numVertices.getNum();
+    final int[] numVerts = numVertices.getValuesInt(0);
+
+    int v;
+	int numVertsIndex = 0;
+	int vertexPtrIndex = 0;
+	int texCoordPtrIndex = 0;
+    for (int strip = 0; strip < numStrips; strip++) {
+	final int nv = (numVerts[numVertsIndex]);
+	gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+	for (v = 0; v < nv-1; v+=2) {
+	    texCoordPtr.position(texCoordPtrIndex/Float.BYTES); 
+	    (texCoordFunc).run(gl2, texCoordPtr); texCoordPtrIndex += texCoordStride;
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2, vertexPtr); vertexPtrIndex += vertexStride;
+	    texCoordPtr.position(texCoordPtrIndex/Float.BYTES); 
+	    (texCoordFunc).run(gl2, texCoordPtr); texCoordPtrIndex += texCoordStride;
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2, vertexPtr); vertexPtrIndex += vertexStride;
+	}
+	if (v < nv) { // Leftovers
+	    texCoordPtr.position(texCoordPtrIndex/Float.BYTES); 
+	    (texCoordFunc).run(gl2, texCoordPtr); texCoordPtrIndex += texCoordStride;
 		vertexPtr.position(vertexPtrIndex/Float.BYTES);
 	    (vertexFunc).run(gl2, vertexPtr); vertexPtrIndex += vertexStride;
 	}

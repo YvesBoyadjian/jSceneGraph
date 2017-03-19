@@ -407,9 +407,15 @@ public class SoVertexPropertyCache {
 
 					@Override
 					public void run(GL2 gl2, Object argument) {
-						float[] v = (float[])argument;
-						int v_offset = 0;
-						gl2.glTexCoord2fv(v,v_offset);
+						if(argument instanceof FloatBuffer) {
+							FloatBuffer floatBuffer = (FloatBuffer)argument;
+							gl2.glTexCoord2fv(floatBuffer);
+						}
+						else {
+							float[] v = (float[])argument;
+							int v_offset = 0;
+							gl2.glTexCoord2fv(v,v_offset);
+						}
 					}
                 }; 
                 texCoordStride = SbVec2f.sizeof();

@@ -170,7 +170,7 @@ public abstract class SoIndexedShape extends SoVertexShape implements Destroyabl
     private Integer[]       texCoordI;
     private Integer[]       colorI;
     private Integer[]       normalI;
-    private static int[]      consecutiveIndices;
+    private static Integer[]      consecutiveIndices;
     private static int  numConsecutiveIndicesAllocated;
 
     private int materialBinding;
@@ -331,6 +331,15 @@ getNumVerts(int startCoord)
 
     return result;
 }
+
+    //! These must not be called unless setupIndices has been called first:
+    public Integer[]     getNormalIndices()
+        { return (normalI != null ? normalI : consecutiveIndices); }
+    public Integer[]     getColorIndices()
+        { return (colorI != null ? colorI : consecutiveIndices); }
+    public Integer[]     getTexCoordIndices()
+        { return (texCoordI != null ? texCoordI : consecutiveIndices); }
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -745,7 +754,7 @@ allocateSequential(int howMany)
         if (consecutiveIndices != null) {
             consecutiveIndices = null;
         }
-        consecutiveIndices = new int[howMany];
+        consecutiveIndices = new Integer[howMany];
         for (int i = 0; i < howMany; i++) {
             consecutiveIndices[i] = i;
         }

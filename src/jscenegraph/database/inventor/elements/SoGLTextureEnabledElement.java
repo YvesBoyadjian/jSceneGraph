@@ -121,8 +121,6 @@ init(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	gl2 = SoGLCacheContextElement.get(state);
-	
     data = getDefault() ? 1 : 0;
 
     copiedFromParent = null;
@@ -151,7 +149,10 @@ public void
 push(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
-{
+{    
+    // java port
+	gl2 = SoGLCacheContextElement.get(state);
+	
     SoGLTextureEnabledElement     prevElt =
         ( SoGLTextureEnabledElement ) getNextInStack();
 
@@ -172,6 +173,9 @@ pop(SoState state, SoElement childElt)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+    // java port
+	gl2 = SoGLCacheContextElement.get(state);
+	
     // Since popping this element has GL side effects, make sure any
     // open caches capture it.  We may not send any GL commands, but
     // the cache dependency must exist even if we don't send any GL

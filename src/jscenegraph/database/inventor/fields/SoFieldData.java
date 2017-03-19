@@ -58,6 +58,7 @@ package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.Offset;
@@ -467,5 +468,10 @@ getFieldName(int index)
 	        tmpEnum = ( SoEnumEntry )enums.operator_square_bracket(j);
 	        tmpEnum.destructor();
 	    }
+	}
+
+	public boolean read(SoInput in, SoFieldContainer soFieldContainer, boolean b, boolean[] notBuiltIn) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	   }
