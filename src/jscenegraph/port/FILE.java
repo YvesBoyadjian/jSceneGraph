@@ -3,6 +3,7 @@
  */
 package jscenegraph.port;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
@@ -12,8 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Yves Boyadjian
@@ -22,11 +21,12 @@ import java.util.List;
 public class FILE {
 	
 	public static final int EOF = -1;
+	private static final int BUFFER_SIZE = 1 << 10;
 	
 	PushbackInputStream in;
 
 	public FILE(InputStream in) {
-		this.in = new PushbackInputStream(in);
+		this.in = new PushbackInputStream(new BufferedInputStream(in, BUFFER_SIZE));
 	}
 
 	public static void fclose(FILE fp) {
