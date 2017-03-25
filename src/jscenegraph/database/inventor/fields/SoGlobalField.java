@@ -62,8 +62,10 @@ package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbDict;
 import jscenegraph.database.inventor.SbName;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoReadError;
 
 /**
  * @author Yves Boyadjian
@@ -176,7 +178,7 @@ create(final SbName name, SoType type, final boolean[] alreadyExists)
 	       typeField.setValue(field.getTypeId().getName());
 	       value = field;
 //	   #ifdef DEBUG
-//	       if (field->getContainer())
+//	       if (field.getContainer())
 //	           SoDebugError::post("SoGlobalField::SoGlobalField",
 //	                              "Field already has container!");
 //	   
@@ -187,7 +189,7 @@ create(final SbName name, SoType type, final boolean[] alreadyExists)
 	       Object key = (Object)(name.getString());
 //	   #ifdef DEBUG
 //	       void *junk;
-//	       if (nameDict->find(key, junk) != FALSE)
+//	       if (nameDict.find(key, junk) != FALSE)
 //	           SoDebugError::post("SoGlobalField::SoGlobalField",
 //	                              "There is already a global field named %s",
 //	                              name.getString());
@@ -301,5 +303,85 @@ getType()
 {
     return SoType.fromName(typeField.getValue());
 }
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//      Special method used by SoBase::read to read in a global field.
+//      The regular reading method can't be used because there can be
+//      only one global field with a given name, so SoBase can't just
+//      immediately create a new instance when it reads the
+//      "GlobalField {" string from the file.  So, it calls this
+//      routine instead.  This returns NULL if there was a read error.
+//
+// Use: internal, static
+
+public static SoGlobalField read(SoInput in)
+//
+//////////////////////////////////////////////////////////////////////////////
+{
+    // Read in "type SFFloat":
+    final SbName typeName = new SbName();
+    if (!in.read(typeName, true) || typeName.operator_not_equal(new SbName("type")))
+        return null;
+
+    // Read the value of this private "type" field, which is the name
+    // of this globalField. It has to be read as a field, since that's
+    // how it's written. (The binary version depends on this!)
+    final SoSFName typeField = new SoSFName();
+    if (! typeField.read(in, new SbName("type")))
+        return null;
+    typeName.copyFrom(typeField.getValue());
+
+    SoType type = SoType.fromName(typeName);
+    if (! type.isDerivedFrom(SoField.getClassTypeId(SoField.class))) {
+        SoReadError.post(in, "\""+typeName.getString()+"\" is not a type of field");
+        return null;
+    }
+
+    // Now, get the name of the next field, which is the name of this
+    // globalField:
+    final SbName myName = new SbName();
+    if (! in.read(myName))
+        return null;
+    
+    // Try to create/get an appropriate global field:
+    final boolean[]        alreadyExists = new boolean[1];
+    SoGlobalField result = create(myName, type, alreadyExists);
+
+    // If there already was one with the same name and a different type
+    if (result == null)
+        return null;
+
+    if (alreadyExists[0]) {
+        // We need to read and throw away the value...
+        SoField t = (SoField )type.createInstance();
+        // If the field has connections, it needs to have a non-NULL
+        // container...
+        t.setContainer(result);
+        t.enableNotify(false);
+        if (!t.read(in, myName)) {
+            result.destructor();
+            t.destructor();
+            return null;
+        }
+        // Get rid of any connections that may have been established--
+        // this gets rid of any extraneous auditors.
+        t.disconnect();
+        t.destructor();
+    }
+    else {
+        // Read into newly-created global field.
+        if (!result.value.read(in, myName)) {
+            // Problem reading value field
+            result.destructor();
+            return null;
+        }
+    }
+    return result;
+}
+
+
 
 }

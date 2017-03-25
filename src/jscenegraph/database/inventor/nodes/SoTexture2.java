@@ -56,9 +56,6 @@ package jscenegraph.database.inventor.nodes;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 
 import javax.imageio.ImageIO;
 
@@ -80,6 +77,7 @@ import jscenegraph.database.inventor.elements.SoTextureImageElement;
 import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFColor;
 import jscenegraph.database.inventor.fields.SoSFEnum;
@@ -347,7 +345,46 @@ public void destructor()
     }
     imageSensor.destructor();
     filenameSensor.destructor();
+    super.destructor();
 }
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads into instance of SoTexture2. Returns FALSE on error.
+//
+// Use: protected
+
+public boolean readInstance(SoInput in, short flags)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Detach filename sensor temporarily
+    filenameSensor.detach();
+
+    // Read field info as usual.
+    boolean readOK = super.readInstance(in, flags);
+
+    if (readOK && !filename.isDefault()) {
+        // See the comment in SoFile::readInstance for why we do this
+        // and don't just let the FieldSensor take care of reading in
+        // the image.
+        setReadStatus(readOK ? -1 : 0);
+        ((filenameSensor.getFunction())).run(filenameSensor.getData(), null);
+
+        // Don't set readOK, because not being able to read the image
+        // isn't a fatal error.  But do issue a read error:
+        if ((getReadStatus()!=0) == false)
+            SoReadError.post(in, "Could not read texture file "+filename.getValue());
+    }
+
+    // Reattach sensor
+    filenameSensor.attach(filename);
+
+    return readOK;
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////

@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.nodes;
 
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
@@ -68,6 +69,7 @@ import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldContainer;
 import jscenegraph.database.inventor.fields.SoFieldData;
+import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoChildList;
 import jscenegraph.port.Destroyable;
 
@@ -314,6 +316,119 @@ public class SoGroup extends SoNode implements Destroyable {
 	   {
 	       return children;
 	   }
+	   
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads stuff into instance of SoGroup. Returns FALSE on error.
+//    This also deals with field data (if any), so this method should
+//    be useful for most subclasses of SoGroup as well.
+//
+// Use: protected
+
+public boolean readInstance(SoInput in, short flags)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    boolean readOK = true;
+
+    // First, turn off notification for this node
+    boolean saveNotify = enableNotify(false);
+
+    // Read field info. We can't just call
+    // SoFieldContainer::readInstance() to read the fields here
+    // because we need to tell the SoFieldData that it's ok if a name
+    // is found that is not a valid field name - it could be the name
+    // of a child node.
+    final boolean[] notBuiltIn = new boolean[1]; // Not used
+    readOK = getFieldData().read(in, this, false, notBuiltIn);
+    if (!readOK) return readOK;
+
+    // If binary BUT was written without children (which can happen
+    // if it was read as an unknown node and then written out in
+    // binary), don't try to read children:
+    if (!in.isBinary() || (flags & SoBase.BaseFlags.IS_GROUP.getValue()) != 0) 
+        readOK = readChildren(in);
+    
+    // Re-enable notification
+    enableNotify(saveNotify);
+
+    return readOK;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads children into instance of SoGroup. Returns FALSE on error.
+//
+// Use: protected
+
+public boolean readChildren(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SoBase[]      base = new SoBase[1];
+    boolean        ret = true;
+
+    // If reading binary, read number of children first
+    if (in.isBinary()) {
+
+        final int[]     numToRead = new int[1];
+        int i;
+
+        if (!in.read(numToRead))
+            ret = false;
+
+        else {
+            for (i = 0; i < numToRead[0]; i++) {
+
+                if (SoBase.read(in, base, SoNode.getClassTypeId()) &&
+                    base[0] != null)
+                    addChild((SoNode ) base[0]);
+
+                // Running out of children is now an error, since the
+                // number of children in the file must be exact
+                else {
+                    ret = false;
+                    break;
+                }
+            }
+            // If we are reading a 1.0 file, read the GROUP_END_MARKER
+            if (ret && in.getIVVersion() == 1.0f) {
+                final int GROUP_END_MARKER = -1;
+                final int[] marker = new int[1];
+
+                // Read end marker if it is there. If not, some sort of
+                // error occurred.
+                if (! in.read(marker) || marker[0] != GROUP_END_MARKER)
+                    ret = false;
+            }
+        }
+    }
+
+    // ASCII: Read children until none left. Deal with children
+    // causing errors by adding them as is.
+    else {
+        while (true) {
+            ret = SoBase.read(in, base, SoNode.getClassTypeId()) && ret;
+
+            // Add child, even if error occurred, unless there is no
+            // child to add.
+            if (base[0] != null)
+                addChild((SoNode ) base[0]);
+
+            // Stop when we run out of valid children
+            else
+                break;
+        }
+    }
+
+    return ret;
+}
+
+	   
 	   
 	   ////////////////////////////////////////////////////////////////////////
 	    //

@@ -41,12 +41,12 @@
  _______________________________________________________________________
  ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
  |
- |   $Revision $
+ |   $Revision: 1.1.1.1 $
  |
  |   Description:
- |      This file defines the SoTextureCoordinateBinding node class.
+ |      This file defines the SoNormal node class.
  |
- |   Author(s)          : John Rohlf
+ |   Author(s)          : Paul S. Strauss
  |
  ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
  _______________________________________________________________________
@@ -54,15 +54,19 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateBindingElement;
+import jscenegraph.database.inventor.elements.SoGLNormalElement;
+import jscenegraph.database.inventor.elements.SoNormalElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
-import jscenegraph.database.inventor.fields.SoSFEnum;
+import jscenegraph.database.inventor.fields.SoMFVec3f;
+import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
+import jscenegraph.mevis.inventor.misc.SoVBO;
 
 /**
  * @author Yves Boyadjian
@@ -70,42 +74,49 @@ import jscenegraph.database.inventor.fields.SoSFEnum;
  */
 
 ////////////////////////////////////////////////////////////////////////////////
-//! Node that specifies how texture coordinates are bound to shapes.
+//! Node that defines surface normals for shapes.
 /*!
-\class SoTextureCoordinateBinding
+\class SoNormal
 \ingroup Nodes
-This node specifies how the current texture coordinates are bound to
-vertex-based shapes that follow in the scene graph. The <tt>DEFAULT</tt>
-binding causes each shape to define its own default coordinates.
-These default coordinates typically cause a texture to be mapped
-across the whole surface of a shape.
+This node defines a set of 3D surface normal vectors to be used by
+vertex-based shape nodes that follow it in the scene graph. This node
+does not produce a visible result during rendering; it simply replaces
+the current normals in the rendering state for subsequent nodes to
+use.  This node contains one multiple-valued field that contains the
+normal vectors.
+
+
+Surface normals are needed to compute lighting when the Phong lighting
+model is used. Most vertex-based shapes that use normals can compute
+default normals if none are specified, depending on the current normal
+binding.
 
 \par File Format/Default
 \par
 \code
-TextureCoordinateBinding {
-  value PER_VERTEX_INDEXED
+Normal {
+  vector [  ]
 }
 \endcode
 
 \par Action Behavior
 \par
-SoGLRenderAction, SoCallbackAction
-<BR> Sets the current texture coordinate binding type. 
+SoGLRenderAction, SoCallbackAction, SoRayPickAction
+<BR> Sets the current normals in the traversal state. 
 
 \par See Also
 \par
-SoMaterialBinding, SoNormalBinding, SoTexture2, SoTexture2Transform, SoTextureCoordinate2, SoTextureCoordinateFunction, SoVertexShape
+SoCoordinate3, SoLightModel, SoNormalBinding, SoVertexShape
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-public class SoTextureCoordinateBinding extends SoNode {
+public class SoNormal extends SoNode {
 
-	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoTextureCoordinateBinding.class,this);
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoNormal.class,this);
 	   
 	   public                                                                     
 	    static SoType       getClassTypeId()        /* Returns class type id */   
-	                                    { return SoSubNode.getClassTypeId(SoTextureCoordinateBinding.class);  }                   
+	                                    { return SoSubNode.getClassTypeId(SoNormal.class);  }                   
 	  public  SoType      getTypeId()      /* Returns type id      */
 	  {
 		  return nodeHeader.getClassTypeId();
@@ -115,90 +126,74 @@ public class SoTextureCoordinateBinding extends SoNode {
 		  return nodeHeader.getFieldData();
 	  }
 	  public  static SoFieldData[] getFieldDataPtr()                              
-	        { return SoSubNode.getFieldDataPtr(SoTextureCoordinateBinding.class); }    
+	        { return SoSubNode.getFieldDataPtr(SoNormal.class); }    	  	
 	
-	  public
-		    //! Binding value
-		    enum Binding {
-		        PER_VERTEX( SoTextureCoordinateBindingElement.Binding.PER_VERTEX.getValue()),
-		        PER_VERTEX_INDEXED(
-		            SoTextureCoordinateBindingElement.Binding.PER_VERTEX_INDEXED.getValue());
-		    	
-		    	private int value; 
-		    	Binding(int value) {
-		    		this.value = value;
-		    	}
-		    	public int getValue() {
-		    		return value;
-		    	}
-		    };
+  public
+    //! \name Fields
+    //@{
 
-		    //! \name Fields
-		    //@{
+    //! Surface normal vectors.
+    final SoMFVec3f           vector = new SoMFVec3f();         
 
-		    //! Specifies how to bind texture coordinates to shapes.
-		    public final SoSFEnum            value = new SoSFEnum();          
-
-		    
-    //! Creates a texture coordinate binding node with default settings.
-    public SoTextureCoordinateBinding() {
-    nodeHeader.SO_NODE_CONSTRUCTOR(/*SoTextureCoordinateBinding.class*/);
-    nodeHeader.SO_NODE_ADD_FIELD(value,"value",
-                         (SoTextureCoordinateBindingElement.getDefault().getValue()));
-
-    // Set up static info for enumerated type field
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Binding.PER_VERTEX);
-    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Binding.PER_VERTEX_INDEXED);
-
-    // And obsolete bindings:
-    if (nodeHeader.firstInstance()) {
-    	getFieldData().addEnumValue("Binding", "DEFAULT", 0);
-    }
-
-    // Set up info in enumerated type field
-    nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(value,"value", "Binding");
-
-    isBuiltIn = true;
-		    	
-    }
-
-    
+  protected final SoVBO[] _vbo = new SoVBO[1];
+	  
+  
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Handles actions
+//    Constructor
 //
-// Use: extender
+// Use: public
 
-void
-SoTextureCoordinateBinding_doAction(SoAction action)
+public SoNormal()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    if (! value.isIgnored()) {
-        SoTextureCoordinateBindingElement.set(action.getState(),
-             SoTextureCoordinateBindingElement.Binding.fromValue(value.getValue()));
-    }
+    nodeHeader.SO_NODE_CONSTRUCTOR(/*SoNormal.class*/);
+    nodeHeader.SO_NODE_ADD_MFIELD(vector,"vector", (new SbVec3f(0,0,0)));
+    vector.deleteValues(0); // Nuke bogus normal
+    isBuiltIn = true;
+
+    _vbo[0] = null;
+}
+
+  
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Destructor
+//
+// Use: private
+
+public void destructor()
+//
+////////////////////////////////////////////////////////////////////////
+{
+	if(_vbo[0] != null)
+		_vbo[0].destructor();
+  super.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Override read to translate obsolete bindings
+//    Handles most actions,
 //
 // Use: extender
 
-public boolean readInstance(SoInput in, short flags)
+public void SoNormal_doAction(SoAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    boolean result = super.readInstance(in, flags);
-
-    // Deal with obsolete bindings:
-    int b = value.getValue();
-    if (b == 0 || b == 1) value.setValue( Binding.PER_VERTEX_INDEXED);
-
-    return result;
+  if (! vector.isIgnored()) {
+    SoState state = action.getState();
+    SoNormalElement.set(action.getState(), this,
+      vector.getNum(), vector.getValues(0));
+    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
+      SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.NORMAL_VBO, _vbo,
+        vector.getNum()*(SbVec3f.sizeof()), vector.getValuesBytes(0), getNodeId());
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -212,7 +207,7 @@ public void callback(SoCallbackAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoTextureCoordinateBinding_doAction(action);
+    SoNormal_doAction(action);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -226,7 +221,7 @@ public void GLRender(SoGLRenderAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoTextureCoordinateBinding_doAction(action);
+    SoNormal_doAction(action);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -234,21 +229,20 @@ public void GLRender(SoGLRenderAction action)
 // Description:
 //    Does pick action...
 //
-// Use: protected
+// Use: extender
 
 public void pick(SoPickAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoTextureCoordinateBinding_doAction(action);
+    SoNormal_doAction(action);
 }
-
-    
-		    
+  
+  
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    This initializes the SoTextureCoordinateBinding class.
+//    This initializes the SoNormal class.
 //
 // Use: internal
 
@@ -256,13 +250,14 @@ public static void initClass()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SO__NODE_INIT_CLASS(SoTextureCoordinateBinding.class, "TextureCoordinateBinding", 
-                       SoNode.class);
+    SO__NODE_INIT_CLASS(SoNormal.class, "Normal", SoNode.class);
 
     // Enable elements for appropriate actions:
-    SO_ENABLE(SoCallbackAction.class, SoTextureCoordinateBindingElement.class);
-    SO_ENABLE(SoGLRenderAction.class, SoTextureCoordinateBindingElement.class);
-    SO_ENABLE(SoPickAction.class, SoTextureCoordinateBindingElement.class);
+    SO_ENABLE(SoGLRenderAction.class, SoGLNormalElement.class);
+    SO_ENABLE(SoGLRenderAction.class, SoGLVBOElement.class);
+    SO_ENABLE(SoCallbackAction.class, SoNormalElement.class);
+    SO_ENABLE(SoPickAction.class,     SoNormalElement.class);
 }
+
 
 }

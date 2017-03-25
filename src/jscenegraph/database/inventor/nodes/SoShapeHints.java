@@ -165,6 +165,9 @@ public class SoShapeHints extends SoNode {
         VertexOrdering(int value) {
         	this.value = value;
         }
+        public int getValue() {
+        	return value;
+        }
     };
 
     //! Hints about entire shape: if shape is known to be a solid
@@ -178,6 +181,9 @@ public class SoShapeHints extends SoNode {
         ShapeType(int value) {
         	this.value = value;
         }
+        public int getValue() {
+        	return value;
+        }
     };
 
     //! Hints about faces of shape: if all faces are known to be convex
@@ -190,6 +196,9 @@ public class SoShapeHints extends SoNode {
         
         FaceType(int value) {
         	this.value = value;
+        }
+        public int getValue() {
+        	return value;
         }
     };
 

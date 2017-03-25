@@ -56,6 +56,7 @@ package jscenegraph.database.inventor.fields;
 
 import java.lang.reflect.InvocationTargetException;
 
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.Mutable;
 
@@ -178,4 +179,8 @@ public abstract class SoSField<T extends Object> extends SoField {
 		value = null;
 		super.destructor();
 	}
+
+    //! Reads value of field
+    public abstract boolean        readValue(SoInput in);
+
 }

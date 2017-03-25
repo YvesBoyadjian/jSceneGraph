@@ -54,6 +54,8 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.port.Mutable;
 
 
@@ -168,6 +170,132 @@ public abstract class SoMField<T extends Object> extends SoField {
 	  		          allocValues(newNum);
 	  		      }	  		 		
 	}
+	  	
+	  	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads all field values from file. Works for ASCII and binary
+//    output. Binary values are read as a chunk.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    if (in.isBinary()) {
+        final int[]     numToRead = new int[1];
+
+        // Read number of values
+        if (! in.read(numToRead)) {
+            SoReadError.post(in, "Couldn't read number of binary values "+
+                              "in multiple-value field");
+            return false;
+        }
+
+        // Make space for values; also sets number of values
+        makeRoom(numToRead[0]);
+
+        // Read values
+        if (! readBinaryValues(in, numToRead[0]))
+            return false;
+    }
+
+    else {
+        final char[]    c = new char[1];
+        int     curIndex = 0;
+
+        // Check for multiple field values
+        if (in.read(c) && c[0] == OPEN_BRACE_CHAR) {
+
+            // Check for no values: just an open and close brace
+            if (in.read(c) && c[0] == CLOSE_BRACE_CHAR)
+                ;                                       // Do nothing now
+
+            else {
+                in.putBack(c[0]);
+
+                while (true) {
+
+                    // Make some room at end if necessary
+                    if (curIndex >= getNum())
+                        makeRoom(getNum() + VALUE_CHUNK_SIZE);
+
+                    if (! read1Value(in, curIndex++) || ! in.read(c)) {
+                        SoReadError.post(in,
+                                          "Couldn't read value "+curIndex+" of field");
+                        return false;
+                    }
+
+                    if (c[0] == VALUE_SEPARATOR_CHAR) {
+
+                        // See if this is a trailing separator (right before 
+                        // the closing brace). This is legal, but ignored.
+
+                        if (in.read(c)) {
+                            if (c[0] == CLOSE_BRACE_CHAR)
+                                break;
+                            else
+                                in.putBack(c[0]);
+                        }
+                    }
+
+                    else if (c[0] == CLOSE_BRACE_CHAR)
+                        break;
+
+                    else {
+                        SoReadError.post(in,
+                                          "Expected '"+VALUE_SEPARATOR_CHAR+"' or '"+CLOSE_BRACE_CHAR+"' but got "+
+                                          "'"+c+"' while reading value "+curIndex);
+                        return false;
+                    }
+                }
+            }
+
+            // If extra space left over, nuke it
+            if (curIndex < getNum())
+                makeRoom(curIndex);
+        }
+
+        else {
+            // Try reading 1 value
+            in.putBack(c[0]);
+            makeRoom(1);
+            if (! read1Value(in, 0))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+	  	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads array of binary values from file as one chunk.
+//
+// Use: private
+
+private boolean readBinaryValues(SoInput in,    // Reading specification
+                           int numToRead)  // Number of values to read
+//
+////////////////////////////////////////////////////////////////////////
+{
+    int i;
+
+    for (i = 0; i < numToRead; i++)
+        if (! read1Value(in, i))
+            return false;
+
+    return true;
+}
+
+	  	    //! Reads one indexed value of field from file
+    public abstract boolean        read1Value(SoInput in, int index);
+
+	  	
 	  	
 	  	protected void                                                                          
 	     allocValues(int newNum)                                            

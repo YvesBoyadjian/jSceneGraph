@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.misc.SoNotList;
 
 /**
@@ -154,6 +155,24 @@ public void touch()
 ////////////////////////////////////////////////////////////////////////
 {
     super.startNotify();  // Use SoField method explicitly
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    "Reads value from file." Doesn't bother reading anything, since
+// write method is a no-op.  Note that trigger fields might get
+// written/read for field connections to be written/read, so it's not
+// an error for this routine to be called.
+//
+// Use: private
+
+public boolean readValue(SoInput input)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return true;
 }
 
 }

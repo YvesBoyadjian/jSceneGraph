@@ -54,6 +54,9 @@
 
 package jscenegraph.database.inventor.fields;
 
+import java.util.function.IntConsumer;
+
+import jscenegraph.database.inventor.SoInput;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Multiple-value field containing any number of uint32_tegers.
@@ -104,4 +107,26 @@ public class SoMFUInt32 extends SoMField<Integer> {
 		}
 		return returnValue;
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads one (indexed) value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean read1Value(SoInput in, int index)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return in.read(new IntConsumer(){
+
+		@Override
+		public void accept(int value) {
+			values[index] = value;
+		}
+	});
+}
+
 }

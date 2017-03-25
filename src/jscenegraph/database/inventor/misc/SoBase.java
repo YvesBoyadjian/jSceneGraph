@@ -62,8 +62,15 @@ import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoBaseList;
 import jscenegraph.database.inventor.SoDB;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.engines.SoUnknownEngine;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoReadError;
+import jscenegraph.database.inventor.fields.SoFieldContainer;
+import jscenegraph.database.inventor.fields.SoGlobalField;
+import jscenegraph.database.inventor.misc.upgraders.SoUpgrader;
+import jscenegraph.database.inventor.nodes.SoUnknownNode;
 import jscenegraph.database.inventor.sensors.SoDataSensor;
 import jscenegraph.port.Destroyable;
 
@@ -88,6 +95,29 @@ SoFieldContainer, SoNode, SoPath, SoEngine, SoDB
  */
 public abstract class SoBase implements Destroyable {
 	
+	// Syntax for writing instances to files
+	private static final char OPEN_BRACE              ='{';
+	private static final char CLOSE_BRACE             ='}';
+	private static final String DEFINITION_KEYWORD      ="DEF";
+	private static final String REFERENCE_KEYWORD       ="USE";
+	private static final String NULL_KEYWORD            ="NULL";
+
+    //! This set of enums is used when reading and writing the base.
+    //! Each enum represents a different bit in a bit field
+    //! which will be written.
+    public enum BaseFlags {
+        IS_ENGINE        (1),
+        IS_GROUP         (2);
+    	
+    	private short value;
+    	BaseFlags(int value) {
+    		this.value = (short)value;
+    	}
+    	public short getValue() {
+    		return value;
+    	}
+    };
+
 	private static SoType classTypeId;
 	
 	private int refCount;
@@ -165,13 +195,13 @@ protected SoBase()
 	public abstract SoType getTypeId();
 	
 	/**
-	 * Returns TRUE if this object is of the type specified in type 
+	 * Returns true if this object is of the type specified in type 
 	 * or is derived from that type. 
 	 * Otherwise, it returns FALSE.
 	 *  
 	 * For example,
 	 *  
-	 * nodePtr->isOfType(SoGroup::getClassTypeId()) returns TRUE 
+	 * nodePtr.isOfType(SoGroup::getClassTypeId()) returns true 
 	 * if nodePtr is an instance of SoGroup or one of its subclasses. 
 	 * 
 	 * @param type
@@ -196,7 +226,7 @@ protected SoBase()
 		   if (!objNameDict.find(this, n)) {
 //		  #ifdef DEBUG
 //		   SoDebugError::post("SoBase::getName",
-//		   "hasName is TRUE, but couldn't find name!\n");
+//		   "hasName is true, but couldn't find name!\n");
 //		  #endif
 		   return new SbName("");
 		   }
@@ -626,6 +656,420 @@ getNamedBases(final SbName name, final SoBaseList result, final SoType type)
         }
     }
     return numAdded;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads one instance of some subclass of SoBase. Returns pointer
+//    to read-in instance in base, or null on EOF. Returns FALSE on
+//    error. The last parameter is a subclass type to match. If the
+//    returned base is not of this type, it is an error. A type of
+//    ANY_TYPE (the default) will match any base.
+//
+// Use: internal
+
+public static boolean read(SoInput in, final SoBase[] base, SoType expectedType)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SbName      name = new SbName();
+    boolean        ret;
+
+    // Read header: name and opening brace. If not found, not an error -
+    // just nothing to return.
+    if (! in.read(name, true)) {
+        base[0] = null;
+        ret = in.curFile.headerOk;
+    }
+
+    // If name is empty, treat this as EOF. This happens, for example,
+    // when the last child of a group has been read and the '}' is next.
+    else if (name.operator_not()) {
+        base[0] = null;
+        ret = true;
+    }
+
+    // Check for special case of name "null", indicating a null node
+    // or path pointer. (This is used for node and path fields.)
+    else if (name.operator_equal_equal(new SbName(NULL_KEYWORD))) {
+        base[0] = null;
+        ret = true;
+    }
+
+    // Check for reference to existing node/path/function
+    else if (name.operator_equal_equal(new SbName(REFERENCE_KEYWORD)))
+        ret = readReference(in, base);
+    else
+        ret = readBase(in, name, base);
+
+    // Check for type match
+    if (base[0] != null) {
+        if (! base[0].isOfType(expectedType)) {
+            String baseName = base[0].getTypeId().getName().getString();
+            SoReadError.post(in, "Expected a "+expectedType.getName().getString()+" but got a "+ baseName);
+            ret = false;
+        }
+    }
+
+    return ret;
+}
+
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads name of referenced base instance (assumes reference
+//    keyword was read) and sets base to point to it. Returns FALSE on
+//    error.
+//
+// Use: private
+
+private static boolean readReference(SoInput in, final SoBase[] base)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SbName      refName = new SbName();
+    boolean        ret = true;
+
+    // Get name of referenced thing
+    if (! in.read(refName, false)) {
+        SoReadError.post(in, "Premature end of file after "+
+                          REFERENCE_KEYWORD);
+        ret = false;
+    }
+
+    // Look name up in the dictionary
+    else {
+        // Ok, in ASCII we might have read too much-- check for a '.'
+        // in the name, meaning we read the field identifier, too, and
+        // will have to re-figure the name and put back the extra
+        // characters:
+        if ( !in.isBinary()) {
+            String chars = refName.getString();
+            for (int i = 0; i < refName.getLength(); i++) {
+                if (chars.charAt(i) == '.') {
+                    in.putBack(chars.substring(i));
+                    refName.copyFrom(new SbName(chars.substring(0, i)));
+                }
+            }
+        }
+
+        if ((base[0] = in.findReference(refName)) == null) {
+            SoReadError.post(in, "Unknown reference \""+refName.getString()+"\"");
+            ret = false;
+        }
+    }
+
+    return ret;
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads base. Sets base to point to read-in instance. Returns
+//    FALSE on error.
+//
+// Use: private
+
+private static boolean readBase(SoInput in, final SbName className, final SoBase[] base)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    boolean                gotChar;
+    final SbName              refName = new SbName();
+    final char[]                c = new char[1];
+    boolean                ret = true, flush = false;
+
+    // Assume NULL for now
+    base[0] = null;
+
+    // Check for definition of new node/path
+    if (className.operator_equal_equal(new SbName(DEFINITION_KEYWORD))) {
+
+        if (! in.read(refName, false) || ! in.read(className, true)) {
+            SoReadError.post(in, "Premature end of file after "+
+                              DEFINITION_KEYWORD);
+            ret = false;
+        }
+
+        if (refName.operator_not()) {
+            SoReadError.post(in, "No name given after "+ DEFINITION_KEYWORD);
+            ret = false;
+        }
+
+        if (className.operator_not()) {
+            SoReadError.post(in, "Invalid definition of "+ refName.getString());
+            ret = false;
+        }
+    }
+
+    if (ret) {
+
+        // Save whether the file is binary in
+        // case we open another file before we get to the close brace.
+        boolean isBinary = in.isBinary();
+
+        // Look for open brace.
+        if (!isBinary &&
+            (! (gotChar = in.read(c)) || c[0] != OPEN_BRACE)) {
+            if (gotChar)
+                SoReadError.post(in, "Expected '"+OPEN_BRACE+"'; got '"+c+"'");
+            else
+                SoReadError.post(in, "Expected '"+OPEN_BRACE+"'; got EOF");
+            ret = false;
+        }
+
+        else {
+            ret = readBaseInstance(in, className, refName, base);
+
+            if (! ret)
+                flush = true;
+
+            // Read closing brace.
+            else if (! isBinary &&
+                     (! (gotChar = in.read(c)) || c[0] != CLOSE_BRACE)) {
+                if (gotChar)
+                    SoReadError.post(in, "Expected '"+CLOSE_BRACE+"'; got '"+c+"'");
+                else
+                    SoReadError.post(in, "Expected '"+CLOSE_BRACE+"'; got EOF");
+                ret = false;
+            }
+        }
+    }
+
+    if (! ret && flush && ! in.isBinary())
+        flushInput(in);
+
+    return ret;
+}
+
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads instance of class with given name. Sets base to point to
+//    read-in instance. Returns FALSE on error.
+//
+// Use: private
+
+private static boolean readBaseInstance(SoInput in, final SbName className,
+                         final SbName refName, final SoBase[] base)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // This will be re-written with the correct values if binary file
+    // format.  If ASCII, it shouldn't matter:
+    final short[] ioFlags = new short[1]; 
+    
+    ioFlags[0] = (short)(BaseFlags.IS_GROUP.getValue() | BaseFlags.IS_ENGINE.getValue());
+
+    boolean isBinary = in.isBinary();
+    boolean oldFileFormat = (in.getIVVersion() < 2.1f);
+
+    if (isBinary && !oldFileFormat) {
+        in.read(ioFlags);
+    }
+
+    // Special case for global fields. Even though the word
+    // "GlobalField" appears in the input file, the field itself
+    // depends on the name about to be read. If the same name is used
+    // twice, the same instance has to be used, so we don't want to
+    // create a new instance each time.
+    if (className.operator_equal_equal(globalFieldName)) {
+        base[0] = SoGlobalField.read(in);
+
+        if (base == null) return false;
+        
+        // Store instance in input dictionary if a name was given for
+        // it (do NOT want to add it to the global dictionary; it's
+        // DEF name is not used for that).
+        if (! (refName.operator_not()))
+            in.addReference(refName, base[0], false);
+
+        return true;
+    }
+    
+    // And special case for nodes that need conversion from an old
+    // version of the file format:
+    SoUpgrader upgrader;
+    if ((upgrader = SoUpgrader.getUpgrader(className, in.getIVVersion()))
+        != null) {
+            
+        upgrader.ref();
+        boolean result = upgrader.upgrade(in, refName, base);
+        upgrader.unref();
+
+        return result;
+    }
+
+    // The common case:
+
+    // Create an instance of named type
+    base[0] = createInstance(in, className, ioFlags[0]);
+    if (base[0] == null)
+        return false;
+
+    // Store instance in dictionary if a name was given for it
+    // This may also name the base, depending on the form of refName.
+    if (! (refName.operator_not()))
+        in.addReference(refName, base[0]);
+
+    // Read stuff into instance.  Note that if the node has sensors on
+    // its fields,  they might get triggered.  Make sure that the node
+    // is referenced during the read.
+    base[0].ref();
+    boolean result = base[0].readInstance(in, ioFlags[0]);
+    base[0].unrefNoDelete();
+
+    return result;
+}
+
+    //! Reads stuff into instance of subclass. Return FALSE on error.
+    //! If reading binary file format, the flags specify whether the
+    //! object was written as an engine or a group; unknown nodes and
+    //! groups need this information to read themselves in properly.
+    public abstract boolean        readInstance(SoInput in, short flags);
+
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Create instance for given className, returning a
+//    pointer to it. Returns NULL on error.
+//
+// Use: private
+
+private static SoBase createInstance(SoInput in, SbName className, short ioFlags)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoBase              instance = null;
+
+    boolean isBinary = in.isBinary();
+    boolean oldFileFormat = (in.getIVVersion() < 2.1f);
+
+    // Find named type in class dictionary.
+    SoType type = SoType.fromName(className);
+
+    // Need to create an unknown node or engine:
+    if (type.isBad()) {
+
+        boolean createEngine = false;
+
+        // ASCII, old or new file format (they're the same):
+        if (!isBinary) {
+            final String[] unknownString = new String[1];
+            boolean    readOK = in.read(unknownString);
+            if (!readOK || ((!unknownString[0].equals("fields") &&
+                             !unknownString[0].equals("inputs")))) {
+                SoReadError.post(in, "Unknown class \""+className.getString()+"\"");
+                return null;
+            }
+            in.putBack(unknownString[0]);
+            if (unknownString[0].equals("inputs")) {
+                createEngine = true;
+            }
+        }
+
+        // Binary, new file format
+        else if (!oldFileFormat && isBinary) {
+            createEngine = (ioFlags & BaseFlags.IS_ENGINE.getValue())!=0;
+        }
+
+        // Binary, old file format:
+        else {
+            final String[] unknownString = new String[1];
+            boolean    readOK = in.read(unknownString);
+            if (!readOK || ((!unknownString[0].equals("fields") &&
+                             !unknownString[0].equals("inputs")))) {
+                SoReadError.post(in, "Unknown class \""+className.getString()+"\"");
+                return null;
+            }
+            // Cannot put back the string (which is OK)
+            if (unknownString[0].equals("inputs")) {
+                createEngine = true;
+            }
+        }           
+
+        if (!createEngine) {
+//#ifdef DEBUG
+            SoDebugError.postWarning("SoBase::createInstance",
+                "Creating unknown node for object of type "+className.getString()+" "+
+                "(could not open DSO)");
+//#endif
+            SoUnknownNode tmpNode = new SoUnknownNode();
+            tmpNode.setClassName(className.getString());
+            instance = tmpNode;
+        } else {
+//#ifdef DEBUG
+            SoDebugError.postWarning("SoBase::createInstance",
+                "Creating unknown engine for object of type "+className.getString()+" "+
+                "(could not open DSO)");
+//#endif
+            SoUnknownEngine tmpEngine = new SoUnknownEngine();
+            tmpEngine.setClassName(className.getString());
+            instance = tmpEngine;
+        }
+    }
+
+    else if (!type.isDerivedFrom(SoBase.getClassTypeId())) {
+        SoReadError.post(in, "\""+className.getString()+"\" is not an SoBase");
+        instance = null;
+    }
+
+    else {
+        instance = (SoBase )type.createInstance();
+
+        // We may have the name of an abstract derived class.
+        if (instance == null) {
+            SoReadError.post(in, "class \""+className.getString()+"\" is an abstract class");
+        }
+        // Binary, old file format, not built in: read "fields" field
+        else if (oldFileFormat && isBinary) {
+            if (instance.isOfType(SoFieldContainer.getClassTypeId())
+                && !((SoFieldContainer )instance).getIsBuiltIn()) {
+                final String[] unknownString = new String[1];
+                boolean    readOK = in.read(unknownString);
+                if (!readOK || ((!unknownString[0].equals("fields") &&
+                                 !unknownString[0].equals("inputs")))) {
+                    SoReadError.post(in, "Unknown class \""+className.getString()+"\"");
+                    return null;
+                }
+            }
+        }
+    }
+
+    return instance;
+}
+
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Flushes input up to EOF or the next closing brace (watching for
+//    nested closing braces). This should be called when an error is
+//    found in input after the open brace for some SoBase subclass
+//    instance.
+//
+// Use: private
+
+private static void flushInput(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    int         nestLevel = 1;
+    final char[]        c = new char[1];
+
+    while (nestLevel > 0 && in.get(c)) {
+
+        if (c[0] == CLOSE_BRACE)
+            nestLevel--;
+
+        else if (c[0] == OPEN_BRACE)
+            nestLevel++;
+    }
 }
 
 	

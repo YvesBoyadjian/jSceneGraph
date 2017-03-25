@@ -161,6 +161,26 @@ public class SbName implements Mutable, Destroyable {
 		return Character.isLetterOrDigit( c ) && (c < 128);
 	}
 	
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Returns TRUE if given character is legal starting character for
+//    an identifier.
+//
+// Use: static, public
+
+public static boolean isIdentStartChar(char c)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Digits are illegal as first character:
+    if (Character.isDigit(c)) return false;
+
+    return isIdentChar(c);
+}
+
+	
 	/**
 	 * Returns TRUE if given character is a legal nonstarting 
 	 * character for an identifier. 

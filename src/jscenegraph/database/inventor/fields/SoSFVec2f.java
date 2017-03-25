@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.database.inventor.SoInput;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,5 +101,21 @@ public class SoSFVec2f extends SoSField<SbVec2f> {
     	protected SbVec2f constructor() {		
     		return new SbVec2f();
     	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return (in.read(value.getRef()[0]) &&
+            in.read(value.getRef()[1]));
+}
 
 }

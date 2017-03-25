@@ -71,6 +71,7 @@
 package jscenegraph.database.inventor;
 
 import java.nio.FloatBuffer;
+import java.util.function.DoubleConsumer;
 
 import jscenegraph.port.Mutable;
 
@@ -436,4 +437,16 @@ public static SbVec3f[] allocate(int num) {
 	}
 	return retVal;
 }
+
+/**
+ * java port
+ * @return
+ */
+	public DoubleConsumer[] getRef() {
+		DoubleConsumer[] ref = new DoubleConsumer[3];
+		ref[0] = value -> vec[0] = (float)value;
+		ref[1] = value -> vec[1] = (float)value;
+		ref[2] = value -> vec[2] = (float)value;
+		return ref;
+	}
 }

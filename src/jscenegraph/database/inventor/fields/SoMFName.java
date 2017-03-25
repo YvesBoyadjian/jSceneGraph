@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbName;
+import jscenegraph.database.inventor.SoInput;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,4 +109,20 @@ public class SoMFName extends SoMField<SbName> {
 	protected SbName[] arrayConstructor(int length) {
 		return new SbName[length];
 	}
-	}
+	
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads one (indexed) value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean read1Value(SoInput in, int index)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return in.read(values[index]);
+}
+
+}

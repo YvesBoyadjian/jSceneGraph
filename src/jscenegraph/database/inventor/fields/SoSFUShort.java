@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.database.inventor.SoInput;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Field containing an unsigned short integer.
@@ -83,5 +84,20 @@ public class SoSFUShort extends SoSField<Short> {
 		short s = 0;
 		return new Short(s);
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return in.read((int val) -> value = (short)val);
+}
 
 }

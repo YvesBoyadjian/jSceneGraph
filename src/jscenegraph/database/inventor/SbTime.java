@@ -459,5 +459,12 @@ public String formatDate(String fmt)
     return buf;
 }
 
+        //! Set time from a double (in seconds).
+    public void                setValue(double sec)
+        { 
+    	long tv_sec = (long)(sec);
+        int tv_usec = (int)((sec - tv_sec) * 1000000.0); 
+        }
+
     
 }

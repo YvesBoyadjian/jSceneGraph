@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.database.inventor.SoInput;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Field containing a string.
@@ -92,5 +93,20 @@ public class SoSFString extends SoSField<String> {
 	protected String constructor() {		
 		return new String();
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return in.read((String val) -> value = val);
+}
 
 }

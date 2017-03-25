@@ -54,6 +54,10 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.database.inventor.SbName;
+import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.misc.SoBase;
+import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.nodes.SoNode;
 
 
@@ -96,5 +100,75 @@ public class SoSFNode extends SoSField<SoNode> {
 	protected SoNode constructor() {		
 		return null;
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SbName      name = new SbName();
+    final SoBase[]      base = new SoBase[1];
+
+    // See if it's a null pointer
+    if (in.read(name)) {
+        if (name.operator_equal_equal(new SbName("NULL"))) {
+            setVal(null);
+            return true;
+        }
+        else
+            in.putBack(name.getString());
+    }
+    
+    // Read node
+    if (! SoBase.read(in, base, SoNode.getClassTypeId())) {
+        setVal(null);
+        return false;
+    }
+
+    setVal((SoNode ) base[0]);
+
+    return true;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Changes value in field without doing other notification stuff.
+//    Keeps track of references and auditors.
+//
+// Use: private
+
+private void setVal(SoNode newValue)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Play it safe if we are replacing one pointer with the same pointer
+    if (newValue != null)
+        newValue.ref();
+
+    // Get rid of old node, if any
+    if (value != null) {
+        value.removeAuditor(this, SoNotRec.Type.FIELD);
+        value.unref();
+    }
+
+    value = newValue;
+
+    if (value != null) {
+        value.ref();
+        value.addAuditor(this, SoNotRec.Type.FIELD);
+    }
+
+    if (newValue != null)
+        newValue.unref();
+}
 
 }

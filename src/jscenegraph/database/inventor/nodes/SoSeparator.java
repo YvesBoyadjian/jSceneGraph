@@ -58,6 +58,8 @@ import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbXfBox3f;
+import jscenegraph.database.inventor.SoFieldList;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
@@ -75,6 +77,7 @@ import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoLocalBBoxMatrixElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
+import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.misc.SoNotList;
@@ -326,6 +329,35 @@ getNumRenderCaches()
 ////////////////////////////////////////////////////////////////////////
 {
     return numRenderCaches;
+}
+
+    
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Turn off notification on fields to avoid notification when
+//    reading, so that caching works properly:
+//
+// Use: protected
+
+public boolean readInstance(SoInput in, short flags)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    int i;
+    final SoFieldList myFields = new SoFieldList();
+    getFields(myFields);
+    for (i = 0; i < myFields.getLength(); i++) {
+        ((SoField)myFields.operator_square_bracket(i)).enableNotify(false);
+    }
+
+    boolean result = super.readInstance(in, flags);
+
+    for (i = 0; i < myFields.getLength(); i++) {
+    	((SoField)myFields.operator_square_bracket(i)).enableNotify(true);
+    }
+
+    return result;
 }
 
     

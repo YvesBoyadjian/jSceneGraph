@@ -70,6 +70,8 @@
 
 package jscenegraph.database.inventor;
 
+import java.util.function.IntConsumer;
+
 import jscenegraph.port.Mutable;
 
 
@@ -171,6 +173,17 @@ operator_add(final SbVec2s v2)
 		final SbVec2s v1 = this;
 	    return (v1.vec[0] == v2.vec[0] &&
 	            v1.vec[1] == v2.vec[1]);
+	}
+
+	/**
+	 * Java port
+	 * @return
+	 */
+	public IntConsumer[] getRef() {
+		IntConsumer[] ref = new IntConsumer[2];
+		ref[0] = value -> vec[0] = (short) value;
+		ref[1] = value -> vec[1] = (short) value;
+		return null;
 	}
 }
 

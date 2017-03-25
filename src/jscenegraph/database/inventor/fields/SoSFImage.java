@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbVec2s;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Util;
 
 
@@ -233,7 +234,7 @@ public SoSFImage operator_equal(final SoSFImage f)
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Returns TRUE if field has same value as given field.
+//    Returns true if field has same value as given field.
 //
 // Use: public
 
@@ -280,6 +281,63 @@ public void finishEditing()
 ////////////////////////////////////////////////////////////////////////
 {
     valueChanged();
+}
+
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns false on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    if (!in.read(size.getRef()[0])  ||
+        !in.read(size.getRef()[1]) ||
+        !in.read( (int val) -> numComponents = val))
+        return false;
+    
+    //if (bytes != NULL) delete[] bytes; java port
+    bytes = new byte[size.getValue()[0]*size.getValue()[1]*numComponents];
+
+    int _byte = 0;
+    if (in.isBinary()) {
+        // Inventor version 2.1 and later binary file
+        if (in.getIVVersion() > 2.0) {
+            int numBytes = size.getValue()[0]*size.getValue()[1]*numComponents;
+            if (! in.readBinaryArray(bytes, numBytes))
+                return false;
+        }
+
+        // Pre version 2.1 Inventor binary files
+        else {
+            for (int i = 0; i < size.getValue()[0]*size.getValue()[1]; i++) {
+                final int[] l = new int[1];
+
+                if (!in.read(l)) return false;
+                for (int j = 0; j < numComponents; j++) {
+                    bytes[_byte++] = (byte)(
+                        (l[0] >> (8*(numComponents-j-1))) & 0xFF);
+                }
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < size.getValue()[0]*size.getValue()[1]; i++) {
+            final int[] l = new int[1];
+    
+            if (!in.readHex(l)) return false;
+            for (int j = 0; j < numComponents; j++) {
+                bytes[_byte++] = (byte)(
+                    (l[0] >> (8*(numComponents-j-1))) & 0xFF);
+            }
+        }
+    }
+
+    return true;
 }
 
 	

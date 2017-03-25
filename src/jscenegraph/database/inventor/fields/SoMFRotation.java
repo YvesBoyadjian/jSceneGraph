@@ -55,6 +55,8 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbRotation;
+import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SoInput;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,5 +101,46 @@ public class SoMFRotation extends SoMField<SbRotation> {
 	protected SbRotation[] arrayConstructor(int length) {
 		return new SbRotation[length];
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads one (indexed) value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean read1Value(SoInput in, int index)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SbVec3f     axis = new SbVec3f();
+    final float[]       angle = new float[1];
+
+    if (! (in.read(axis.getRef()[0]) &&
+           in.read(axis.getRef()[1]) &&
+           in.read(axis.getRef()[2]) &&
+           in.read(angle)))
+        return false;
+
+    set1Value(index, axis, angle[0]);
+
+    return true;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Sets one rotation value from an axis and angle. (Convenience function)
+//
+// Use: public
+
+public void set1Value(int index, final SbVec3f axis, float angle)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    set1Value(index, new SbRotation(axis, angle));
+}
 
 }

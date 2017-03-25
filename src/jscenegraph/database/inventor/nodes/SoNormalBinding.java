@@ -44,7 +44,7 @@
  |   $Revision $
  |
  |   Description:
- |      This file defines the SoMaterialBinding node class.
+ |      This file defines the SoNormalBinding node class.
  |
  |   Author(s)          : Paul S. Strauss
  |
@@ -60,73 +60,57 @@ import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
-import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
-import jscenegraph.database.inventor.elements.SoOverrideElement;
+import jscenegraph.database.inventor.elements.SoNormalBindingElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFEnum;
-
-
-////////////////////////////////////////////////////////////////////////////////
-//! Node that specifies how multiple materials are bound to shapes.
-/*!
-\class SoMaterialBinding
-\ingroup Nodes
-This node specifies how the current materials are bound to shapes that
-follow in the scene graph. Each shape node may interpret bindings
-differently. The current material always has a base value, which is
-defined by the first value of all material fields. Since material
-fields may have multiple values, the binding determines how these
-values are distributed over a shape.
-
-
-The bindings for faces and vertices are meaningful only for shapes
-that are made from faces and vertices. Similarly, the indexed bindings
-are only used by the shapes that allow indexing.
-
-
-The bindings apply only to diffuse colors and transparency.  Other
-materials (emissive, specular, ambient, shininess) will have the first
-value applied to the
-entire shape, regardless of the material binding or the number provided.
-
-
-If the number of transparencies is less than the number of diffuse
-colors, only the first transparency value will be used, regardless of
-the material binding.
-If the number of diffuse colors in the state is less than the number required
-for the given binding, a debug warning will be printed and unpredictable colors
-will result.
-
-\par File Format/Default
-\par
-\code
-MaterialBinding {
-  value OVERALL
-}
-\endcode
-
-\par Action Behavior
-\par
-SoGLRenderAction, SoCallbackAction
-<BR> Sets the current material binding type. 
-
-\par See Also
-\par
-SoMaterial, SoNormalBinding, SoShape, SoTextureCoordinateBinding
-*/
-////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoMaterialBinding extends SoNode {
-	
-	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoMaterialBinding.class,this);
+
+////////////////////////////////////////////////////////////////////////////////
+//! Node that specifies how multiple surface normals are bound to shapes.
+/*!
+\class SoNormalBinding
+\ingroup Nodes
+This node specifies how the current normals are bound to shapes that
+follow in the scene graph. Each shape node may interpret bindings
+differently.
+
+
+The bindings for faces and vertices are meaningful only for shapes
+that are made from faces and vertices. Similarly, the indexed bindings
+are only used by the shapes that allow indexing. For bindings that
+require multiple normals, be sure to have at least as many normals
+defined as are necessary; otherwise, errors will occur.
+
+\par File Format/Default
+\par
+\code
+NormalBinding {
+  value PER_VERTEX_INDEXED
+}
+\endcode
+
+\par Action Behavior
+\par
+SoGLRenderAction, SoCallbackAction, SoRayPickAction
+<BR> Sets the current normal binding type. 
+
+\par See Also
+\par
+SoMaterialBinding, SoNormal, SoTextureCoordinateBinding, SoVertexShape
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+public class SoNormalBinding extends SoNode {
+
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoNormalBinding.class,this);
 	   
 	   public                                                                     
 	    static SoType       getClassTypeId()        /* Returns class type id */   
-	                                    { return SoSubNode.getClassTypeId(SoMaterialBinding.class);  }                   
+	                                    { return SoSubNode.getClassTypeId(SoNormalBinding.class);  }                   
 	  public  SoType      getTypeId()      /* Returns type id      */
 	  {
 		  return nodeHeader.getClassTypeId();
@@ -136,57 +120,39 @@ public class SoMaterialBinding extends SoNode {
 		  return nodeHeader.getFieldData();
 	  }
 	  public  static SoFieldData[] getFieldDataPtr()                              
-	        { return SoSubNode.getFieldDataPtr(SoMaterialBinding.class); }    	  	
-	
-    
-	   public enum Binding {
-		            OVERALL(SoMaterialBindingElement.Binding.OVERALL),
-		            PER_PART(SoMaterialBindingElement.Binding.PER_PART),
-		            PER_PART_INDEXED(SoMaterialBindingElement.Binding.PER_PART_INDEXED),
-		            PER_FACE(SoMaterialBindingElement.Binding.PER_FACE),
-		            PER_FACE_INDEXED(SoMaterialBindingElement.Binding.PER_FACE_INDEXED),
-		            PER_VERTEX(SoMaterialBindingElement.Binding.PER_VERTEX),
-		            PER_VERTEX_INDEXED(SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED);
-		    
-//		    #ifndef IV_STRICT
-//		            DEFAULT           = OVERALL,
-//		            NONE              = OVERALL
-//		    #endif
-		            private final int value;
-		            Binding(SoMaterialBindingElement.Binding binding) {
-		            	this.value = binding.getValue();
-		            }
-		            public int getValue() { return value; }
-		        };
-		   
-		        //! Specifies how to bind materials to shapes.
-		        public final SoSFEnum            value = new SoSFEnum();
-		        
-
-	 ////////////////////////////////////////////////////////////////////////
-	   //
-	   // Description:
-	   //    This initializes the SoMaterialBinding class.
-	   //
-	   // Use: internal
-	   
-	  public static void
-	   initClass()
-	   //
-	   ////////////////////////////////////////////////////////////////////////
-	   {
-	       SoSubNode.SO__NODE_INIT_CLASS(SoMaterialBinding.class, "MaterialBinding", SoNode.class);
-	   
-	       // Enable elements for appropriate actions:
-	       //SO_ENABLE(SoGLRenderAction, SoMaterialBindingElement);
-	       SoGLRenderAction.enableElement(SoMaterialBindingElement.class);
-	       //SO_ENABLE(SoCallbackAction, SoMaterialBindingElement);
-	       SoCallbackAction.enableElement(SoMaterialBindingElement.class);
-	       //SO_ENABLE(SoPickAction,     SoMaterialBindingElement);
-	       SoPickAction.enableElement(SoMaterialBindingElement.class);
-	   }
+	        { return SoSubNode.getFieldDataPtr(SoNormalBinding.class); }    
 	  
+	    public
+    enum Binding {
+        //! Whole object has same normal
+        OVERALL           ( SoNormalBindingElement.Binding.OVERALL),
+        //! One normal for each part of object
+        PER_PART          ( SoNormalBindingElement.Binding.PER_PART),
+        //! One normal for each part of object, indexed
+        PER_PART_INDEXED  ( SoNormalBindingElement.Binding.PER_PART_INDEXED),
+        //! One normal for each face of object
+        PER_FACE          ( SoNormalBindingElement.Binding.PER_FACE),
+        //! One normal for each face, indexed
+        PER_FACE_INDEXED  ( SoNormalBindingElement.Binding.PER_FACE_INDEXED),
+        //! One normal for each vertex of object
+        PER_VERTEX        ( SoNormalBindingElement.Binding.PER_VERTEX),
+        //! One normal for each vertex, indexed
+        PER_VERTEX_INDEXED( SoNormalBindingElement.Binding.PER_VERTEX_INDEXED);
 
+    	private int value;
+    	Binding(SoNormalBindingElement.Binding value) {
+    		this.value = value.getValue();
+    	}
+    	public int getValue() {
+    		return value;
+    	}
+	    };
+	    
+	    //! Specifies how to bind normals to shapes.
+	    public final SoSFEnum            value = new SoSFEnum();          
+
+
+	    
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -194,14 +160,12 @@ public class SoMaterialBinding extends SoNode {
 //
 // Use: public
 
-public SoMaterialBinding()
+public SoNormalBinding()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    nodeHeader.SO_NODE_CONSTRUCTOR(/*SoMaterialBinding*/);
-
-    nodeHeader.SO_NODE_ADD_SFIELD(value,"value",
-                         (SoMaterialBindingElement.getDefault().getValue()));
+    nodeHeader.SO_NODE_CONSTRUCTOR(/*SoNormalBinding.class*/);
+    nodeHeader.SO_NODE_ADD_FIELD(value,"value", (SoNormalBindingElement.getDefault().getValue()));
 
     // Set up static info for enumerated type field
     nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Binding.OVERALL);
@@ -214,10 +178,9 @@ public SoMaterialBinding()
 
     // And obsolete bindings:
     if (nodeHeader.firstInstance()) {
-    	nodeHeader.getFieldData().addEnumValue("Binding", "DEFAULT", 0);
-    	nodeHeader.getFieldData().addEnumValue("Binding", "NONE", 1);
+        nodeHeader.getFieldData().addEnumValue("Binding", "DEFAULT", 0);
+        nodeHeader.getFieldData().addEnumValue("Binding", "NONE", 1);
     }
-
 
     // Set up info in enumerated type field
     nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(value,"value", "Binding");
@@ -225,6 +188,38 @@ public SoMaterialBinding()
     isBuiltIn = true;
 }
 
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Destructor
+//
+// Use: private
+
+public void destructor()
+//
+////////////////////////////////////////////////////////////////////////
+{
+	super.destructor();
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Handles most actions.
+//
+// Use: extender
+
+public void
+SoNormalBinding_doAction(SoAction action)
+
+//
+////////////////////////////////////////////////////////////////////////
+{
+    if (! value.isIgnored()) {
+        SoNormalBindingElement.set(action.getState(),
+                SoNormalBindingElement.Binding.fromValue(value.getValue()));
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -241,34 +236,9 @@ public boolean readInstance(SoInput in, short flags)
 
     // Deal with obsolete bindings:
     int b = value.getValue();
-    if (b == 0 || b == 1) value.setValue( Binding.OVERALL);
+    if (b == 0 || b == 1) value.setValue( Binding.PER_VERTEX_INDEXED);
 
     return result;
-}
-
-
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Handles most actions.
-//
-// Use: extender
-
-private void
-SoMaterialBinding_doAction(SoAction action)
-
-//
-////////////////////////////////////////////////////////////////////////
-{
-    if (! value.isIgnored() && 
-        !SoOverrideElement.getMaterialBindingOverride(action.getState())) {
-        if (isOverride()) {
-            SoOverrideElement.
-                setMaterialBindingOverride(action.getState(), this, true);
-        }
-        SoMaterialBindingElement.set(action.getState(),
-                SoMaterialBindingElement.Binding.fromValue(value.getValue()));
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -278,12 +248,11 @@ SoMaterialBinding_doAction(SoAction action)
 //
 // Use: extender
 
-public void
-callback(SoCallbackAction action)
+public void callback(SoCallbackAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoMaterialBinding_doAction(action);
+    SoNormalBinding_doAction(action);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -293,12 +262,11 @@ callback(SoCallbackAction action)
 //
 // Use: extender
 
-public void
-GLRender(SoGLRenderAction action)
+public void GLRender(SoGLRenderAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoMaterialBinding_doAction(action);
+    SoNormalBinding_doAction(action);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -308,12 +276,32 @@ GLRender(SoGLRenderAction action)
 //
 // Use: extender
 
-public void
-pick(SoPickAction action)
+public void pick(SoPickAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoMaterialBinding_doAction(action);
+    SoNormalBinding_doAction(action);
 }
-	  
+	    
+	    
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    This initializes the SoNormalBinding class.
+//
+// Use: internal
+
+public static final void initClass()
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SO__NODE_INIT_CLASS(SoNormalBinding.class, "NormalBinding", SoNode.class);
+
+    // Enable elements for appropriate actions:
+    SO_ENABLE(SoGLRenderAction.class, SoNormalBindingElement.class);
+    SO_ENABLE(SoCallbackAction.class, SoNormalBindingElement.class);
+    SO_ENABLE(SoPickAction.class, SoNormalBindingElement.class);
+}
+
+
 }

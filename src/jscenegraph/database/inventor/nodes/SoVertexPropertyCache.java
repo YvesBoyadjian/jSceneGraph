@@ -316,9 +316,15 @@ public class SoVertexPropertyCache {
 
 		@Override
 		public void run(GL2 gl2, Object argument) {
-			float[] v = (float[])argument; 
-			int v_offset = 0;
-			gl2.glNormal3fv(v, v_offset);
+			if(argument instanceof FloatBuffer) {
+				FloatBuffer fb = (FloatBuffer)argument;
+				gl2.glNormal3fv(fb);
+			}
+			else {
+				float[] v = (float[])argument; 
+				int v_offset = 0;
+				gl2.glNormal3fv(v, v_offset);
+			}
 		}
     };
     normalStride = SbVec3f.sizeof();

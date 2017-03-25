@@ -55,6 +55,8 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbPlane;
+import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SoInput;
 
 /**
  * @author Yves Boyadjian
@@ -86,5 +88,31 @@ public class SoSFPlane extends SoSField<SbPlane> {
 	protected SbPlane constructor() {
 		return new SbPlane();
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SbVec3f     normal = new SbVec3f();
+    final float[]       distance = new float[1];
+
+    if (! (in.read(normal.getRef()[0]) &&
+           in.read(normal.getRef()[1]) &&
+           in.read(normal.getRef()[2]) &&
+           in.read(distance)))
+        return false;
+
+    setValue(new SbPlane(normal, distance[0]));
+
+    return true;
+}
 
 }

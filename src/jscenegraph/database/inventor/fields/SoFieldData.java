@@ -59,7 +59,9 @@ package jscenegraph.database.inventor.fields;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.Offset;
 
@@ -86,6 +88,21 @@ import jscenegraph.port.Offset;
  *
  */
 public class SoFieldData implements Destroyable {
+	
+
+	// Syntax for reading/writing type information to files
+	public static final char OPEN_BRACE_CHAR       =  '[';
+	public static final char CLOSE_BRACE_CHAR       = ']';
+	public static final char VALUE_SEPARATOR_CHAR   = ',';
+
+// In the binary file format, the number of fields integer is actually
+// a bitfield containing the number of fields written and whether or
+// not there is a description of those fields following.  This assumes
+// there are less than 2^14 (16,384) different fields in any node.
+// We also assume that unsigned shorts have at least 14 bits.
+public static final int NOT_BUILTIN_BIT = (1<<14);
+
+	
 	
 	private final SbPList fields; //!< List of fields (SoFieldEntry)
 	private final SbPList enums = new SbPList(); //!< List of enums (SoEnumEntry)
@@ -263,7 +280,7 @@ public class SoFieldData implements Destroyable {
 	        // look for an entry for this type name
 	        for (int i=0; i<enums.getLength(); i++) {
 	            e = ( SoEnumEntry ) enums.get(i);
-	            if (e.typeName == typeName)
+	            if (e.typeName.operator_equal_equal(typeName))
 	                break;
 	            else
 	                e = null;
@@ -326,7 +343,7 @@ public class SoFieldData implements Destroyable {
 	   
 	/**
 	 * Copy values and flags of fields from one object to another (of the same type). 
-	 * If copyConnections is TRUE, any connections to the fields are 
+	 * If copyConnections is true, any connections to the fields are 
 	 * copied as well 
 	 * 
 	 * @param to
@@ -470,8 +487,290 @@ getFieldName(int index)
 	    }
 	}
 
-	public boolean read(SoInput in, SoFieldContainer soFieldContainer, boolean b, boolean[] notBuiltIn) {
-		// TODO Auto-generated method stub
-		return false;
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads field type information for an unrecognized node.  The
+//    ASCII syntax is a set of field type - field name pairs,
+//    separated by commas, enclosed withing square brackets.  Returns
+//    true on success, false if there is a syntax error or
+//    unrecognized field type.
+//
+//    numDescriptions is a very large number when reading ASCII (where
+//    we just read until the closing square brace).
+//
+// Use: private
+
+private boolean readFieldDescriptions(
+    SoInput in, SoFieldContainer object, int numDescriptions)
+
+//
+////////////////////////////////////////////////////////////////////////
+{
+    boolean gotChar;
+    final SbName fieldType = new SbName();//, fieldName; java port
+    final char[]   c = new char[1];
+
+    boolean isBinary = in.isBinary();
+
+    boolean hadFieldsDefined = fields.getLength() > 0;
+
+    if (!isBinary) 
+        if (! ((gotChar = in.read(c)) || c[0] != OPEN_BRACE_CHAR))
+            return false;
+
+    for (int i = 0; i < numDescriptions; i++) {
+
+        // Check for closing brace:
+        if (!isBinary) {
+            // Check for closing brace:
+            if (in.read(c) && c[0] == CLOSE_BRACE_CHAR)
+                return true;
+            else in.putBack(c[0]);
+        }
+
+        final SbName type = new SbName(), fieldName = new SbName();
+        if (!in.read(type, true)) return false;
+        if (!in.read(fieldName, true)) return false;
+
+        SoType fldType = SoType.fromName(type);
+
+        if (!hadFieldsDefined) {
+            // Only create fields if fields haven't already been
+            // defined.  This isn't 100% correct-- we'll create
+            // field for nodes/engines that have not fields if the
+            // user specifies fields/inputs for them.  But that's
+            // a case I'm not going to worry about (there are VERY
+            // few nodes that have no fields).
+
+            if (fldType.isBad())
+                return false;
+
+            // Create and initialize an instance of the field.
+            // Add it to the field data.
+            SoField fld = (SoField )(fldType.createInstance());
+            fld.setContainer(object);
+
+            // Cast const away:
+            SoFieldData This = (SoFieldData )this;
+            This.addField(object, fieldName.getString(), fld);
+        }
+//#ifdef DEBUG
+        else {
+            // Check to make sure specification matches reality:
+            SoField f = object.getField(fieldName);
+            if (f == null) {
+                SoDebugError.post("SoFieldData::readFieldDescriptions",
+                		object.getTypeId().getName().getString()+" does not have a field named "+fieldName.getString());
+            }
+            else if (!f.isOfType(fldType)) {
+                SoDebugError.postWarning("SoFieldData::readFieldDescriptions",
+                		object.getTypeId().getName().getString()+"."+fieldName.getString()+" is type "+f.getTypeId().getName().getString()+", NOT type "+type.getString());
+            }
+        }
+//#endif
+        if (!isBinary) {
+            // Better get a ',' or a ']' at this point:
+            if (! in.read(c))
+                return false;
+            if (c[0] != VALUE_SEPARATOR_CHAR) {
+                if (c[0] == CLOSE_BRACE_CHAR)
+                    return true;
+                else return false;
+            }
+            // Got a ',', continue reading
+        }
+    }
+
+    return true;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Reads into fields of object according to SoInput. The third
+//parameter indicates whether an unknown field should be reported
+//as an error (default is true); this can be false for nodes that
+//have children.
+//
+//Use: internal
+
+	public boolean read(SoInput in, SoFieldContainer object, boolean errorOnUnknownField, final boolean[] notBuiltIn) {
+	    // true if reading an Inventor file pre-Inventor 2.1:
+	    boolean        oldFileFormat = (in.getIVVersion() < 2.1f);
+
+	    // true if reading binary file format:
+	    boolean        isBinary = in.isBinary();
+
+	    // Assume it is a built-in node, until we figure out otherwise:
+	    notBuiltIn[0] = false;
+
+	    // COMPATIBILITY case:
+
+	    if (oldFileFormat && isBinary) {
+
+	        // If 2.0 file format, and the thing we're reading
+	        // isn't (and, we assume, wasn't) built-in:
+	        if (in.getIVVersion() > 1.0f && !object.getIsBuiltIn()) {
+	            // The "fields" or "inputs" string is read by SoBase,
+	            // because it may need them to decide whether or not to
+	            // create an UnknownNode or an UnknownEngine.
+	            final int[] numDescriptions = new int[1];
+	            if (!in.read(numDescriptions))
+	                return false;
+
+	            notBuiltIn[0] = true;
+	            // The rest of it is just like 2.1 format, IF the object
+	            // has any fields:
+	            if (!readFieldDescriptions(in, object, numDescriptions[0]))
+	                return false;
+	        }
+	        // In the old file format, objects with no fields
+	        // didn't write out anything for the field values:
+	        if (fields.getLength() == 0) return true;
+
+	        // This is mostly like Inventor 2.1 file format, except that
+	        // there is no NOT_BUILTIN_BIT:
+	        final int[] numFieldsWritten = new int[1];
+	        if (!in.read(numFieldsWritten))
+	            return false;
+	        return readFields(in, object, numFieldsWritten[0]);
+	    }
+
+	    // BINARY case:
+
+	    else if (isBinary) {
+	        final short[] numWritten = new short[1];
+
+	        // First read number of fields written
+	        if (! in.read(numWritten))
+	            return false;
+
+	        // Figure out if field descriptions were written:
+	        if ((numWritten[0] & NOT_BUILTIN_BIT)!=0) {
+	            notBuiltIn[0] = true;
+	            numWritten[0] &= (~NOT_BUILTIN_BIT); // Clear bit
+	        }
+
+	        if (notBuiltIn[0]) {
+	            if (!readFieldDescriptions(in, object, numWritten[0]))
+	                return false;
+	        }
+
+	        return readFields(in, object, numWritten[0]);
+	    }
+
+	    // ASCII case:
+	    else {
+
+	        // Only check for "fields" or "inputs" the first time:
+	        boolean firstTime = true;
+
+	        final SbName fieldName = new SbName();
+
+	        // Keep reading fields until done
+	        while (true) {
+
+	            // If no field name, just return.
+	            if (!in.read(fieldName, true) || fieldName.operator_not())
+	                return true;
+
+	            // Read field descriptions.  Field descriptions may be
+	            // given for built-in nodes, and do NOT have to be given
+	            // for non-built-in nodes as long as their code can be
+	            // DSO-loaded.
+	            if (firstTime) {
+	                firstTime = false;
+	                if (fieldName.operator_equal_equal(new SbName("fields")) || fieldName.operator_equal_equal(new SbName("inputs"))) {
+	                    notBuiltIn[0] = true;
+	                    if (!readFieldDescriptions(in, object, NOT_BUILTIN_BIT))
+	                        return true;
+	                    continue;
+	                }
+	            }
+
+	            final boolean[] foundName = new boolean[1];
+	            if (! read(in, object, fieldName, foundName))
+	                return false;
+
+	            // No match with any valid field name
+	            if (!foundName[0]) {
+	                if (errorOnUnknownField) {
+	                    SoReadError.post(in, "Unknown field \""+fieldName.getString()+"\"");
+	                    return false;
+	                }
+	                else {
+	                    // Put the field name back in the stream
+	                    in.putBack(fieldName.getString());
+	                    return true;
+	                }
+	            }
+	        }
+	    }
 	}
+	
+
+////////////////////////////////////////////////////////////////////////
+//
+// Used when reading binary file format:
+//
+// Use: internal
+
+public boolean readFields(SoInput in, SoFieldContainer object,
+                       int numWritten)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SbName fieldName = new SbName();
+
+    // Read the fields - no tolerance for bad data
+    for (int f = 0; f < numWritten; f++) {
+        if (! in.read(fieldName, true) || fieldName.operator_not())
+            return false;
+
+        final boolean[] foundName = new boolean[1];
+        if (! read(in, object, fieldName, foundName))
+            return false;
+
+        // No match with any valid field name
+        if (! foundName[0]) {
+            SoReadError.post(in, "Unknown field \""+fieldName.getString()+"\"");
+            return false;
+        }
+    }
+    return true;
+}
+
+	
+////////////////////////////////////////////////////////////////////////
+//
+// This function is used when the field name has already been
+// read, and just the value needs to be read in.  It is used by
+// the above read() method and to read in GlobalFields.
+//
+// Use: internal
+
+private boolean read(SoInput in, SoFieldContainer object,
+                  final SbName fieldName, final boolean[] foundName)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    int i;
+    for (i = 0; i < fields.getLength(); i++) {
+        if (fieldName.operator_equal_equal(getFieldName(i))) {
+            if (! getField(object, i).read(in, fieldName))
+                return false;
+            break;
+        }
+    }
+    if (i == fields.getLength())
+        foundName[0] = false;
+    else foundName[0] = true;
+
+    return true;
+}
+
+	
 	   }

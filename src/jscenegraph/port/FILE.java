@@ -3,15 +3,17 @@
  */
 package jscenegraph.port;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yves Boyadjian
@@ -19,10 +21,12 @@ import java.nio.file.StandardOpenOption;
  */
 public class FILE {
 	
-	InputStream in;
+	public static final int EOF = -1;
+	
+	PushbackInputStream in;
 
 	public FILE(InputStream in) {
-		this.in = in;
+		this.in = new PushbackInputStream(in);
 	}
 
 	public static void fclose(FILE fp) {
@@ -62,6 +66,80 @@ public class FILE {
 
 	public InputStream getInputStream() {
 		return in;
+	}
+
+	public static void ungetc(char c, FILE fp) {
+		try {
+			fp.in.unread(c);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static int getc(FILE fp) {
+		try {
+			return fp.in.read();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
+	public static int feof(FILE fp) {
+		try {
+			int nextByte = fp.in.read();
+			if(nextByte == -1) {
+				return -1;
+			}
+			else {
+				fp.in.unread(nextByte);
+				return 0;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
+	public static long fread(char[] c, int i, int j, FILE fp) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public static int fscanf(FILE fp, String string, double[] d) {
+		try {
+		switch(string) {
+		case "%lf":
+			StringBuffer chars = new StringBuffer();
+			boolean isSpace = false;
+			do {
+					int c = fp.in.read();
+				if( c == -1 || Character.isSpace((char)c) || c == ',') {
+					isSpace = true;
+					if( c != -1) {
+						fp.in.unread(c);
+					}
+				}
+				else {
+					chars.append((char)c);
+				}
+			} while(!isSpace);
+			d[0] = Double.parseDouble(chars.toString());
+			return 1;
+			default:
+				return 0;
+		}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return EOF;
+	}
+
+	public static int fread(byte[] c, int i, int length, FILE fp) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

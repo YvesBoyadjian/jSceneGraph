@@ -61,6 +61,7 @@ package jscenegraph.database.inventor.fields;
 import jscenegraph.database.inventor.SbDict;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
+import jscenegraph.database.inventor.SoFieldList;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -247,6 +248,11 @@ public abstract class SoFieldContainer extends SoBase {
 	    }
 	}
 
+	    //! Returns whether or not instance is considered 'built-in' to the
+    //! library.  Used during writing.
+    public boolean                getIsBuiltIn() { return isBuiltIn; }
+
+	
 	// Returns an SoFieldData structure for the node.
 	// Objects with no fields should return NULL, which is what the
 	// default method does.
@@ -474,6 +480,57 @@ public boolean readInstance(SoInput in,
     final boolean[] notBuiltIn = new boolean[1]; // Not used
     return getFieldData().read(in, this, true, notBuiltIn);
 }
+
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Return a list of my fields.
+//
+// Use: public
+
+public int getFields(SoFieldList list)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    int                 i;
+    final SoFieldData   fd = getFieldData();
+
+    if (fd == null)
+        return 0;
+
+    for (i = 0; i < fd.getNumFields(); i++) {
+        list.append(fd.getField(this, i));
+    }
+
+    return fd.getNumFields();
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Returns a pointer to the field with the given name. If no such
+//field exists, NULL is returned.
+//
+//Use: public
+
+    //! Returns a pointer to the field with the given name. If no such
+    //! field exists, NULL is returned.
+    public SoField getField(final SbName fieldName) {
+    int                 i;
+    final SoFieldData   fd = getFieldData();
+
+    if (fd == null)
+        return null;
+
+    // Search fields for one with given name
+    for (i = 0; i < fd.getNumFields(); i++)
+        if (fd.getFieldName(i) == fieldName)
+            return fd.getField(this, i);
+
+    // Not found...
+    return null;    	
+    }
 
 	
 }

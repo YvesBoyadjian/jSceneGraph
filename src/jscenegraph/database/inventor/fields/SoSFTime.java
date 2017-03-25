@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbTime;
+import jscenegraph.database.inventor.SoInput;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Field containing an SbTime.
@@ -84,5 +85,27 @@ public class SoSFTime extends SoSField<SbTime> {
 	protected SbTime constructor() {		
 		return new SbTime();
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final double[]      seconds = new double[1];
+
+    if (! in.read(seconds))
+        return false;
+
+    setValue(new SbTime(seconds[0]));
+
+    return true;
+}
 
 }

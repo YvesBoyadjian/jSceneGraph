@@ -54,6 +54,10 @@
 
 package jscenegraph.database.inventor;
 
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.elements.SoElement;
@@ -61,6 +65,7 @@ import jscenegraph.database.inventor.engines.SoEngine;
 import jscenegraph.database.inventor.engines.SoFieldConverter;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoError;
+import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.database.inventor.events.SoEvent;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldContainer;
@@ -103,7 +108,7 @@ SoSeparator  *rootSep;
 SoInput      in;
 SoDB::init();
 rootSep = SoDB::readAll(&in);
-if (rootSep == NULL)
+if (rootSep == null)
 printf("Error on read...\n");
 ...\
 \endcode
@@ -125,6 +130,19 @@ public class SoDB {
 		void run(Object userData, SoInput in);
 	}
 
+
+// Internal class for storing headers and the corresponding 
+// callback functions.
+	private static class SoDBHeaderData {
+    String        headerString;
+    boolean            isBinary;
+    float           ivVersion;
+    SoDBHeaderCB    preCB;
+    SoDBHeaderCB    postCB;
+    Object            userData;    
+};
+
+	
 	/**
 	 * The thread used to run JSceneGraph
 	 */
@@ -396,10 +414,98 @@ public
 	   //
 	   ////////////////////////////////////////////////////////////////////////
 	   {
-		   // Not implemented in this version
-		   return false;
+    final SoBase[]      base = new SoBase[1];
+    boolean        ret;
+
+    ret = read(in, base);
+
+    if (base[0] != null) {
+        if (base[0].isOfType(SoNode.getClassTypeId()))
+            rootNode[0] = (SoNode ) base[0];
+
+        else {
+            SoReadError.post(in, "looking for a node but got "+base[0].getTypeId().getName());
+            ret = false;
+            
+            // Free the scene we just read by refing/unrefing
+            base[0].ref();
+            base[0].unref();
+        }
+    }
+
+    else
+        rootNode[0] = null;
+
+    return ret;
 	   } 	
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads an SoBase from the file specified by the given SoInput,
+//    returning a pointer to the resulting instance in base. Returns
+//    FALSE on error.
+//
+// Use: private, static
+
+private static boolean read(SoInput in, final SoBase[] base)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    boolean        ret;
+    String dataFileName;
+    String searchPath = null;
+
+//#ifdef DEBUG
+    if (globalDB == null) {
+        SoDebugError.post("SoDB::read", "SoDB::init() was never called");
+        return false;
+    }
+//#endif /* DEBUG */
+
+    // Before reading, see if the SoInput is reading from a named
+    // file. If so, make sure the directory search path in the SoInput
+    // is set up to read from the same directory the file is in.
+    dataFileName = in.getCurFileName();
+
+    if (dataFileName != null) {
+        int slashPtr;
+
+        // Set up the directory search stack if necessary. Look for
+        // the last '/' in the path. If there is none, there's no
+        // path. Otherwise, remove the slash and everything after it.
+        FileSystem fs = FileSystems.getDefault();
+        Path path = fs.getPath(dataFileName);
+        searchPath = path.getParent().toString();
+        
+        if (!searchPath.isEmpty()) {
+            SoInput.addDirectoryFirst(searchPath);
+        }
+    }
+
+    ret = SoBase.read(in, base, SoBase.getClassTypeId());
+
+    // If no valid base was read, but we haven't hit EOF, that means
+    // that there's extra crap in the input that's not an Inventor
+    // thing. If so, report an error.
+    if (ret && base == null && ! in.eof()) {
+        final char[]    c = new char[1];
+        in.get(c);
+        SoReadError.post(in, "Extra characters ('"+c[0]+"') found in input");
+        ret = false;
+    }
+
+    // Clean up directory list if necessary
+    if (searchPath != null) {
+        SoInput.removeDirectory(searchPath);
+        //free(searchPath); java port
+    }
+
+    return ret;
+}
+
+	   
     //! Initializes the database.  This must be called before calling any
     //! other database routines, including the construction of any nodes,
     //! paths, engines, or actions.
@@ -461,32 +567,32 @@ init()
         
         // Create the header list, and register valid headers we know about
         headerList = new SbPList();
-//        SoDB.registerHeader(SoOutput.getDefaultASCIIHeader(),  
-//                                false, 2.1f,
-//                                null, null, null);
-//        SoDB.registerHeader(SoOutput.getDefaultBinaryHeader(), 
-//                                true, 2.1f,
-//                                null, null, null);
-//        SoDB.registerHeader("#Inventor V2.0 ascii",  
-//                                false, 2.0f,
-//                                null, null, null);
-//        SoDB.registerHeader("#Inventor V2.0 binary", 
-//                                true, 2.0f,
-//                                null, null, null);
-//        SoDB.registerHeader("#Inventor V1.0 ascii",  
-//                                false, 1.0f,
-//                                null, null, null);
-//        SoDB.registerHeader("#Inventor V1.0 binary", 
-//                                true,  1.0f,
-//                                null, null, null);
+        SoDB.registerHeader(SoOutput.getDefaultASCIIHeader(),  
+                                false, 2.1f,
+                                null, null, null);
+        SoDB.registerHeader(SoOutput.getDefaultBinaryHeader(), 
+                                true, 2.1f,
+                                null, null, null);
+        SoDB.registerHeader("#Inventor V2.0 ascii",  
+                                false, 2.0f,
+                                null, null, null);
+        SoDB.registerHeader("#Inventor V2.0 binary", 
+                                true, 2.0f,
+                                null, null, null);
+        SoDB.registerHeader("#Inventor V1.0 ascii",  
+                                false, 1.0f,
+                                null, null, null);
+        SoDB.registerHeader("#Inventor V1.0 binary", 
+                                true,  1.0f,
+                                null, null, null);
                                     
         // For now, treat VRML files as Inventor 2.1 files.
         // In the future, we might want to verify that the VRML file
         // contains strictly VRML nodes, i.e. any Inventor (non-VRML)
         // nodes in the file generate read warnings.
-//        SoDB.registerHeader("#VRML V1.0 ascii",  
-//                                false, 2.1f,
-//                                null, null, null);
+        SoDB.registerHeader("#VRML V1.0 ascii",  
+                                false, 2.1f,
+                                null, null, null);
         
         // Create realTime global field. We have to bypass the
         // standard createGlobalField stuff because there is no
@@ -529,6 +635,58 @@ init()
 
 }
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Registers callbacks to be invoked when a particular header
+//    string is found.  Returns FALSE if the string is not a valid header
+//    string. Returns TRUE if the header is successfully registered.
+//    Note, nothing prevents you from registering the same string multiple
+//    times.
+
+//
+// Use: public, static
+
+public static boolean registerHeader(final String header, boolean isBinary, float ivVersion,
+                    SoDBHeaderCB preCB, SoDBHeaderCB postCB, Object userData)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Header string cannot be greater than 80 characters in length,
+    // and must have at least one character beyond the initial comment char.
+    int headerLength = header.length();
+    if (headerLength > 80 || headerLength < 2)
+        return (false);
+        
+    // The first character must be the comment character
+    String string = header;
+    if (string.charAt(0) != '#')
+        return (false);
+        
+    // The string must not contain any newline characters.
+    for (int i = 1; i < header.length(); i++)
+        if (string.charAt(i) == '\n')
+            return (false);
+         
+    SoDBHeaderData data = new SoDBHeaderData();
+    
+    // Binary headers *must* be padded for correct alignment, but to make things 
+    // simpler when looking up headers, we'll just pad all headers - including 
+    // ascii ones.
+    data.headerString = SoOutput.padHeader(header);
+    
+    data.isBinary = isBinary;
+    data.ivVersion = ivVersion;
+    data.preCB = preCB;
+    data.postCB = postCB;
+    data.userData = userData;
+    headerList.append(data);
+     
+    return (true);
+}
+
+
     //! Returns a character string identifying the version of the Inventor
     //! library in use.
    public static String   getVersion() {
@@ -543,7 +701,7 @@ init()
     //! global field with the given name and type. If there is already a
     //! global field with the given name and type, it will return it. If there
     //! is already a global field with the given name but a different type,
-    //! this returns NULL.
+    //! this returns null.
     //! 
     //! 
     //! All global fields must be derived from SoField; typically the result
@@ -626,5 +784,87 @@ init()
     public static SbTime getRealTimeInterval() {
     	return realTimeSensor.getInterval();
     }
+ 
+    
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Look up the given header string in our list of registered 
+//    headers, and pass back the data associated with that header i.e.
+//    pointers to the pre- and post- callbacks, the user data, and
+//    a boolean indicating whether it's binary or ascii. 
+//    The return value is true if the string is found in the list of
+//    registered headers. 
+//    If the substringOK flag is TRUE, then we also look for registered
+//    headers that are substrings of the given header string. 
+//
+// Use: public, static
+
+public static boolean getHeaderData(final String header, 
+                    final boolean[] isBinary, final float[] ivVersion,
+                    final SoDBHeaderCB[] preCB, final SoDBHeaderCB[] postCB, 
+                    final Object[] userData, boolean substringOK)
+//
+////////////////////////////////////////////////////////////////////////
+{    
+    int whichHeader = -1;
+    SoDBHeaderData data;
+    String paddedHeader = SoOutput.padHeader(header);
+    
+    // First look for an exact match
+    for (int i = headerList.getLength()-1; i >= 0 && whichHeader == -1; i--) {
+        data = (SoDBHeaderData ) (headerList).operator_square_bracket(i);
+        String registeredString = data.headerString;
+        
+        if (paddedHeader.equals(registeredString)) {
+                whichHeader = i;
+                
+        } 
+    }
+    
+    // If we didn't find an exact match,
+    // look for a substring that is a valid registered string
+    if (whichHeader == -1 && substringOK) {
+    
+        for (int i = headerList.getLength()-1; i >= 0 && whichHeader == -1; i--) {
+            data = (SoDBHeaderData ) (headerList).operator_square_bracket(i);
+            String registeredString = data.headerString;     
+        
+            if (paddedHeader.length() >= registeredString.length()) {
+            
+                // See how much padding there is in the registered header string
+                String registeredStr = data.headerString;
+                int lastNonPadChar = registeredString.length() - 1;
+                while (registeredStr.charAt(lastNonPadChar) == ' ' && lastNonPadChar > 0) 
+                    lastNonPadChar--;
+                
+                // Is the registered header (minus the padding) a substring 
+                // of the the given header string?
+                if (registeredString.substring(0, lastNonPadChar-1) == 
+                        paddedHeader.substring(0, lastNonPadChar-1)) {
+                    whichHeader = i;                    
+                }
+            }       
+        }
+    }
+   
+    if (whichHeader == -1) {
+        isBinary[0] = false;
+        ivVersion[0] = -1;
+        preCB[0] = null;
+        postCB[0] = null;
+        userData[0] = null;
+        return (false);
+    }
+    
+    data = (SoDBHeaderData ) (headerList).operator_square_bracket(whichHeader);
+    isBinary[0] = data.isBinary;
+    ivVersion[0] = data.ivVersion;
+    preCB[0] = data.preCB;
+    postCB[0] = data.postCB;
+    userData[0] = data.userData;   
+    return (true);      
+}
+
     
 }

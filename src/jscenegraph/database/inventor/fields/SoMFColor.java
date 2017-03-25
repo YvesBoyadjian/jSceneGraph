@@ -54,7 +54,10 @@
 
 package jscenegraph.database.inventor.fields;
 
+import java.util.function.DoubleConsumer;
+
 import jscenegraph.database.inventor.SbColor;
+import jscenegraph.database.inventor.SoInput;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,4 +108,23 @@ public class SoMFColor extends SoMField<SbColor> {
 	protected SbColor[] arrayConstructor(int length) {
 		return new SbColor[length];
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads one (indexed) value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean read1Value(SoInput in, int index)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	DoubleConsumer[] ret = ((SbColor)values[index]).getRef();
+    return (in.read(ret[0]) &&
+            in.read(ret[1]) &&
+            in.read(ret[2]));
+}
+
 }

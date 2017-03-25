@@ -421,6 +421,11 @@ createInstance()
     return (Object)(new SoPath());
 }
 
+	    //! Reads stuff into instance of SoPath. Returns FALSE on error.
+    public boolean        readInstance(SoInput in, short flags) {
+    	return false; //TODO
+    }
+
 	
 	
 	//

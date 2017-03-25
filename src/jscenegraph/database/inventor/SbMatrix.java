@@ -70,6 +70,8 @@
 
 package jscenegraph.database.inventor;
 
+import java.util.function.DoubleConsumer;
+
 import jscenegraph.port.Mutable;
 
 
@@ -1520,6 +1522,28 @@ public void jacobi3(final float[] evalues,
 }
 //#undef SB_JACOBI_RANK
 
-
-    
+	/**
+	 * Java port
+	 * @return
+	 */
+    public DoubleConsumer[][] getRef() {
+    	DoubleConsumer[][] ref = new DoubleConsumer[4][4];
+		ref[0][0] = value -> matrix[0][0] = (float)value;
+		ref[0][1] = value -> matrix[0][1] = (float)value;
+		ref[0][2] = value -> matrix[0][2] = (float)value;
+		ref[0][3] = value -> matrix[0][3] = (float)value;
+		ref[1][0] = value -> matrix[1][0] = (float)value;
+		ref[1][1] = value -> matrix[1][1] = (float)value;
+		ref[1][2] = value -> matrix[1][2] = (float)value;
+		ref[1][3] = value -> matrix[1][3] = (float)value;
+		ref[2][0] = value -> matrix[2][0] = (float)value;
+		ref[2][1] = value -> matrix[2][1] = (float)value;
+		ref[2][2] = value -> matrix[2][2] = (float)value;
+		ref[2][3] = value -> matrix[2][3] = (float)value;
+		ref[3][0] = value -> matrix[3][0] = (float)value;
+		ref[3][1] = value -> matrix[3][1] = (float)value;
+		ref[3][2] = value -> matrix[3][2] = (float)value;
+		ref[3][3] = value -> matrix[3][3] = (float)value;
+    	return ref;
+    }
 }

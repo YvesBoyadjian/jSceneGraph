@@ -185,4 +185,21 @@ public class SoText3 extends SoShape {
 		
 	}
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    This initializes the SoText3 class.
+//
+// Use: internal
+
+public static void initClass()
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SO__NODE_INIT_CLASS(SoText3.class, "Text3", SoShape.class);
+
+    // Font name and size elements are enabled by the SoFont node
+}
+
 }

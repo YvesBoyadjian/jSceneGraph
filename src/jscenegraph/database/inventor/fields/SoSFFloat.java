@@ -54,6 +54,9 @@
 
 package jscenegraph.database.inventor.fields;
 
+import java.util.function.DoubleConsumer;
+
+import jscenegraph.database.inventor.SoInput;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Field containing a floating-point value.
@@ -92,5 +95,25 @@ public class SoSFFloat extends SoSField<Float> {
 	protected Float constructor() {		
 		return new Float(0);
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return in.read(new DoubleConsumer(){
+		@Override
+		public void accept(double val) {
+			value = (float)val;			
+		}    	
+    });
+}
 
 }

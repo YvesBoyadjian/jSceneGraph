@@ -63,7 +63,9 @@ package jscenegraph.database.inventor.fields;
 import java.lang.reflect.InvocationTargetException;
 
 import jscenegraph.database.inventor.SbName;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoReadError;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -194,7 +196,7 @@ findEnumValue(final SbName name, final int[] val)
 
     // Look through names table for one that matches
     for (i = 0; i < numEnums; i++) {
-        if (name == enumNames[i]) {
+        if (name.operator_equal_equal(enumNames[i])) {
             val[0] = enumValues[i];
             return true;
         }
@@ -262,4 +264,34 @@ findEnumName(int val, final SbName[] name)
         enumValues = ef.enumValues;    //!< Enumeration values
         enumNames = ef.enumNames;     //!< Mnemonic names of values
 	}	  
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SbName      n = new SbName();
+
+    // Read mnemonic value as a character string identifier
+    if (! in.read(n, true))
+        return false;
+
+    final int[] val = new int[1];
+    if (findEnumValue(n, val)) { //java port
+    	value = val[0];
+        return true;
+    }
+
+    // Not found? Too bad
+    SoReadError.post(in, "Unknown SoSFEnum enumeration value \""+n.getString()+"\"");
+    return false;
+}
+
 }

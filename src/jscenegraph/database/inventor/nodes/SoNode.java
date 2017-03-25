@@ -465,7 +465,7 @@ getByName( SbName name, SoNodeList list)
 		       SoEnvironment.initClass();
 		       SoEventCallback.initClass();
 		       SoFaceSet.initClass();
-//		       SoFile.initClass();
+		       SoFile.initClass();
 		       SoFont.initClass();
 		       SoFontStyle.initClass();
 //		       SoIndexedFaceSet.initClass();
@@ -486,8 +486,8 @@ getByName( SbName name, SoNodeList list)
 		       SoMaterialBinding.initClass();
 		       SoMatrixTransform.initClass();
 //		       SoMultipleCopy.initClass();
-//		       SoNormal.initClass();
-//		       SoNormalBinding.initClass();
+		       SoNormal.initClass();
+		       SoNormalBinding.initClass();
 //		       SoNurbsCurve.initClass();
 //		       SoNurbsProfile.initClass();
 //		       SoNurbsSurface.initClass();
@@ -510,7 +510,7 @@ getByName( SbName name, SoNodeList list)
 //		       SoSpotLight.initClass();
 		       SoSwitch.initClass();
 		       SoText2.initClass();
-//		       SoText3.initClass();
+		       SoText3.initClass();
 		       SoTextureCoordinate2.initClass();
 		       SoTextureCoordinateBinding.initClass();
 //		       SoTextureCoordinateFunction.initClass();

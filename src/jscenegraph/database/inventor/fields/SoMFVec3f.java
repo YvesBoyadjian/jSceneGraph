@@ -55,9 +55,10 @@
 package jscenegraph.database.inventor.fields;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.util.function.DoubleConsumer;
 
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Util;
 
 
@@ -237,4 +238,24 @@ public void setValues(int start, int num, float[][][] xyz3d) {
 		protected SbVec3f[] arrayConstructor(int length) {
 			return new SbVec3f[length];
 		}
+		
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads one (indexed) value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean read1Value(SoInput in, int index)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	DoubleConsumer[] ref = getValues(0)[index].getRef();
+    return (in.read(ref[0]) &&
+            in.read(ref[1]) &&
+            in.read(ref[2]));
+}
+
+		
 }

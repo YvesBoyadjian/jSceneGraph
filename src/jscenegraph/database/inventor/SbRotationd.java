@@ -27,6 +27,10 @@ public class SbRotationd implements Mutable { //TODO
 	    	setValue(m); 
 	    }
 
+    //! \see SbRotationd(const SbVec3d &rotateFrom, const SbVec3d &rotateTo)
+    public SbRotationd(final SbVec3d axis, double radians)
+        { setValue(axis, radians); }
+
 
 
 	/* (non-Javadoc)
@@ -233,6 +237,35 @@ SbRotationd setValue(final SbMatrixd mM)
 //#endif
 
     return (this);
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Sets value of rotation from 3D rotation axis vector and angle in
+//    radians.
+//
+// Use: public
+
+public SbRotationd setValue(final SbVec3d axis, double radians)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SbVec3d     q = new SbVec3d();
+
+    q.copyFrom(axis);
+    q.normalize();
+
+    q.operator_mul_equal( Math.sin(radians / 2.0));
+
+    quat[0] = q.operator_square_bracket(0);
+    quat[1] = q.operator_square_bracket(1);
+    quat[2] = q.operator_square_bracket(2);
+
+    quat[3] = Math.cos(radians / 2.0);
+
+    return(this);
 }
 
 

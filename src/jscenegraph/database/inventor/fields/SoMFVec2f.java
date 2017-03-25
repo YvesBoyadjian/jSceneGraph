@@ -55,8 +55,10 @@
 package jscenegraph.database.inventor.fields;
 
 import java.nio.ByteBuffer;
+import java.util.function.DoubleConsumer;
 
 import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Util;
 
 
@@ -117,6 +119,23 @@ public class SoMFVec2f extends SoMField<SbVec2f> {
         	 SbVec2f[] values = getValues(start);
         	 return Util.toByteBuffer(values);
          }
+
+ 
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads one (indexed) value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean read1Value(SoInput in, int index)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	DoubleConsumer[] ref = ((SbVec2f)values[index]).getRef();
+    return (in.read(ref[0]) &&
+            in.read(ref[1]));
+}
 
          
 }

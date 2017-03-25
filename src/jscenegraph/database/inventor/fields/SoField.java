@@ -69,9 +69,12 @@ import jscenegraph.database.inventor.engines.SoEngineOutput;
 import jscenegraph.database.inventor.engines.SoEngineOutputData;
 import jscenegraph.database.inventor.engines.SoFieldConverter;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.database.inventor.misc.SoAuditorList;
+import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
+import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.sensors.SoDataSensor;
 import jscenegraph.mevis.inventor.SoProfiling;
 import jscenegraph.port.Destroyable;
@@ -143,7 +146,7 @@ SoSFTrigger, float/short/unsigned short/int32_t/uint32_t/etc
 numeric conversions, etc). You can add field converters using SoDB's
 extender method addConverter(); see the SoDB.h header file for
 details.  You can also find out if a converter is available with the
-SoDB::getConverter() method.
+SoDB.getConverter() method.
 
 
 Fields each define their own file format for reading and being written
@@ -195,6 +198,24 @@ SoSField, SoMField, SoNode, SoDB
  */
 public abstract class SoField implements Destroyable {
 
+
+// Special characters in files
+public static final char OPEN_BRACE_CHAR         ='[';
+public static final char CLOSE_BRACE_CHAR        =']';
+public static final char VALUE_SEPARATOR_CHAR    =',';
+public static final char IGNORE_CHAR             ='~';
+public static final char CONNECTION_CHAR         ='=';
+public static final char FIELD_SEP_CHAR          ='.';
+
+// Bit flags in flags token in binary files
+public static final int FIELD_IGNORED           =0x01;
+public static final int FIELD_CONNECTED         =0x02;
+public static final int FIELD_DEFAULT           =0x04;
+
+// Amount of values to allocate at a time when reading in multiple values.
+public static final int VALUE_CHUNK_SIZE        =32;
+
+	
 	// ! The "flags" field contains several bit flags:
 	public class Flags implements Cloneable {
 		public boolean hasDefault; // !< Field is set to default value
@@ -489,7 +510,7 @@ public abstract class SoField implements Destroyable {
 				// #ifdef DEBUG
 				if (c_input == null || c_output == null) {
 					SoDebugError.post("SoField.connectFrom",
-							"Created converter, but converter" + "input or output is NULL");
+							"Created converter, but converter" + "input or output is null");
 					return false;
 				}
 				// #endif
@@ -582,7 +603,7 @@ public abstract class SoField implements Destroyable {
 				// #ifdef DEBUG
 				if (c_input == null || c_output == null) {
 					SoDebugError.post("SoField.connectFrom",
-							"Created converter, but converter" + "input or output is NULL");
+							"Created converter, but converter" + "input or output is null");
 					return false;
 				}
 				// #endif
@@ -844,7 +865,7 @@ public abstract class SoField implements Destroyable {
 	////////////////////////////////////////////////////////////////////////
 	//
 	// Description:
-	// This returns TRUE if this field contains a reference to a node
+	// This returns true if this field contains a reference to a node
 	// or engine that is copied during a copy operation (i.e., it is
 	// "inside"). The default method just checks if the field is
 	// connected to such a node or engine. Subclasses may contain other
@@ -985,14 +1006,14 @@ public abstract class SoField implements Destroyable {
 		}
 
 		// Indicate that we are notifying, to break future cycles.
-		// SFTrigger relies on this being done BEFORE checking for a NULL
+		// SFTrigger relies on this being done BEFORE checking for a null
 		// field container.
 		flags.dirty = true;
 
 		// Propagate to all auditors.
 		// NOTE: Since this may be done for fields that are being
-		// constructed, we have to check for a NULL container first.
-		// NOTE: SFTrigger fields set their container to NULL temporarily
+		// constructed, we have to check for a null container first.
+		// NOTE: SFTrigger fields set their container to null temporarily
 		// when being read in to prevent notification propagating when
 		// they're read.
 		SoFieldContainer cont = getContainer();
@@ -1064,7 +1085,7 @@ public abstract class SoField implements Destroyable {
 	////////////////////////////////////////////////////////////////////////
 	//
 	// Description:
-	// Returns TRUE if the field (or its description) needs to be
+	// Returns true if the field (or its description) needs to be
 	// written out.
 	//
 	// Use: internal
@@ -1127,7 +1148,7 @@ public abstract class SoField implements Destroyable {
 	public void addAuditor(Object auditor, SoNotRec.Type type) {
 		// #ifdef DEBUG
 		if (auditor == null) {
-			SoDebugError.post("SoField.addAuditor", "ACK! Trying to add a NULL auditor");
+			SoDebugError.post("SoField.addAuditor", "ACK! Trying to add a null auditor");
 			return;
 		}
 		// #endif
@@ -1288,6 +1309,153 @@ public abstract class SoField implements Destroyable {
 			f.flags.notifyEnabled = notifySave;
 		}
 	}
+	
+	    //! Reads value(s) of field
+    public abstract boolean        readValue(SoInput in);
+
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads field connection from file. Works for ASCII and binary
+//    input. Returns false on error.  The upstream connection is
+//    evaluated before connecting so we don't end up with dirty fields
+//    upstream from clean ones (fields are clean once they've been
+//    read).
+//
+// Use: private
+
+public boolean readConnection(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoFieldContainer    connContainer;
+    final SbName              fieldName = new SbName();
+    boolean                gotChar;
+    final char[]                c = new char[1];
+
+    // The field is connected to either an engine output or to a field
+    // of an engine or node. First, read the node or engine as a base.
+    final SoBase[] baseTemp = new SoBase[1];
+    if (! SoBase.read(in, baseTemp, SoFieldContainer.getClassTypeId()))
+        return false;
+
+    if (baseTemp[0] == null) {
+        SoReadError.post(in, "Missing node or engine name in "+
+                          "connection specification");
+        return false;
+    }
+
+    connContainer = (SoFieldContainer ) baseTemp[0];
+
+    // Read the field separator character (ASCII only)
+    if (! in.isBinary() &&
+        (! (gotChar = in.read(c)) || c[0] != FIELD_SEP_CHAR)) {
+
+        if (gotChar)
+            SoReadError.post(in, "Expected '"+FIELD_SEP_CHAR+"'; got '"+c[0]+"'");
+        else
+            SoReadError.post(in, "Expected '"+FIELD_SEP_CHAR+"'; got EOF");
+
+        return false;
+    }
+
+    // Read the field name or output name
+    if (! in.read(fieldName, true)) {
+        SoReadError.post(in,
+                          "Premature end of file before connection was read");
+        return false;
+    }
+
+    // If the base is a node, make sure the field name is valid and
+    // then connect to it.
+    if (connContainer.isOfType(SoNode.getClassTypeId())) {
+        SoNode  node = (SoNode ) connContainer;
+        SoField connField;
+
+        connField = node.getField(fieldName);
+
+        if (connField == null) {
+            String nodeName = node.getTypeId().getName().getString();
+            SoReadError.post(in, "No such field \""+fieldName.getString()+"\" in node "+nodeName);
+            return false;
+        }
+
+        if (! connectFrom(connField)) {
+            String nodeName = node.getTypeId().getName().getString();
+            SoReadError.post(in, "Can't connect to field \""+nodeName+"."+fieldName.getString()+"\"");
+            return false;
+        }
+    }
+
+    // If the base is an engine, make sure the name is a valid field
+    // or output and then connect to it
+    else if (connContainer.isOfType(SoEngine.getClassTypeId())) {
+        SoEngine        engine = (SoEngine ) connContainer;
+        SoField         connField;
+        SoEngineOutput  connOutput;
+
+        connField = engine.getField(fieldName);
+
+        if (connField == null) {
+
+            // See if it's an output
+            connOutput = engine.getOutput(fieldName);
+
+            if (connOutput == null) {
+                String eName = engine.getTypeId().getName().getString();
+                SoReadError.post(in, "No such field or output \""+fieldName.getString()+"\" "+
+                                  "in engine "+eName);
+                return false;
+            }
+
+            if (! connectFrom(connOutput)) {
+                String eName = engine.getTypeId().getName().getString();
+                SoReadError.post(in,
+                                  "Can't connect to engine output \""+eName+"."+fieldName.getString()+"\"");
+                return false;
+            }
+        }
+        else {
+            if (! connectFrom(connField)) {
+                String eName = engine.getTypeId().getName().getString();
+                SoReadError.post(in, "Can't connect to field \""+eName+"."+fieldName.getString()+"\"");
+                return false;
+            }
+        }
+    }
+
+    // If it is a global field...
+    else if (connContainer.isOfType(SoGlobalField.getClassTypeId())) {
+
+        SoGlobalField gf = (SoGlobalField ) connContainer;
+        SoField connField = gf.getMyField();
+
+        // Make sure the name in the input is the name of the global field
+        if (fieldName != gf.getName()) {
+            String globalName = gf.getName().getString();
+            SoReadError.post(in, "Wrong field name (\""+fieldName.getString()+"\") for global "+
+                              "field \""+globalName+"\"");
+            return false;
+        }
+
+        if (! connectFrom(connField)) {
+            SoReadError.post(in, "Can't connect to global field \""+gf.getName().getString()+"\"");
+            return false;
+        }
+    }
+
+    // If it's not a node, engine or global field, problem
+    else {
+        SoReadError.post(in, "Trying to connect to a "+
+                          connContainer.getTypeId().getName().getString());
+        return false;
+    }
+
+    return true;
+}
+
+	
 
 	/**
 	 * Indicates to a field that a change has been made involving a connection
@@ -1310,8 +1478,126 @@ public abstract class SoField implements Destroyable {
 	 * @param name
 	 * @return
 	 */
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Reads field from file. Works for ASCII and binary input. The
+//name of the field has already been read and is passed here (for
+//error messages).
+//
+//Use: private
+
 	public boolean read(SoInput in, SbName name) {
-		return false; // TODO
+    final char[]        c = new char[1];
+    boolean        shouldReadConnection = false;
+    boolean        gotValue = false;
+
+    // Turn off notification during reading process.  It is turned
+    // back on and notification is started below:
+    boolean wasNotifyEnabled = flags.notifyEnabled;
+    flags.notifyEnabled = false;
+
+    if (in.isBinary()) { //TODO
+//        short   readFlags;
+//
+//        if (! readValue(in)) {
+//            SoReadError.post(in,
+//                              "Couldn't read binary value for field \""+name.getString()+"\"");
+//            flags.notifyEnabled = wasNotifyEnabled;
+//            return false;
+//        }
+//
+//        // Read flags
+//        if (! in.read(readFlags)) {
+//            SoReadError.post(in,
+//                              "Couldn't read binary flags for field \""+name.getString()+"\"");
+//            flags.notifyEnabled = wasNotifyEnabled;
+//            return false;
+//        }
+//
+//        // (Don't use setIgnored() to set this, since it would cause
+//        // notification, which we don't want to have happen for trigger
+//        // fields.)
+//        flags.ignored = (readFlags & FIELD_IGNORED) != 0;
+//        shouldReadConnection = (readFlags & FIELD_CONNECTED) != 0;
+//        setDefault((readFlags & FIELD_DEFAULT) != 0);
+//        gotValue      = true;
+    }
+
+    // ASCII version...
+    else {
+        // Check for ignore flag with no value
+        if (in.read(c) && c[0] == IGNORE_CHAR) {
+            setDefault(true);
+            setIgnored(true);
+
+            // Check for connection to engine/field
+            if (in.read(c) && c[0] == CONNECTION_CHAR)
+                shouldReadConnection = true;
+            else
+                in.putBack(c[0]);
+            gotValue = false;
+        }
+
+        else {
+            setIgnored(false);
+
+            // If character is connection character, we just use the
+            // default value and skip the reading-value stuff
+            if (c[0] != CONNECTION_CHAR) {
+                in.putBack(c[0]);
+
+                if (! readValue(in)) {
+                    SoReadError.post(in,
+                                      "Couldn't read value for field \""+name.getString()+"\"");
+                    flags.notifyEnabled = wasNotifyEnabled;
+                    return false;
+                }
+
+                gotValue = true;
+                setDefault(false);
+
+                // Check for ignore flag after value
+                if (in.read(c) && c[0] == IGNORE_CHAR) {
+                    // (Don't use setIgnored() to set this, since it
+                    // would cause notification, which we don't want
+                    // to have happen for trigger fields.)
+                    flags.ignored = true;
+
+                    // Get character to check for connection to
+                    // engine/field below.
+                    in.read(c);
+                }
+            } else {
+                gotValue = false;
+            }
+
+            // Check for connection to engine/field
+            if (c[0] == CONNECTION_CHAR)
+                shouldReadConnection = true;
+            else
+                in.putBack(c[0]);
+        }
+    }
+
+    // Read connection info if necessary.
+    if (shouldReadConnection  && !readConnection(in)) {
+        flags.notifyEnabled = wasNotifyEnabled;
+        return false;
+    }
+
+    // Turn notification back the way it was:
+    flags.notifyEnabled = wasNotifyEnabled;
+
+    // If a value was read (even if there's a connection), call
+    // valueChanged. Otherwise, just notify.
+    if (gotValue) {
+        valueChanged(false);
+    } else {
+        startNotify();
+    }
+
+    return true;
 	}
 
 	//
@@ -1434,7 +1720,7 @@ public abstract class SoField implements Destroyable {
 	////////////////////////////////////////////////////////////////////////
 	//
 	// Description:
-	// Returns TRUE if field is an instance of a field of the given type
+	// Returns true if field is an instance of a field of the given type
 	// or an instance of a subclass of it.
 	//
 	// Use: public
@@ -1449,7 +1735,7 @@ public abstract class SoField implements Destroyable {
 	//
 	// Description:
 	// Creates a converter engine to convert from the given field
-	// type to the type of this field. Returns NULL on error.
+	// type to the type of this field. Returns null on error.
 	//
 	// Use: private
 

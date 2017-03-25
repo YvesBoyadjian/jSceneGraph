@@ -90,7 +90,7 @@ public class SoInputFile {
     boolean                openedHere;     //!< TRUE if opened by SoInput
     boolean                binary;         //!< TRUE if file has binary data
     boolean                readHeader;     //!< TRUE if header was checked for A/B
-    boolean                headerOk;       //!< TRUE if header was read ok
+    public boolean                headerOk;       //!< TRUE if header was read ok
     SbDict              refDict;       //!< Node/path reference dictionary
     boolean                borrowedDict;   //!< TRUE if dict from another SoInput
     float               ivVersion;      //!< Version if standard Inventor file;

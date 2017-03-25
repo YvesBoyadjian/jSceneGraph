@@ -54,6 +54,9 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.database.inventor.SbName;
+import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.errors.SoReadError;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Field containing a single boolean value.
@@ -82,6 +85,54 @@ public class SoSFBool extends SoSField<Boolean> {
 	protected Boolean constructor() {		
 		return new Boolean(false);
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // accept 0 or 1 for both binary and ascii
+    // with integer fields)
+    final int[] intValue = new int[1];
+    if (in.read(intValue)) {
+        value = intValue[0]!=0;
+        if (intValue[0] != 0 && intValue[0] != 1) {
+            SoReadError.post(in, "Illegal value for SoSFBool: "+intValue+" "+
+                              "(must be 0 or 1)");
+            return false;
+        }
+        return true;
+    }
+
+    // binary doesn't use TRUE/FALSE strings
+    if (in.isBinary())
+        return false;
+
+    // read TRUE/FALSE keyword
+    final SbName n = new SbName();
+    if (!in.read(n, true))
+        return false;
+    
+    if (n.operator_equals(new SbName("TRUE"))) {
+        value = true;
+        return true;
+    }
+
+    if (n.operator_equals(new SbName("FALSE"))) {
+        value = false;
+        return true;
+    }
+
+    SoReadError.post(in, "Unknown value (\""+n.getString()+"\") for SoSFBool "+"(must be TRUE or FALSE)");
+    return false;
+}
 
 	
 }

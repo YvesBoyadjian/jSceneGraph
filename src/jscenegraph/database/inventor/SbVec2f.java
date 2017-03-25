@@ -70,6 +70,8 @@
 
 package jscenegraph.database.inventor;
 
+import java.util.function.DoubleConsumer;
+
 import jscenegraph.port.Mutable;
 
 
@@ -211,6 +213,17 @@ public class SbVec2f implements Mutable {
 			retVal[i] = new SbVec2f();
 		}
 		return retVal;
+	}
+
+	/**
+	 * java port
+	 * @return
+	 */
+	public DoubleConsumer[] getRef() {
+		DoubleConsumer[] ref = new DoubleConsumer[2];
+		ref[0] = value -> vec[0] = (float)value;
+		ref[1] = value -> vec[1] = (float)value;
+		return ref;
 	}
  }
 

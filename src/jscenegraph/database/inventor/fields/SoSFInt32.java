@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.database.inventor.SoInput;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Field containing a int32_t integer.
@@ -83,5 +84,20 @@ public class SoSFInt32 extends SoSField<Integer> {
 	protected Integer constructor() {		
 		return new Integer(0);
 	}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return in.read((int val) -> value = val);
+}
 
 	}

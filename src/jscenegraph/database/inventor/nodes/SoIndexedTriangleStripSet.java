@@ -204,6 +204,7 @@ public class SoIndexedTriangleStripSet extends SoIndexedShape {
 	static {
 		renderFunc[0] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmOn(action);
 		renderFunc[1] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmOnT(action);
+		renderFunc[4] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmFn(action);
 	}
     
 // Constants for influencing auto-caching algorithm:
@@ -592,6 +593,59 @@ private void OmOnT (SoGLRenderAction action ) {
 	vtxCtr++;
 	numvertsIndex++;
     }
+}
+
+
+private void OmFn (SoGLRenderAction action) {
+	
+	GL2 gl2 = action.getCacheContext();
+	
+    final int ns = numStrips;
+    final int[] numverts = numVertices;
+    final int[] vertexIndex = coordIndex.getValuesInt(0);
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer normalPtr = vpCache.getNormals(0);
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    Integer[] normalIndx = getNormalIndices();
+    int nrmCtr=0;
+    gl2.glShadeModel(GL2.GL_FLAT);
+    int v;
+    int vtxCtr = 0;
+    int numvertsIndex = 0; // java port
+    for (int strip = 0; strip < ns; strip++) {
+	final int nv = (numverts[numvertsIndex]);
+	gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+	for (v = 0; v < nv-1; v+=2) {
+	    // Per-face cases:
+	    if (v != 0) {
+	    	normalPtr.position(normalStride*normalIndx[nrmCtr]/Float.BYTES);nrmCtr++;             
+		    (normalFunc).run(gl2, normalPtr);
+	    }
+	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);vtxCtr++;
+	    (vertexFunc).run(gl2, vertexPtr);
+
+	    // Per-face cases:
+	    if (v != 0) {
+	    	normalPtr.position(normalStride*normalIndx[nrmCtr]/Float.BYTES);nrmCtr++;             
+		    (normalFunc).run(gl2, normalPtr);
+	    }
+	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);vtxCtr++ ;          
+	    (vertexFunc).run(gl2, vertexPtr);
+	}
+	if (v < nv) { // Leftovers
+		normalPtr.position(normalStride*normalIndx[nrmCtr]/Float.BYTES);nrmCtr++;
+	    (normalFunc).run(gl2, normalPtr);
+	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);vtxCtr++;       
+	    (vertexFunc).run(gl2, vertexPtr);
+	}
+	gl2.glEnd();
+	vtxCtr++;
+	++numvertsIndex;
+    }
+    gl2.glShadeModel(GL2.GL_SMOOTH);
 }
 
 

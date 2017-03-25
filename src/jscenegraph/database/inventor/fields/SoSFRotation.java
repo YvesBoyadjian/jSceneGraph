@@ -56,6 +56,7 @@ package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SoInput;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,5 +113,31 @@ public class SoSFRotation extends SoSField<SbRotation> {
 		protected SbRotation constructor() {		
 			return new SbRotation();
 		}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error.
+//
+// Use: private
+
+public boolean readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SbVec3f     axis = new SbVec3f();
+    final float[]       angle = new float[1];
+
+    if (! (in.read(axis.getRef()[0]) &&
+           in.read(axis.getRef()[1]) &&
+           in.read(axis.getRef()[2]) &&
+           in.read(angle)))
+        return false;
+
+    setValue(axis, angle[0]);
+
+    return true;
+}
 
 	   }
