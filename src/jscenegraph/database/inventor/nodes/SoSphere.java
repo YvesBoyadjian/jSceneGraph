@@ -345,6 +345,10 @@ computeDepth(SoAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	  if (subdivision.getValue() > 0) {
+		    return subdivision.getValue();
+		  }
+
   float       complexity = SoComplexityElement.get(action.getState());
   int         depth;
 
