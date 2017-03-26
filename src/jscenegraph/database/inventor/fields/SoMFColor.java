@@ -98,6 +98,22 @@ public class SoMFColor extends SoMField<SbColor> {
 	public void setValue(final float[] rgb) {
 		setValue(new SbColor(rgb));
 	}
+	
+	/**
+	 * java port
+	 * @param start
+	 * @param newValues
+	 */
+	public void setValues(int start, float[][] newValues) {
+		int nbColors = newValues.length;
+		SbColor[] colors = new SbColor[nbColors]; 
+		for(int i=0;i<nbColors;i++) {
+			float[] val = newValues[i];
+			SbColor color = new SbColor(val);
+			colors[i] = color;
+		}
+		setValues(start, colors);
+	}
 
 	@Override
 	protected SbColor constructor() {

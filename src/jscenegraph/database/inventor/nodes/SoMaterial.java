@@ -203,12 +203,12 @@ public SoMaterial()
 	        SoSubNode.SO__NODE_INIT_CLASS(SoMaterial.class, "Material", SoNode.class);
 	   
 	       // Enable elements:
-	       //SO_ENABLE(SoCallbackAction, SoLazyElement);
-	        SoCallbackAction.enableElement(SoLazyElement.class);
-	       //SO_ENABLE(SoGLRenderAction, SoGLLazyElement);
-	        SoGLRenderAction.enableElement(SoGLLazyElement.class);
-	       //SO_ENABLE(SoGLRenderAction, SoGLVBOElement);
-	        SoGLRenderAction.enableElement(SoGLVBOElement.class);
+	       SO_ENABLE(SoCallbackAction.class, SoLazyElement.class);
+	        //SoCallbackAction.enableElement(SoLazyElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoGLLazyElement.class);
+	        //SoGLRenderAction.enableElement(SoGLLazyElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoGLVBOElement.class);
+	        //SoGLRenderAction.enableElement(SoGLVBOElement.class);
 	   }
 	  
 ////////////////////////////////////////////////////////////////////////
@@ -225,6 +225,7 @@ public void destructor()
     colorPacker.destructor();
     if(_vbo[0] != null) // java port
     	_vbo[0].destructor();
+    super.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////

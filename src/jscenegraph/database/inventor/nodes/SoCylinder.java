@@ -65,6 +65,7 @@ import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
+import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
@@ -75,8 +76,10 @@ import jscenegraph.database.inventor.elements.SoGLTextureEnabledElement;
 import jscenegraph.database.inventor.elements.SoLightModelElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
+import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFBitMask;
 import jscenegraph.database.inventor.fields.SoSFFloat;
+import jscenegraph.database.inventor.fields.SoSFInt32;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.CharPtr;
@@ -153,6 +156,24 @@ SoCone, SoCube, SoCylinderDetail, SoSphere
  *
  */
 public class SoCylinder extends SoShape {
+	
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoCylinder.class,this);
+	   
+	   public                                                                     
+	    static SoType       getClassTypeId()        /* Returns class type id */   
+	                                    { return SoSubNode.getClassTypeId(SoCylinder.class);  }                   
+	  public  SoType      getTypeId()      /* Returns type id      */
+	  {
+		  return nodeHeader.getClassTypeId();
+	  }
+	  public                                                                  
+	    SoFieldData   getFieldData()  {
+		  return nodeHeader.getFieldData();
+	  }
+	  public  static SoFieldData[] getFieldDataPtr()                              
+	        { return SoSubNode.getFieldDataPtr(SoCylinder.class); }    	  	
+	
+	
 
 	public enum Part {
 		SIDES(0x01),
@@ -171,10 +192,22 @@ public class SoCylinder extends SoShape {
 		}
 	}
 	
+    //! Visible parts of cylinder.
     public final SoSFBitMask         parts = new SoSFBitMask();          
+    //! Radius in x and z dimensions
     public final SoSFFloat           radius = new SoSFFloat();         
+    //! Size in y dimension
     public final SoSFFloat           height = new SoSFFloat();     
     
+    //! Defines how many sides are used for tesselation. If set to <= 0, the sides are
+    //! calculated by the SoComplexityElement.
+    public static SoSFInt32           sides = new SoSFInt32();
+
+    //! Defines how many sections are used for tesselation. If set to <= 0, the sections are
+    //! calculated by the SoComplexityElement.
+    public static SoSFInt32           sections = new SoSFInt32();
+    //@}
+
     
       private
     static SbVec2f[]      coordsArray;   //!< Storage for ring coords
@@ -199,6 +232,42 @@ public class SoCylinder extends SoShape {
 // Shorthand for testing whether current parts includes PART
 private boolean HAS_PART(int PARTS, int PART) {
 	return((PARTS & (PART)) != 0);
+}
+
+ 
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Constructor
+//
+// Use: public
+
+public SoCylinder()
+//
+////////////////////////////////////////////////////////////////////////
+{
+  nodeHeader.SO_NODE_CONSTRUCTOR(/*SoCylinder.class*/);
+  isBuiltIn = true;
+
+  nodeHeader.SO_NODE_ADD_FIELD(parts,"parts",  (Part.ALL.getValue()));
+  nodeHeader.SO_NODE_ADD_FIELD(radius,"radius", (1.0f));
+  nodeHeader.SO_NODE_ADD_FIELD(height,"height", (2.0f));
+
+  nodeHeader.SO_NODE_ADD_FIELD(sides,"sides", (0));
+  nodeHeader.SO_NODE_ADD_FIELD(sections,"sections", (0));
+
+  // Set up static info for enumerated type field
+  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Part.SIDES);
+  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Part.TOP);
+  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Part.BOTTOM);
+  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Part.ALL);
+
+  // Set size of array to 0 so it will be allocated first time
+  if (nodeHeader.SO_NODE_IS_FIRST_INSTANCE())
+    maxCoords = 0;
+
+  // Set up info in enumerated type field
+  nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(parts,"parts", "Part");
 }
 
     
@@ -1744,6 +1813,7 @@ GLRenderNvertTnone(SoGLRenderAction action)
 	    }
 	}
     }
+	mb.destructor();
 }
 
 

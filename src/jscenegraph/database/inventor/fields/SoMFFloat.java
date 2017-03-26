@@ -86,6 +86,20 @@ public class SoMFFloat extends SoMField<Float> {
     public void setValue(float newValue) {
     	super.setValue(new Float(newValue));
     }
+    
+    /**
+     * Java port
+     * @param start
+     * @param newValues
+     */
+    public void setValues(int start, float[] newValues) {
+    	int nbFloats = newValues.length;
+    	Float[] floats = new Float[nbFloats];
+    	for(int i=0;i<nbFloats;i++) {
+    		floats[i] = newValues[i];
+    	}
+		setValues(start, floats);
+    }
 
 	@Override
 	protected Float constructor() {

@@ -92,11 +92,6 @@ import jscenegraph.port.Util;
  */
 public class SoGLLazyElement extends SoLazyElement {
 
-    //! This is more convenient here, but might logically be kept with
-    //! SoGLLazyElement.  This is a bitmask indicating what components
-    //! have not been sent to GL.
-    protected int invalidBits;
- 
     private GL2 gl2;
 	
 	   //!provide a public typedef for GLLazyState, so that GLRenderCache can use it:
@@ -107,9 +102,9 @@ public class SoGLLazyElement extends SoLazyElement {
 	        final float[]           GLEmissive = new float[4];
 	        final float[]           GLSpecular = new float[4];
 	        float           GLShininess;
-	        boolean          GLColorMaterial;        
+	        int          GLColorMaterial; // int, not boolean        
 	        int         GLLightModel;
-	        boolean          GLblending;
+	        int          GLBlending; // int, not boolean
 	        int         GLStippleNum;
 	        
 	        public void copyFrom(GLLazyState other) {
@@ -130,7 +125,7 @@ public class SoGLLazyElement extends SoLazyElement {
 		        GLShininess = other.GLShininess;
 		        GLColorMaterial = other.GLColorMaterial;        
 		        GLLightModel = other.GLLightModel;
-		        GLblending = other.GLblending;
+		        GLBlending = other.GLBlending;
 		        GLStippleNum = other.GLStippleNum;	        	
 	        }
 	    }; 
@@ -173,8 +168,8 @@ public void init(SoState state)
     glState.GLSpecular[1]   =   glState.GLSpecular[2]   = 0;
     
     glState.GLShininess         = -1;
-    glState.GLColorMaterial     = /*-1*/true;
-    glState.GLblending          = /*-1*/true;
+    glState.GLColorMaterial     = -1;
+    glState.GLBlending          = -1;
 
     glState.GLDiffuseNodeId     = 0;
     glState.GLTranspNodeId      = 0;
@@ -211,6 +206,8 @@ public void init(SoState state)
 public void
 push(SoState state)
 {
+    gl2 = state.getGL2(); //java port    
+
     SoGLLazyElement prevElt = (SoGLLazyElement)getNextInStack();
      
     // The push always happens before a  true set()
@@ -547,7 +544,7 @@ setColorMaterialElt(boolean value)
  
 
     // set invalid bit based on value
-    if (ivState.colorMaterial != glState.GLColorMaterial)
+    if ((ivState.colorMaterial?1:0) != glState.GLColorMaterial)
             invalidBits |= masks.COLOR_MATERIAL_MASK.getValue();
         else invalidBits &= ~masks.COLOR_MATERIAL_MASK.getValue();
     return;
@@ -598,7 +595,7 @@ setBlendingElt(boolean value)
     ivState.cacheLevelSetBits |= masks.BLENDING_MASK.getValue(); 
  
     // set invalid bit based on value
-    if (ivState.blending != glState.GLblending)
+    if ((ivState.blending?1:0) != glState.GLBlending)
         invalidBits |= masks.BLENDING_MASK.getValue();
     else invalidBits &= ~masks.BLENDING_MASK.getValue();
 
@@ -735,7 +732,7 @@ sendVPPacked(SoState state, IntBuffer pcolor)
     SoMachine.DGL_HTON_INT32(_pcolor, pcolor.get(0));
   
     gl2.glColor4ubv((byte[])_pcolor,0);
-    if (!(glState.GLColorMaterial || (glState.GLLightModel == LightModel.BASE_COLOR.getValue()))) {
+    if (!(glState.GLColorMaterial!=0 || (glState.GLLightModel == LightModel.BASE_COLOR.getValue()))) {
         float[] col4 = new float[4];
         col4[3] = (_pcolor[3]) * 1.0f/255;
         col4[2] = (_pcolor[2]) * 1.0f/255;
@@ -878,7 +875,7 @@ reset(SoState state, int bitmask)
                     break;
                         
                 case COLOR_MATERIAL_CASE:
-                    le.glState.GLColorMaterial = /*-1*/true;
+                    le.glState.GLColorMaterial = -1;
                     break;
                 
                 case DIFFUSE_CASE:
@@ -907,7 +904,7 @@ reset(SoState state, int bitmask)
                     break;
                     
                 case BLENDING_CASE:
-                    le.glState.GLblending = /*-1*/true;
+                    le.glState.GLBlending = -1;
                     break;                  
 
             }
@@ -1008,9 +1005,9 @@ reallySend(final SoState state, int bitmask)
         
                 case COLOR_MATERIAL_CASE :              
                     // Handle color material if light model does not change:
-                    if (ivState.colorMaterial == glState.GLColorMaterial) break;                                                                
+                    if ((ivState.colorMaterial?1:0) == glState.GLColorMaterial) break;                                                                
                     realSendBits |= masks.COLOR_MATERIAL_MASK.getValue();               
-                    glState.GLColorMaterial = ivState.colorMaterial;
+                    glState.GLColorMaterial = ivState.colorMaterial?1:0;
                     if (ivState.colorMaterial){
                             gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE);
                             gl2.glEnable(GL2.GL_COLOR_MATERIAL);
@@ -1018,7 +1015,7 @@ reallySend(final SoState state, int bitmask)
                     else gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 //#ifdef DEBUG
                     if ((glState.GLLightModel == LightModel.BASE_COLOR.getValue()) &&
-                        (glState.GLColorMaterial)){
+                        (glState.GLColorMaterial != 0)){
                             SoDebugError.post("SoGLLazyElement.reallySend", 
                             "ColorMaterial being used with BASE_COLOR");
                         }
@@ -1052,7 +1049,7 @@ reallySend(final SoState state, int bitmask)
                     final byte[] pColors = new byte[4];
                     SoMachine.DGL_HTON_INT32(pColors, Util.toIntArray(ivState.packedColors));
                     gl2.glColor4ubv(pColors,0);
-                    if (!(glState.GLColorMaterial || (glState.GLLightModel == LightModel.BASE_COLOR.getValue()))) {
+                    if (!(glState.GLColorMaterial != 0 || (glState.GLLightModel == LightModel.BASE_COLOR.getValue()))) {
                         col4[3] =  (ivState.packedColors[0] & 
                             0xff)   * 1.0f/255;
                         col4[2] = ((ivState.packedColors[0] & 
@@ -1118,9 +1115,9 @@ reallySend(final SoState state, int bitmask)
                     
                 case BLENDING_CASE :
                                     
-                    if (glState.GLblending == ivState.blending) break;
+                    if (glState.GLBlending == (ivState.blending?1:0)) break;
                     realSendBits |= masks.BLENDING_MASK.getValue();              
-                    glState.GLblending = ivState.blending;
+                    glState.GLBlending = (ivState.blending?1:0);
                     if (ivState.blending == true){
                         gl2.glEnable(GL2.GL_BLEND);                     
                     }
@@ -1532,13 +1529,13 @@ fullLazyMatches(int checkGL, int checkIV,
                      break;
                      
                 case BLENDING_CASE :
-                    if (glState.GLblending != 
-                        stateLazyElt.glState.GLblending){
+                    if (glState.GLBlending != 
+                        stateLazyElt.glState.GLBlending){
 //#ifdef DEBUG
                         if (SoDebug.GetEnv("IV_DEBUG_CACHES") != null) {
                             System.err.print( "CACHE DEBUG: cache not valid\n");       
                             System.err.print( "GLblending match failed,\n");
-                            System.err.print( "prev,  current "+glState.GLblending+" "+stateLazyElt.glState.GLblending+"\n");
+                            System.err.print( "prev,  current "+glState.GLBlending+" "+stateLazyElt.glState.GLBlending+"\n");
                         }
 //#endif /*DEBUG*/                    
                         return false;
@@ -1711,8 +1708,8 @@ getCopyGL(SoGLLazyElement cacheLazyElement,
                     break;
                     
                 case BLENDING_CASE :
-                    cacheGLState.GLblending = 
-                        glState.GLblending;
+                    cacheGLState.GLBlending = 
+                        glState.GLBlending;
                     break;
                                       
                 case TRANSPARENCY_CASE :
@@ -1797,8 +1794,8 @@ reallyCopyBackGL(int bitmask,
                     break;
    
                 case BLENDING_CASE :
-                    glState.GLblending = 
-                        cacheGLState.GLblending;
+                    glState.GLBlending = 
+                        cacheGLState.GLBlending;
                     break;
                   
                 case TRANSPARENCY_CASE :                                
@@ -1958,7 +1955,7 @@ copyGLValues(int bitmask,SoGLLazyElement lazyElt)
                     break;
                     
                 case BLENDING_CASE :
-                    lazyElt.glState.GLblending = glState.GLblending;
+                    lazyElt.glState.GLBlending = glState.GLBlending;
                     break;
                                     
                 case TRANSPARENCY_CASE :                  
@@ -2189,7 +2186,7 @@ sendDiffuseByIndex(int index)
     final byte[] pColors = new byte[4];
     SoMachine.DGL_HTON_INT32(pColors, (ivState.packedColors[index]));
     gl2.glColor4ubv(pColors,0);
-    if (!(glState.GLColorMaterial || (glState.GLLightModel == LightModel.BASE_COLOR.getValue()))) {
+    if (!(glState.GLColorMaterial != 0 || (glState.GLLightModel == LightModel.BASE_COLOR.getValue()))) {
         col4[3] =  (ivState.packedColors[index] & 0xff)   * 1.0f/255;
         col4[2] = ((ivState.packedColors[index] & 0xff00) >>  8) * 1.0f/255;
         col4[1] = ((ivState.packedColors[index] & 0xff0000)>> 16) * 1.0f/255;
