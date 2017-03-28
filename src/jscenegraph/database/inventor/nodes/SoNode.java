@@ -468,7 +468,7 @@ getByName( SbName name, SoNodeList list)
 		       SoFile.initClass();
 		       SoFont.initClass();
 		       SoFontStyle.initClass();
-//		       SoIndexedFaceSet.initClass();
+		       SoIndexedFaceSet.initClass();
 //		       SoIndexedTriangleSet.initClass();
 		       SoIndexedLineSet.initClass();
 //		       SoIndexedNurbsCurve.initClass();

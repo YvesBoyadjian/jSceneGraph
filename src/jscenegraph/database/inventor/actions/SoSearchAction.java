@@ -191,6 +191,8 @@ public void destructor()
 {
     if (retPath != null)
         retPath.unref();
+    retPaths.destructor();
+    super.destructor();
 }
 
        

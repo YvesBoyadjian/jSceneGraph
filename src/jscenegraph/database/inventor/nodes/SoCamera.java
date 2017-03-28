@@ -332,6 +332,8 @@ pointAt(final SbVec3f targetPoint)
 	       action.apply(root);
 	       viewBoundingBox(action.getBoundingBox(),
 	                       croppedReg.getViewportAspectRatio(), slack);
+	       
+	       action.destructor(); // TODO : implement automatic destruction
 	   }
 	  
 
@@ -360,6 +362,8 @@ viewAll(SoPath path, final SbViewportRegion vpRegion, float slack)
     action.apply(path);
     viewBoundingBox(action.getBoundingBox(),
                     croppedReg.getViewportAspectRatio(), slack);
+    
+    action.destructor(); // TODO : implement automatic destruction
 }
 	  	 
 	  ////////////////////////////////////////////////////////////////////////

@@ -141,6 +141,7 @@ public void destructor()
 
     if (generator != null)
         generator.destructor();
+    //super.destructor(); not necessary
 }
 
     
@@ -264,6 +265,9 @@ initGenerator(int initialNum)
 //
 // Use: public
 
+    public void generate() {
+    	generate(0, true);
+    }
 public void generate(int startIndex ) {
 	
     generate(startIndex, true);

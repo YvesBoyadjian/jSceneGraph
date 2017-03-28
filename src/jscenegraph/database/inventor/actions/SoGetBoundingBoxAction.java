@@ -204,6 +204,7 @@ public class SoGetBoundingBoxAction extends SoAction implements Destroyable {
 	public void destructor() {
 	    if (resetPath != null)
 	        resetPath.unref();
+	    super.destructor();
 	}
 	
     //! If a non-NULL path is specified, the action will reset the computed

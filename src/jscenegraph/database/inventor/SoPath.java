@@ -185,6 +185,7 @@ public class SoPath extends SoBase implements Destroyable {
 	
 	public void destructor() {
 		truncate(0,false);
+		super.destructor();
 	}
 
 	/**

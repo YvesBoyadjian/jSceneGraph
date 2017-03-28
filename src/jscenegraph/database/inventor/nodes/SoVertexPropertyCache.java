@@ -57,6 +57,7 @@
 package jscenegraph.database.inventor.nodes;
 
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -133,8 +134,6 @@ public class SoVertexPropertyCache {
     int v_offset = 0;
     gl2.glColor4ubv(_v, v_offset);
 }
-
-  
 
   public    void        fillInColorAndTranspAvail( SoVertexProperty vp, SoState state)
 {
@@ -262,7 +261,19 @@ public class SoVertexPropertyCache {
 
 				@Override
 				public void run(GL2 gl2, Object argument) {
-	            	vp_glColor4ubv(gl2,(byte[])argument);					
+					if(argument instanceof IntBuffer) {
+						IntBuffer buf = (IntBuffer)argument;						
+						int v = buf.get(); 
+						byte[] abgr = new byte[4];
+						abgr[0] = (byte)(v & 0xFF); v = v >>> 8;
+						abgr[1] = (byte)(v & 0xFF); v = v >>> 8;
+						abgr[2] = (byte)(v & 0xFF); v = v >>> 8;
+						abgr[3] = (byte)(v & 0xFF);
+						vp_glColor4ubv(gl2,abgr);
+					}
+					else {
+						vp_glColor4ubv(gl2,(byte[])argument);
+					}
 				}
             };
             colorStride = Integer.SIZE/Byte.SIZE;
