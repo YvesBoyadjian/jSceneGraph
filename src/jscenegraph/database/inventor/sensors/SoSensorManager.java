@@ -406,7 +406,7 @@ processDelayQueue(boolean isIdle)
 
     // If there are still sensors left in the queue after processing,
     // setup the delay queue timeout:
-    if ((delayQueue[0] != null) && (delayQTimeout != SbTime.zero())) {
+    if ((delayQueue[0] != null) && (delayQTimeout.operator_not_equal(SbTime.zero()))) {
         delayQTimeoutSensor.setTimeFromNow(delayQTimeout);
         delayQTimeoutSensor.schedule();
     }

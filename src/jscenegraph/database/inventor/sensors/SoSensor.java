@@ -186,11 +186,6 @@ initClass()
 
 	public void setNextInQueue(SoSensor next) {
 		
-		if(next == this) {
-			int ii=0;
-		}
-		
-		
 		nextInQueue = next;
 	}
 	
