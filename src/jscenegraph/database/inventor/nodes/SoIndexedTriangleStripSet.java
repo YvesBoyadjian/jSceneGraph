@@ -60,6 +60,7 @@ import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoDebug;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
@@ -67,6 +68,7 @@ import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.bundles.SoNormalBundle;
 import jscenegraph.database.inventor.bundles.SoTextureCoordinateBundle;
 import jscenegraph.database.inventor.caches.SoNormalCache;
+import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
@@ -205,6 +207,7 @@ public class SoIndexedTriangleStripSet extends SoIndexedShape {
 		renderFunc[0] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmOn(action);
 		renderFunc[1] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmOnT(action);
 		renderFunc[4] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmFn(action);
+		renderFunc[6] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmVn(action);
 	}
     
 // Constants for influencing auto-caching algorithm:
@@ -260,9 +263,127 @@ public void destructor()
   if (numVertices != null) {
 	  numVertices = null;
   }
+  super.destructor();
 }
 
-	
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Generates default normals using the given state and normal
+//    bundle. Returns TRUE if normals were generated.
+//
+// Use: extender, virtual
+
+public boolean generateDefaultNormals(SoState state,
+                                                  SoNormalBundle nb)
+                                                  //
+                                                  ////////////////////////////////////////////////////////////////////////
+{
+  int                         numIndices = coordIndex.getNum(), curIndex = 0;
+  SoCoordinateElement   ce = null;
+  SbVec3f[]               vpCoords = null;
+
+  SoVertexProperty vp = getVertexProperty();
+  if (vp != null && vp.vertex.getNum() > 0) {
+    vpCoords = vp.vertex.getValues(0);
+  } else {
+    ce = SoCoordinateElement.getInstance(state);
+  }
+
+  while (curIndex < numIndices) {
+
+    // Reset vars for first strip:
+    final SbVec3f[] verts = new SbVec3f[3];
+    verts[0] = new SbVec3f();
+    verts[1] = new SbVec3f();
+    verts[2] = new SbVec3f();
+    int whichVert = 0;
+    int numInStrip = 0;
+
+    // Loop through all vertices of current triangleStrip
+    while (curIndex < numIndices &&
+      coordIndex.operator_square_bracket(curIndex) != SO_END_STRIP_INDEX) {
+
+        if (ce != null)
+          verts[whichVert%3] = ce.get3((int)coordIndex.operator_square_bracket(curIndex));
+        else
+          verts[whichVert%3] = vpCoords[coordIndex.operator_square_bracket(curIndex)];
+
+        ++numInStrip;
+
+        if (numInStrip >= 3) {
+
+          // Spit out a triangle: NOTE: the code below
+          // assumes that the third vertex in each triangle
+          // sent to the normal generator is the newest
+          // vertex.
+          nb.beginPolygon();
+          if ((numInStrip % 2) != 0) {
+            nb.polygonVertex(verts[(whichVert-2)%3]);
+            nb.polygonVertex(verts[(whichVert-1)%3]);
+            nb.polygonVertex(verts[whichVert%3]);
+          }
+          else {
+            nb.polygonVertex(verts[(whichVert-1)%3]);
+            nb.polygonVertex(verts[(whichVert-2)%3]);
+            nb.polygonVertex(verts[whichVert%3]);
+          }                       
+          nb.endPolygon();
+        }                   
+        ++whichVert;
+        curIndex++;
+    }
+    curIndex++;             // Skip past END_STRIP_INDEX
+  }
+  nb.generate();
+
+
+  // Ok, we now have more normals than we need because we sent
+  // most vertices three times.  So, we'll go through and
+  // rearrange things to correspond to IndexedTriStrip's idea of
+  // per-vertex normals:
+  curIndex = 0;
+  int triIndex = 0, curVert = 0;
+  while (curIndex < numIndices) {
+
+    SbVec3f n;
+
+    // Figure out how many vertices are in this strip:
+    int vertsInStrip;
+    for (vertsInStrip = 0;
+      vertsInStrip + curIndex < numIndices &&
+      coordIndex.operator_square_bracket(vertsInStrip + curIndex) != SO_END_STRIP_INDEX;
+    vertsInStrip++)
+      ;
+
+    if (vertsInStrip > 2) {
+      // The first three vertices are correct, but then we
+      // only need to take one vertex per triangle after the
+      // first three:
+      int j;
+      for (j = 0; j < 3; j++) {
+        n = nb.generator.getNormal(triIndex*3+j);
+        nb.generator.setNormal(curVert++, n);
+      }
+      triIndex++;
+      for (j = 3; j < vertsInStrip; j++, triIndex++) {
+        n = nb.generator.getNormal(triIndex*3+2);
+        nb.generator.setNormal(curVert++, n);
+      }
+    }
+    curIndex += vertsInStrip + 1; // Go to next strip
+  }
+
+  // Cache the resulting normals
+  setNormalCache(state, nb.getNumGeneratedNormals(),
+    nb.getGeneratedNormals());
+
+  return true;
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -312,6 +433,7 @@ public void GLRender(SoGLRenderAction action)
         nb.initGenerator(numVerts);
         generateDefaultNormals(state, nb);
         normCache = getNormalCache();
+        nb.destructor();
       }
       vpCache.numNorms = normCache.getNum();
       vpCache.normalPtr = normCache.getNormalsFloat();
@@ -503,6 +625,8 @@ private void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway,
 //#endif
 }
 
+
+
 //////////////////////////////////////////////////////////////////////////
 // Following preprocessor-generated routines handle all combinations of
 // Normal binding (per vertex, per face, per part, overall/none)
@@ -646,6 +770,50 @@ private void OmFn (SoGLRenderAction action) {
 	++numvertsIndex;
     }
     gl2.glShadeModel(GL2.GL_SMOOTH);
+}
+
+
+public void OmVn (SoGLRenderAction action ) {
+	
+	GL2 gl2 = action.getCacheContext();
+	
+    final int ns = numStrips;
+    final int[] numverts = numVertices;
+    final int[] vertexIndex = coordIndex.getValuesInt(0);
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer normalPtr = vpCache.getNormals(0);
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    Integer[] normalIndx = getNormalIndices();
+    int v;
+    int vtxCtr = 0;
+    int numvertsIndex = 0; // java port
+    for (int strip = 0; strip < ns; strip++) {
+	final int nv = (numverts)[numvertsIndex];
+	gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+	for (v = 0; v < nv-1; v+=2) {
+		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+	    (normalFunc).run(gl2, normalPtr);
+	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES);
+	    (vertexFunc).run(gl2, vertexPtr);
+
+	    normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);       
+	    (normalFunc).run(gl2, normalPtr);
+	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES);           
+	    (vertexFunc).run(gl2, vertexPtr);
+	}
+	if (v < nv) { // Leftovers
+		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+	    (normalFunc).run(gl2, normalPtr);
+	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES);         
+	    (vertexFunc).run(gl2, vertexPtr);
+	}
+	gl2.glEnd();
+	vtxCtr++;
+	++numvertsIndex;
+    }
 }
 
 
