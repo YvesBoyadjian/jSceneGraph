@@ -532,6 +532,13 @@ generatePrimitives(SoAction action)
     endShape();
   }
   state.pop();
+  
+  // java port
+  pv.destructor();
+  fd.destructor();
+  pd.destructor();
+  nb.destructor();
+  tcb.destructor();
 }
 
 
@@ -828,6 +835,7 @@ GLRender(SoGLRenderAction action)
         nb.initGenerator(totalNumVertices);
         generateDefaultNormals(state, nb);
         normCache = getNormalCache();
+        nb.destructor();
       }
       vpCache.numNorms = normCache.getNum();
       vpCache.normalPtr = /*(byte[])*/normCache.getNormalsFloat(); // java port

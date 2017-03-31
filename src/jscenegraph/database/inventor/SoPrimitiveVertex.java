@@ -186,4 +186,7 @@ operator_equal(final SoPrimitiveVertex pv)
 public void copyFrom(final SoPrimitiveVertex pv) {
 	operator_equal(pv);
 }
+public void destructor() {
+	// nothing to destroy
+}
 }
