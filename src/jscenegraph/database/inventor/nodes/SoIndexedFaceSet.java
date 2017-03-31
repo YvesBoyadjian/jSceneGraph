@@ -247,6 +247,7 @@ public class SoIndexedFaceSet extends SoIndexedShape {
     	TriRenderFunc[14] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriFmVn(action);
     	TriRenderFunc[22] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriFmVn(action);
     	TriRenderFunc[30] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriVmVn(action);
+    	GenRenderFunc[6] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenOmVn(action);
     }
 
  // Constants for influencing auto-caching algorithm:
@@ -1188,6 +1189,37 @@ public void TriVmVn (SoGLRenderAction action ) {
     }
     gl2.glEnd();
 }
+
+
+public void GenOmVn(SoGLRenderAction action)
+{
+	
+	GL2 gl2 = action.getCacheContext();
+	
+    final int[] vertexIndex = coordIndex.getValuesInt(0);
+    final int numVI = coordIndex.getNum();
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer normalPtr = vpCache.getNormals(0);
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    Integer[] normalIndx = getNormalIndices();
+    int vtxCtr = numQuads*5 + numTris*4;
+    while (vtxCtr < numVI) {
+	gl2.glBegin(GL2.GL_POLYGON);
+	while (vtxCtr < numVI && (vertexIndex[vtxCtr] != SO_END_FACE_INDEX)) {
+		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+	    (normalFunc).run(gl2, normalPtr);
+	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
+	    (vertexFunc).run(gl2, vertexPtr);
+	    vtxCtr++;
+	}
+	vtxCtr++; // Skip over END_FACE_INDEX
+	gl2.glEnd();
+    }
+}
+
 
 
 }
