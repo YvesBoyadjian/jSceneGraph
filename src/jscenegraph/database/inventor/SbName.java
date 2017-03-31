@@ -108,6 +108,12 @@ public class SbName implements Mutable, Destroyable {
 	}
 	
 	private String insert(String s) {
+		
+		// java port
+		if(s == null) {
+			throw new IllegalArgumentException("SbName: String must not be null");
+		}
+		
 		String entry = entries.get(s);
 		if(entry != null) {
 			return entry;

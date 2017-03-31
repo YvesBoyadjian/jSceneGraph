@@ -840,8 +840,8 @@ public static boolean getHeaderData(final String header,
                 
                 // Is the registered header (minus the padding) a substring 
                 // of the the given header string?
-                if (registeredString.substring(0, lastNonPadChar-1) == 
-                        paddedHeader.substring(0, lastNonPadChar-1)) {
+                if (registeredString.substring(0, lastNonPadChar-1).equals(
+                        paddedHeader.substring(0, lastNonPadChar-1))) {
                     whichHeader = i;                    
                 }
             }       
