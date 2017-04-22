@@ -135,7 +135,7 @@ makeIdentity(SoState state, SoNode node)
     elt = (SoTextureMatrixElement ) getElement(state, classStackIndexMap.get(SoTextureMatrixElement.class));
 
     if (elt != null) {
-        elt.makeEltIdentity();
+        elt.makeEltIdentity(state);
 
         // Update node id list in element
         elt.setNodeId(node);
@@ -161,7 +161,7 @@ mult(SoState state, SoNode node,
     elt = (SoTextureMatrixElement ) getElement(state, classStackIndexMap.get(SoTextureMatrixElement.class));
 
     if (elt != null) {
-        elt.multElt(matrix);
+        elt.multElt(state, matrix);
 
         // Update node id list in element
         elt.addNodeId(node);
@@ -187,7 +187,7 @@ translateBy(SoState state, SoNode node,
     elt = (SoTextureMatrixElement ) getElement(state, classStackIndexMap.get(SoTextureMatrixElement.class));
 
     if (elt != null) {
-        elt.translateEltBy(translation);
+        elt.translateEltBy(state, translation);
 
         // Update node id list in element
         elt.addNodeId(node);
@@ -213,7 +213,7 @@ rotateBy(SoState state, SoNode node,
     elt = (SoTextureMatrixElement ) getElement(state, classStackIndexMap.get(SoTextureMatrixElement.class));
 
     if (elt != null) {
-        elt.rotateEltBy(rotation);
+        elt.rotateEltBy(state, rotation);
 
         // Update node id list in element
         elt.addNodeId(node);
@@ -239,7 +239,7 @@ scaleBy(SoState state, SoNode node,
     elt = (SoTextureMatrixElement ) getElement(state, classStackIndexMap.get(SoTextureMatrixElement.class));
 
     if (elt != null) {
-        elt.scaleEltBy(scaleFactor);
+        elt.scaleEltBy(state, scaleFactor);
 
         // Update node id list in element
         elt.addNodeId(node);
@@ -276,7 +276,7 @@ get(SoState state)
 // Use: protected, virtual
 
 protected void
-makeEltIdentity()
+makeEltIdentity(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -291,7 +291,7 @@ makeEltIdentity()
 // Use: protected, virtual
 
 protected void
-multElt(final SbMatrix matrix)
+multElt(SoState state, final SbMatrix matrix)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -306,7 +306,7 @@ multElt(final SbMatrix matrix)
 // Use: public, virtual
 
 public void
-translateEltBy(final SbVec3f translation)
+translateEltBy(SoState state, final SbVec3f translation)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -329,7 +329,7 @@ translateEltBy(final SbVec3f translation)
 // Use: public, virtual
 
 public void
-rotateEltBy(final SbRotation rotation)
+rotateEltBy(SoState state, final SbRotation rotation)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -347,7 +347,7 @@ rotateEltBy(final SbRotation rotation)
 // Use: public, virtual
 
 public void
-scaleEltBy(final SbVec3f scaleFactor)
+scaleEltBy(SoState state, final SbVec3f scaleFactor)
 //
 ////////////////////////////////////////////////////////////////////////
 {

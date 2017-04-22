@@ -144,7 +144,7 @@ add(SoState state, SoNode node, final SbPlane plane)
     elt = (SoClipPlaneElement ) getElement(state, classStackIndexMap.get(SoClipPlaneElement.class));
 
     if (elt != null) {
-        elt.addToElt(plane, SoModelMatrixElement.get(state));
+        elt.addToElt(state, plane, SoModelMatrixElement.get(state));
 
         // Update node id list in element
         elt.addNodeId(node);
@@ -229,7 +229,7 @@ pop(SoState state, SoElement prevTopElement)
 // Use: protected, virtual
 
 protected void
-addToElt(final SbPlane plane,
+addToElt(SoState state, final SbPlane plane,
                              final SbMatrix modelMatrix)
 //
 ////////////////////////////////////////////////////////////////////////

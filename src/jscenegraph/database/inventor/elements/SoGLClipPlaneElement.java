@@ -154,15 +154,15 @@ getMaxGLPlanes(GL2 gl2)
 // Use: protected, virtual
 
 protected void
-addToElt(final SbPlane plane,
+addToElt(SoState state, final SbPlane plane,
                                final SbMatrix modelMatrix)
 //
 ////////////////////////////////////////////////////////////////////////
 {
     // Do normal stuff
-    super.addToElt(plane, modelMatrix);
+    super.addToElt(state, plane, modelMatrix);
     
-    GL2 gl2 = getPushedState().getGL2();
+    GL2 gl2 = state.getGL2();
 
     // If we haven't run out of clipping planes, send this one to GL.
     // Note that we send the plane in object space, since GL already

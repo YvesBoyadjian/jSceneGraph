@@ -108,9 +108,6 @@ public abstract class SoElement implements Destroyable {
 	   protected static final Map<Class,Integer> classStackIndexMap = new HashMap<Class,Integer>();
 	   protected static final Map<Class,SoType> classTypeIdMap = new HashMap<Class,SoType>();
 	   
-	   // java port
-	   private SoState pushedState;
-	   
 	   public static SoType getClassTypeId(Class klass) {
 		   return classTypeIdMap.get(klass);
 	   }
@@ -185,8 +182,6 @@ private        int                 depth;
 	}
 	
 	public void push(SoState state) {
-		// java port
-		pushedState = state;
 	}
 	
 	public void pop(SoState state, SoElement prevTopElement) {
@@ -511,7 +506,4 @@ getIdFromStackIndex(int stackIndex)
 		 
 	 }
 	 
-	 protected SoState getPushedState() {
-		 return pushedState;
-	 }
-	  }
+}

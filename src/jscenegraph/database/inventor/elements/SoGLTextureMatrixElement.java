@@ -105,17 +105,17 @@ public void pop(final SoState state, final SoElement element)
 //
 // Use: protected, virtual
 
-protected void makeEltIdentity()
+protected void makeEltIdentity(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    GL2 gl2 = getPushedState().getGL2();
+    GL2 gl2 = state.getGL2();
 
     gl2.glMatrixMode(GL2.GL_TEXTURE);
     gl2.glLoadIdentity();
     gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
-    super.makeEltIdentity();
+    super.makeEltIdentity(state);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -125,17 +125,17 @@ protected void makeEltIdentity()
 //
 // Use: protected, virtual
 
-protected void multElt(final SbMatrix matrix)
+protected void multElt(SoState state, final SbMatrix matrix)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    GL2 gl2 = getPushedState().getGL2();
+    GL2 gl2 = state.getGL2();
 
     gl2.glMatrixMode(GL2.GL_TEXTURE);
     gl2.glMultMatrixf((float []) matrix.toGL(),0);
     gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
-    super.multElt(matrix);
+    super.multElt(state, matrix);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -145,17 +145,17 @@ protected void multElt(final SbMatrix matrix)
 //
 // Use: public, virtual
 
-public void translateEltBy( final SbVec3f translation)
+public void translateEltBy(SoState state, final SbVec3f translation)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    GL2 gl2 = getPushedState().getGL2();
+    GL2 gl2 = state.getGL2();
 
     gl2.glMatrixMode(GL2.GL_TEXTURE);
     gl2.glTranslatef(translation.getValue()[0], translation.getValue()[1], translation.getValue()[2]);
     gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
-    super.translateEltBy(translation);
+    super.translateEltBy(state, translation);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -165,7 +165,7 @@ public void translateEltBy( final SbVec3f translation)
 //
 // Use: public, virtual
 
-public void rotateEltBy(final SbRotation rotation)
+public void rotateEltBy(SoState state, final SbRotation rotation)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -174,13 +174,13 @@ public void rotateEltBy(final SbRotation rotation)
 
     rotation.getValue(axis, angle);
 
-    GL2 gl2 = getPushedState().getGL2();
+    GL2 gl2 = state.getGL2();
 
     gl2.glMatrixMode(GL2.GL_TEXTURE);
     gl2.glRotatef(angle[0] * (180.0f / (float)Math.PI), axis.getValue()[0], axis.getValue()[1], axis.getValue()[2]);
     gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
-    super.rotateEltBy(rotation);
+    super.rotateEltBy(state, rotation);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -190,17 +190,17 @@ public void rotateEltBy(final SbRotation rotation)
 //
 // Use: public, virtual
 
-public void scaleEltBy(final SbVec3f scaleFactor)
+public void scaleEltBy(SoState state, final SbVec3f scaleFactor)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    GL2 gl2 = getPushedState().getGL2();
+    GL2 gl2 = state.getGL2();
 
     gl2.glMatrixMode(GL2.GL_TEXTURE);
     gl2.glScalef(scaleFactor.getValue()[0], scaleFactor.getValue()[1], scaleFactor.getValue()[2]);
     gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
-    super.scaleEltBy(scaleFactor);
+    super.scaleEltBy(state, scaleFactor);
 }
 	
 }
