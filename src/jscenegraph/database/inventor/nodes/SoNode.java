@@ -515,7 +515,7 @@ getByName( SbName name, SoNodeList list)
 		       SoTextureCoordinateBinding.initClass();
 		       SoTextureCoordinateFunction.initClass();
 //		       SoTextureCoordinateDefault.initClass();
-//		       SoTextureCoordinateEnvironment.initClass();
+		       SoTextureCoordinateEnvironment.initClass();
 		       SoTextureCoordinatePlane.initClass();
 		       SoTexture2.initClass();
 		       SoTexture2Transform.initClass();
