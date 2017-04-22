@@ -157,6 +157,18 @@ public class SbVec2f implements Mutable {
 	    return new SbVec2f(-vec[0], -vec[1]);
 	}
 
+//
+// Component-wise binary vector subtraction operator
+//
+
+public SbVec2f
+operator_minus(final SbVec2f v2)
+{
+	final SbVec2f v1 = this;
+    return new SbVec2f(v1.vec[0] - v2.vec[0],
+                  v1.vec[1] - v2.vec[1]);
+}
+
 	
     //! Component-wise scalar multiplication and division operators.
     public SbVec2f    operator_div_equal(float d)
@@ -174,6 +186,29 @@ public class SbVec2f implements Mutable {
                v1.vec[1] == v2.vec[1]);
    }
    
+
+//
+// Component-wise vector addition operator
+//
+
+public SbVec2f operator_add_equal(final SbVec2f u)
+{
+    vec[0] += u.vec[0];
+    vec[1] += u.vec[1];
+
+    return this;
+}
+
+
+//
+// Returns dot (inner) product of vector and another vector
+//
+
+public float dot(final SbVec2f v)
+{
+    return vec[0] * v.vec[0] + vec[1] * v.vec[1];
+}
+
       
 //
 // Component-wise scalar multiplication operator
@@ -186,6 +221,57 @@ public class SbVec2f implements Mutable {
     vec[1] *= d;
 
     return this;
+}
+
+
+//
+// Component-wise binary scalar multiplication operator
+//
+
+public SbVec2f
+operator_mul(float d)
+{
+	final SbVec2f v = this; 
+    return new SbVec2f(v.vec[0] * d, v.vec[1] * d);
+}
+
+//
+// Component-wise binary vector addition operator
+//
+
+public SbVec2f
+operator_add( final SbVec2f v2)
+{
+	final SbVec2f v1 = this;
+    return new SbVec2f(v1.vec[0] + v2.vec[0],
+                  v1.vec[1] + v2.vec[1]);
+}
+
+	
+//
+// Changes vector to be unit length
+//
+
+public float normalize()
+{
+    float len = length();
+
+    if (len != 0.0)
+        (this).operator_mul_equal(1.0f / len);
+
+    else setValue(0.0f, 0.0f);
+
+    return len;
+}
+
+	
+//
+// Returns geometric length of vector
+//
+
+public float length()
+{
+    return (float)Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1]);
 }
 
 	

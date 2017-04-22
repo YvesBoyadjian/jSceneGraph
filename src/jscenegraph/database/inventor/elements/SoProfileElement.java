@@ -44,9 +44,10 @@
  |   $Revision: 1.1.1.1 $
  |
  |   Description:
- |      This file defines the SoFontNameElement class.
+ |      This file defines the SoProfileElement class.
  |
- |   Author(s)          : Paul S. Strauss, Nick Thompson, Thad Beier
+ |   Author(s)          : Paul S. Strauss, Nick Thompson, Thad Beier,
+ |                        Dave Immel, Gavin Bell
  |
  ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
  _______________________________________________________________________
@@ -54,28 +55,40 @@
 
 package jscenegraph.database.inventor.elements;
 
-import jscenegraph.database.inventor.SbName;
+import jscenegraph.database.inventor.SoNodeList;
 import jscenegraph.database.inventor.misc.SoState;
-import jscenegraph.database.inventor.nodes.SoNode;
-
-
-///////////////////////////////////////////////////////////////////////////////
-///
-///  \class SoFontNameElement
-///  \ingroup Elements
-///
-///  Element storing the current font name
-///
-//////////////////////////////////////////////////////////////////////////////
+import jscenegraph.database.inventor.nodes.SoProfile;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoFontNameElement extends SoReplacedElement {
+
+///////////////////////////////////////////////////////////////////////////////
+///
+///  \class SoProfileElement
+///  \ingroup Elements
+///
+///  Element storing 2D profiles for nurbs and 3d text
+///
+//////////////////////////////////////////////////////////////////////////////
+
+public class SoProfileElement extends SoAccumulatedElement {
+
+	  public
+		    enum Profile {
+		        START_FIRST,
+		        START_NEW,
+		        ADD_TO_CURRENT;
+		    	
+		    	public int getValue() {
+		    		return ordinal();
+		    	}
+		    };
 
   protected
-    final SbName                      fontName = new SbName();
+    //! list of profile nodes
+    final SoNodeList          profiles = new SoNodeList();
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -85,101 +98,78 @@ public class SoFontNameElement extends SoReplacedElement {
 //
 // Use: public
 
-public void
-init(SoState state)
+public void init(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    fontName.copyFrom(getDefault());
+    profiles.truncate(0);
 }
 
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Sets the current fontName
+//    Adds the given profile to the list of profiles
 //
 // Use: public
 
-public static void set(SoState state, SoNode node,
-                         final SbName fontName)
+public void add(SoState state, SoProfile profile)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoFontNameElement   elt;
+    SoProfileElement    elt;
 
-    // Get an instance we can change (pushing if necessary)
-    elt = (SoFontNameElement ) getElement(state, classStackIndexMap.get(SoFontNameElement.class), node);
+    elt = (SoProfileElement ) getElement(state, getClassStackIndex(SoProfileElement.class));
 
-    if (elt != null)
-        elt.fontName.copyFrom(fontName);
+    if (elt != null && profile != null) {
+
+        // append the given profile node to the list of profiles in the
+        // element.  If the directive on the profile is START_FIRST,
+        // truncate the profile list before adding this one.
+        if (profile.linkage.getValue() == Profile.START_FIRST.getValue()) {
+            elt.profiles.truncate(0);
+            elt.clearNodeIds();
+        }
+        elt.profiles.append(profile);
+        elt.addNodeId(profile);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Returns font name from state
+//    Returns the current profile node
 //
 // Use: public
 
-public static SbName 
-get(SoState state)
+public static SoNodeList get(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoFontNameElement elt;
+    SoProfileElement elt;
+    elt = ( SoProfileElement )
+        getConstElement(state, getClassStackIndex(SoProfileElement.class));
 
-    elt = ( SoFontNameElement )
-        getConstElement(state, classStackIndexMap.get(SoFontNameElement.class));
-
-    return elt.fontName;
+    return elt.profiles;
 }
-
-    //! Returns the default font name
-public    static SbName       getDefault()    { return new SbName("defaultFont"); }
-
-
 
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Compares names
+//    Override push to copy the existing profiles from the previous
+//    set.
 //
 // Use: public
 
-public boolean
-matches( SoElement elt)
+public void push(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    return (fontName.operator_equals((( SoFontNameElement ) elt).fontName));
+    SoProfileElement elt;
+    elt = (SoProfileElement ) getNextInStack();
+    
+    // Rely on SoNodeList::operator = to do the right thing...
+    profiles.copyFrom( elt.profiles);
+    nodeIds.copyFrom( elt.nodeIds);
 }
 
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//     Create a copy of this instance suitable for calling matches()
-//     on.
-//
-// Use: protected
-
-public SoElement 
-copyMatchInfo()
-//
-////////////////////////////////////////////////////////////////////////
-{
-    SoFontNameElement result =
-        (SoFontNameElement )getTypeId().createInstance();
-
-    result.fontName.copyFrom( fontName);
-
-    return result;
-}
-
-  
-
-	  public static void
-	   initClass(final Class<? extends SoElement> javaClass)
-	   {
-		  SoElement.initClass(javaClass);
-	   }
 }

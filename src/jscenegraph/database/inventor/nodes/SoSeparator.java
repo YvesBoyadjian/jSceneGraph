@@ -145,22 +145,6 @@ public class SoSeparator extends SoGroup implements Destroyable {
 	
 	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoSeparator.class,this);
 	   	
-	public enum CacheEnabled {
-		OFF(0),
-		ON(1),
-		AUTO(2);
-		
-		private int value;
-		
-		CacheEnabled(int value) {
-			this.value = value;
-		}
-		
-		public int getValue() {
-			return value;
-		}
-	}
-
 	   public                                                                     
 	    static SoType       getClassTypeId()        /* Returns class type id */   
 	                                    { return SoSubNode.getClassTypeId(SoSeparator.class);  }                   
@@ -175,6 +159,22 @@ public class SoSeparator extends SoGroup implements Destroyable {
 	  public  static SoFieldData[] getFieldDataPtr()                              
 	        { return SoSubNode.getFieldDataPtr(SoSeparator.class); }    
 	  
+		public enum CacheEnabled {
+			OFF(0),
+			ON(1),
+			AUTO(2);
+			
+			private int value;
+			
+			CacheEnabled(int value) {
+				this.value = value;
+			}
+			
+			public int getValue() {
+				return value;
+			}
+		}
+
 	   private
 		        //! Each separator that is created will contain up to this many
 		        //! render caches.

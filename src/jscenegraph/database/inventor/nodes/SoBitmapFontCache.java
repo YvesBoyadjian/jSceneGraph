@@ -55,11 +55,6 @@ package jscenegraph.database.inventor.nodes;
 
 import static jscenegraph.database.inventor.libFL.FLcontext.FL_FONTNAME;
 import static jscenegraph.database.inventor.libFL.FLcontext.FL_HINT_MINOUTLINESIZE;
-import static jscenegraph.database.inventor.libFL.FLcontext.flCreateContext;
-import static jscenegraph.database.inventor.libFL.FLcontext.flGetCurrentContext;
-import static jscenegraph.database.inventor.libFL.FLcontext.flMakeCurrentContext;
-import static jscenegraph.database.inventor.libFL.FLcontext.flSetHint;
-import static jscenegraph.database.inventor.libFL.FLcontext.flUniGetBitmap;
 
 import java.nio.ByteBuffer;
 
@@ -78,6 +73,7 @@ import jscenegraph.database.inventor.fields.SoMFString;
 import jscenegraph.database.inventor.libFL.FLcontext;
 import jscenegraph.database.inventor.libFL.FLcontext.FLbitmap;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.fl;
 
 
 // An internal class that makes life easier:
@@ -177,8 +173,8 @@ isValid( SoState state)
     boolean result = super.isValid(state);
     
     if (result) {
-        if (FLcontext.flGetCurrentContext() != flContext) {
-            FLcontext.flMakeCurrentContext(flContext);
+        if (fl.flGetCurrentContext() != flContext) {
+            fl.flMakeCurrentContext(flContext);
         }
     }
     return result;
@@ -200,8 +196,8 @@ getFont(SoState state, boolean forRender)
     if (fonts == null) {
         // One-time font library initialization
         fonts = new SbPList();
-        flContext = flCreateContext(null, FL_FONTNAME, null,
-                                  1.0, 1.0);
+        flContext = fl.flCreateContext(null, FL_FONTNAME, null,
+                                  1.0f, 1.0f);
         if (flContext == null) {
 //#ifdef DEBUG
             SoDebugError.post("SoText2::getFont",
@@ -209,14 +205,14 @@ getFont(SoState state, boolean forRender)
 //#endif
             return null;
         }
-        if (flGetCurrentContext() != flContext)
-            flMakeCurrentContext(flContext);
-        flSetHint(FL_HINT_MINOUTLINESIZE, 24.0f);
+        if (fl.flGetCurrentContext() != flContext)
+            fl.flMakeCurrentContext(flContext);
+        fl.flSetHint(FL_HINT_MINOUTLINESIZE, 24.0f);
     }
     else if (flContext == null) return null;
     else {
-        if (flGetCurrentContext() != flContext)
-            flMakeCurrentContext(flContext);
+        if (fl.flGetCurrentContext() != flContext)
+            fl.flMakeCurrentContext(flContext);
     }
     
     SoBitmapFontCache result = null;
@@ -461,7 +457,7 @@ private FLbitmap getBitmap(char c)
     int key = (int)(/*c[0]<<8 | c[1]*/c);
     final Object[] value = new Object[1];
     if(!bitmapDict.find(key, value)){
-        value[0] = (Object)flUniGetBitmap(fontNumList, c);
+        value[0] = (Object)fl.flUniGetBitmap(fontNumList, c);
         
 //#ifdef DEBUG    
         if(value[0] == null){

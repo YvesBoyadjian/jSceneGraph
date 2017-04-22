@@ -182,7 +182,7 @@ matches( SoElement elt)
         if (nodeIds.operator_square_bracket(i) != accElt.nodeIds.operator_square_bracket(i))
             return false;
 
-    return false;
+    return true;
 }
 
 

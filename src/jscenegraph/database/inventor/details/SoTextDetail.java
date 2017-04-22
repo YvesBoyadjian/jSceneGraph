@@ -51,6 +51,10 @@ copy()
     return newDetail;
 }
 
+    //! For Text3, this sets which part is picked:
+    public void                setPart(SoText3.Part p)        { part = p; }
+
+
     //! These set the string and character indices:
     public void                setStringIndex(int i)               { stringIndex = i; }
     public void                setCharacterIndex(int i)    { charIndex = i; }

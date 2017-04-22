@@ -439,7 +439,7 @@ getByName( SbName name, SoNodeList list)
 		        SoCamera.initClass();
 		        SoGroup.initClass();
 		        SoLight.initClass();
-//		        SoProfile.initClass();
+		        SoProfile.initClass();
 		        SoSeparator.initClass();
 		        SoShape.initClass();
 		        SoTransformation.initClass();
@@ -673,6 +673,12 @@ getByName( SbName name, SoNodeList list)
 			  Class<? extends SoBase> parentClass,
 			  SoFieldData[][]    parentFieldData) {
 		  return SO__NODE_INIT_CLASS(className,classPrintName,parentClass,parentFieldData,false);
+	  }
+
+	  protected static void SO__NODE_INIT_ABSTRACT_CLASS(
+			  Class className, String classPrintName, 
+			  Class<? extends SoBase> parentClass) {
+		  SoSubNode.SO__NODE_INIT_ABSTRACT_CLASS(className, classPrintName, parentClass);
 	  }
 
 	  protected static void SO__NODE_INIT_CLASS(

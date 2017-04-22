@@ -426,7 +426,7 @@ public float z() {
 }
 
 /**
- * Allocates an array of SbVec2f
+ * Allocates an array of SbVec3f
  * @param num
  * @return
  */

@@ -134,4 +134,11 @@ makeEmpty()
     max.setValue(-Float.MAX_VALUE, -Float.MAX_VALUE);
 }
 
+    //! Returns <tt>TRUE</tt> if the box is empty, and <tt>FALSE</tt> otherwise.
+    public boolean        isEmpty()          { return max.getValue()[0] < min.getValue()[0]; }
+
+    public void        getBounds(final SbVec2f _min, final SbVec2f _max)
+        { _min.copyFrom(min); _max.copyFrom(max); }
+
+
 }

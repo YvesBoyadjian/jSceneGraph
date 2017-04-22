@@ -3,6 +3,8 @@
  */
 package jscenegraph.database.inventor.libFL;
 
+import jscenegraph.port.FLfontStruct;
+
 /**
  * @author Yves Boyadjian
  *
@@ -105,36 +107,15 @@ public class FLcontext {
     public byte[] bitmap;
 };
 
-	
-    public static FLcontext flCreateContext(Object object, int flFontname,
-    		Object object2, double d, double e) {
-    	// TODO Auto-generated method stub
-    	return null;
-    }
+	public String       fontPath;
+	public int                 fontNamePreference;
+	public String       fontNameRestriction;
+	public float               pointsPerUMx;
+	public float               pointsPerUMy;
 
+	public int          current_font;   /* current font */
+	public int                 numFont;        /* number of fonts in fontTable */
+	public FLfontStruct[]        fontTable;      /* table of created font struct */
+	public final float[]               hintValue = new float[9];   /* Hint 1 to 8 (see flclient.h) */
 
-	public static FLcontext flGetCurrentContext() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public static void flMakeCurrentContext(FLcontext flContext) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public static void flSetHint(
-		    int                          hint , 
-		    float                         hintValue 
-		) {
-		//TODO
-	}
-
-	public static FLbitmap flUniGetBitmap(
-    byte[]                        fontList , /* "fn1,fn2,fn3, ..." */
-    char                      UCS2) {
-		// TODO
-		return null;
-	}
-	
 }

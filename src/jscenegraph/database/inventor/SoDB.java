@@ -72,6 +72,7 @@ import jscenegraph.database.inventor.fields.SoFieldContainer;
 import jscenegraph.database.inventor.fields.SoGlobalField;
 import jscenegraph.database.inventor.fields.SoSFTime;
 import jscenegraph.database.inventor.misc.SoBase;
+import jscenegraph.database.inventor.misc.upgraders.SoUpgrader;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.database.inventor.sensors.SoSensorCB;
@@ -563,7 +564,7 @@ init()
         SoEvent.initClasses();
         SoDetail.initClasses();
 
-        //SoUpgrader.initClasses();
+        SoUpgrader.initClasses();
         
         // Create the header list, and register valid headers we know about
         headerList = new SbPList();
