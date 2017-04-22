@@ -513,10 +513,10 @@ getByName( SbName name, SoNodeList list)
 		       SoText3.initClass();
 		       SoTextureCoordinate2.initClass();
 		       SoTextureCoordinateBinding.initClass();
-//		       SoTextureCoordinateFunction.initClass();
+		       SoTextureCoordinateFunction.initClass();
 //		       SoTextureCoordinateDefault.initClass();
 //		       SoTextureCoordinateEnvironment.initClass();
-//		       SoTextureCoordinatePlane.initClass();
+		       SoTextureCoordinatePlane.initClass();
 		       SoTexture2.initClass();
 		       SoTexture2Transform.initClass();
 		       SoTransform.initClass();
