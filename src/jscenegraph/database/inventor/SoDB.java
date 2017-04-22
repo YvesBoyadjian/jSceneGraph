@@ -238,6 +238,9 @@ public class SoDB {
 	 * @param name
 	 * @return
 	 */
+	public static SoField getGlobalField(final String name) {
+		return getGlobalField(new SbName(name));
+	}
 	public static SoField getGlobalField(final SbName name) {
 	     SoGlobalField result = SoGlobalField.find(name);
 	          if (result == null) return null;
