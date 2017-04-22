@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import java.nio.Buffer;
 import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
@@ -90,6 +91,7 @@ import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 
@@ -226,7 +228,7 @@ private static final int AUTO_CACHE_FS_MAX = SoGLCacheContextElement.OIV_AUTO_CA
     //! Typedef of pointer to method on FaceSet;
     //! This will be used to simplify declaration and initialization.
     public interface PMFS {
-    	void run(SoGLRenderAction action);
+    	void run(SoFaceSet set, SoGLRenderAction action);
     }
                                                   
     //! Array of function pointers to render functions:
@@ -234,6 +236,9 @@ private static final int AUTO_CACHE_FS_MAX = SoGLCacheContextElement.OIV_AUTO_CA
     private static PMFS[] QuadRenderFunc = new PMFS[32];
     private static PMFS[] GenRenderFunc = new PMFS[32];
     
+    static {
+    	QuadRenderFunc[7] = (set, action)-> set.QuadOmVnT(action);
+    }
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -743,7 +748,7 @@ public void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway, 
   }
   // Call the appropriate render loops:
   if (numTris > 0 && !fastPathTaken) {
-    (this.TriRenderFunc[useTexCoordsAnyway | vpCache.getRenderCase(shapeStyle)]).run(action);
+    (this.TriRenderFunc[useTexCoordsAnyway | vpCache.getRenderCase(shapeStyle)]).run(this,action);
 //#ifdef DEBUG
 //    if (SoDebug::GetEnv("IV_DEBUG_LEGACY_RENDERING")) {
 //      SoDebugError::postInfo("GLRenderInternal", "%s Immediate Mode Rendering: %d Triangles", getTypeId().getName().getString(), numTris);
@@ -751,7 +756,7 @@ public void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway, 
 //#endif
   }
   if (numQuads > 0 && !fastPathTaken) {
-    (this.QuadRenderFunc[useTexCoordsAnyway | vpCache.getRenderCase(shapeStyle)]).run(action);
+    (this.QuadRenderFunc[useTexCoordsAnyway | vpCache.getRenderCase(shapeStyle)]).run(this,action);
 //#ifdef DEBUG
 //    if (SoDebug::GetEnv("IV_DEBUG_LEGACY_RENDERING")) {
 //      SoDebugError::postInfo("GLRenderInternal", "%s Immediate Mode Rendering: %d Quads", getTypeId().getName().getString(),
@@ -760,7 +765,7 @@ public void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway, 
 //#endif
   }
   if (numFaces > 0) {
-    (this.GenRenderFunc[useTexCoordsAnyway | vpCache.getRenderCase(shapeStyle)]).run(action);
+    (this.GenRenderFunc[useTexCoordsAnyway | vpCache.getRenderCase(shapeStyle)]).run(this,action);
 //#ifdef DEBUG
 //    if (SoDebug::GetEnv("IV_DEBUG_LEGACY_RENDERING")) {
 //      SoDebugError::postInfo("GLRenderInternal", "%s Immediate Mode Rendering: %d Faces", getTypeId().getName().getString(),
@@ -1030,7 +1035,7 @@ notify(SoNotList list)
       vpCache.invalidate();
   }
 
-  super.notify(list); //TODO : SoShape ?
+  SoShape_notify(list);
 }
 
 
@@ -1048,6 +1053,59 @@ public static void initClass()
     SoSubNode.SO__NODE_INIT_CLASS(SoFaceSet.class, "FaceSet", SoNonIndexedShape.class);
 }
 
+
+
+private void QuadOmVnT (SoGLRenderAction action) {
+
+    Buffer vertexPtr = vpCache.getVertices(startIndex.getValue()+3*numTris);
+    int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer normalPtr = vpCache.getNormals(startIndex.getValue()+3*numTris);
+    int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    Buffer texCoordPtr = vpCache.getTexCoords(startIndex.getValue()+3*numTris);
+    int texCoordStride = vpCache.getTexCoordStride();
+    SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
+
+    GL2 gl2 = action.getCacheContext();
+    
+    gl2.glBegin(GL2.GL_QUADS);
+
+	int vertexPtrIndex = 0;
+	int normalPtrIndex = 0;
+	int texCoordPtrIndex = 0;
+    for (int quad = 0; quad < numQuads; quad++) {
+   	normalPtr.position(normalPtrIndex/Float.BYTES);
+	(normalFunc).run(gl2, normalPtr); normalPtrIndex += normalStride;
+   	texCoordPtr.position(texCoordPtrIndex/Float.BYTES);
+	(texCoordFunc).run(gl2, texCoordPtr); texCoordPtrIndex += texCoordStride;
+	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2, vertexPtr); vertexPtrIndex += vertexStride;
+
+   	normalPtr.position(normalPtrIndex/Float.BYTES);
+	(normalFunc).run(gl2, normalPtr); normalPtrIndex += normalStride;
+   	texCoordPtr.position(texCoordPtrIndex/Float.BYTES);
+	(texCoordFunc).run(gl2, texCoordPtr); texCoordPtrIndex += texCoordStride;
+	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2, vertexPtr); vertexPtrIndex += vertexStride;
+
+   	normalPtr.position(normalPtrIndex/Float.BYTES);
+	(normalFunc).run(gl2, normalPtr); normalPtrIndex += normalStride;
+   	texCoordPtr.position(texCoordPtrIndex/Float.BYTES);
+	(texCoordFunc).run(gl2, texCoordPtr); texCoordPtrIndex += texCoordStride;
+	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2, vertexPtr); vertexPtrIndex += vertexStride;
+
+   	normalPtr.position(normalPtrIndex/Float.BYTES);
+	(normalFunc).run(gl2, normalPtr); normalPtrIndex += normalStride;
+   	texCoordPtr.position(texCoordPtrIndex/Float.BYTES);
+	(texCoordFunc).run(gl2, texCoordPtr); texCoordPtrIndex += texCoordStride;
+	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2, vertexPtr); vertexPtrIndex += vertexStride;
+
+    }
+    gl2.glEnd();
+}
 
 
 }
