@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.nodes;
 
 import java.nio.Buffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
@@ -237,6 +238,7 @@ private static final int AUTO_CACHE_FS_MAX = SoGLCacheContextElement.OIV_AUTO_CA
     private static PMFS[] GenRenderFunc = new PMFS[32];
     
     static {
+    	QuadRenderFunc[1] = (set, action)-> set.QuadOmOnT(action);
     	QuadRenderFunc[7] = (set, action)-> set.QuadOmVnT(action);
     }
 
@@ -1053,6 +1055,51 @@ public static void initClass()
     SoSubNode.SO__NODE_INIT_CLASS(SoFaceSet.class, "FaceSet", SoNonIndexedShape.class);
 }
 
+
+
+private void
+QuadOmOnT
+    (SoGLRenderAction action) {
+
+    GL2 gl2 = action.getCacheContext();
+    
+    // Send one normal, if there are any normals in vpCache:
+    if (vpCache.getNumNormals() > 0)
+	vpCache.sendNormal(gl2,(FloatBuffer)vpCache.getNormals(0));
+    Buffer vertexPtr = vpCache.getVertices(startIndex.getValue()+3*numTris);
+    int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer texCoordPtr = vpCache.getTexCoords(startIndex.getValue()+3*numTris);
+    int texCoordStride = vpCache.getTexCoordStride();
+    SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
+
+    gl2.glBegin(GL2.GL_QUADS);
+
+	int vertexPtrIndex = 0;
+	int texCoordPtrIndex = 0;
+    for (int quad = 0; quad < numQuads; quad++) {
+       	texCoordPtr.position(texCoordPtrIndex/Float.BYTES);
+	(texCoordFunc).run(gl2,texCoordPtr); texCoordPtrIndex += texCoordStride;
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+   	texCoordPtr.position(texCoordPtrIndex/Float.BYTES);
+	(texCoordFunc).run(gl2,texCoordPtr); texCoordPtrIndex += texCoordStride;
+	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+   	texCoordPtr.position(texCoordPtrIndex/Float.BYTES);
+	(texCoordFunc).run(gl2,texCoordPtr); texCoordPtrIndex += texCoordStride;
+	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+   	texCoordPtr.position(texCoordPtrIndex/Float.BYTES);
+	(texCoordFunc).run(gl2,texCoordPtr); texCoordPtrIndex += texCoordStride;
+	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+    }
+    gl2.glEnd();
+}
 
 
 private void QuadOmVnT (SoGLRenderAction action) {
