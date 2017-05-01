@@ -32,4 +32,12 @@ public boolean readValue(SoInput in)
     return in.read(value);
 }
 
+/**
+ * Java port
+ * @param string
+ */
+public void setValue(String string) {
+	setValue(new SbName(string));
+}
+
 }

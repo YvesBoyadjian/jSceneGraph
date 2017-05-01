@@ -694,7 +694,7 @@ getPixelStringOffset(int line)
         float width = myFont.getWidth(line);
         result.getValue()[0] = -width/2.0f;
     }
-    result.getValue()[1] = -line*myFont.getHeight()*spacing.getValue()*2;
+    result.getValue()[1] = -line*myFont.getHeight()*spacing.getValue();// *2; // java port
 
     return result;
 }
