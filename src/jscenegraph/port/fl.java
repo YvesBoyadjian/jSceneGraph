@@ -3,13 +3,22 @@
  */
 package jscenegraph.port;
 
+import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
@@ -20,12 +29,14 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import org.freetype.FT_Bitmap;
 import org.freetype.FT_Driver;
 import org.freetype.FT_Driver_Class;
 import org.freetype.FT_Encoding;
@@ -33,6 +44,7 @@ import org.freetype.FT_Error;
 import org.freetype.FT_Face;
 import org.freetype.FT_Face_Internal;
 import org.freetype.FT_GlyphSlot;
+import org.freetype.FT_Glyph_Format;
 import org.freetype.FT_Incremental_Interface;
 import org.freetype.FT_Library;
 import org.freetype.FT_ListNode;
@@ -41,10 +53,12 @@ import org.freetype.FT_Open_Args;
 import org.freetype.FT_Outline;
 import org.freetype.FT_Outline_Funcs;
 import org.freetype.FT_Parameter;
+import org.freetype.FT_Pixel_Mode;
 import org.freetype.FT_Raster;
 import org.freetype.FT_Size;
 import org.freetype.FT_Size_Request;
 import org.freetype.FT_Size_Request_Type;
+import org.freetype.FT_Vector;
 
 import jscenegraph.database.inventor.libFL.FLcontext;
 import jscenegraph.database.inventor.libFL.FLcontext.FLbitmap;
@@ -284,6 +298,10 @@ public static final int FT_FACE_FLAG_COLOR             =( 1 << 14 );
   }
 
 public abstract FLoutline getUniOutline(FLfontStruct[] fsList, char uCS2);
+
+public FLbitmap getUniBitmap(FLfontStruct[] fsList, char uCS2) {
+	return _flFTUniGetBitmap( fsList, uCS2);
+}
 };
 
 
@@ -611,6 +629,89 @@ public static final int TT_MS_ID_JOHAB        =6;
 public static final int TT_MS_ID_UCS_4       =10;
 
 
+/*************************************************************************/
+/*                                                                       */
+/* <Enum>                                                                */
+/*    FT_OUTLINE_XXX                                                     */
+/*                                                                       */
+/* <Description>                                                         */
+/*    A list of bit-field constants use for the flags in an outline's    */
+/*    `flags' field.                                                     */
+/*                                                                       */
+/* <Values>                                                              */
+/*    FT_OUTLINE_NONE ::                                                 */
+/*      Value~0 is reserved.                                             */
+/*                                                                       */
+/*    FT_OUTLINE_OWNER ::                                                */
+/*      If set, this flag indicates that the outline's field arrays      */
+/*      (i.e., `points', `flags', and `contours') are `owned' by the     */
+/*      outline object, and should thus be freed when it is destroyed.   */
+/*                                                                       */
+/*    FT_OUTLINE_EVEN_ODD_FILL ::                                        */
+/*      By default, outlines are filled using the non-zero winding rule. */
+/*      If set to 1, the outline will be filled using the even-odd fill  */
+/*      rule (only works with the smooth rasterizer).                    */
+/*                                                                       */
+/*    FT_OUTLINE_REVERSE_FILL ::                                         */
+/*      By default, outside contours of an outline are oriented in       */
+/*      clock-wise direction, as defined in the TrueType specification.  */
+/*      This flag is set if the outline uses the opposite direction      */
+/*      (typically for Type~1 fonts).  This flag is ignored by the scan  */
+/*      converter.                                                       */
+/*                                                                       */
+/*    FT_OUTLINE_IGNORE_DROPOUTS ::                                      */
+/*      By default, the scan converter will try to detect drop-outs in   */
+/*      an outline and correct the glyph bitmap to ensure consistent     */
+/*      shape continuity.  If set, this flag hints the scan-line         */
+/*      converter to ignore such cases.  See below for more information. */
+/*                                                                       */
+/*    FT_OUTLINE_SMART_DROPOUTS ::                                       */
+/*      Select smart dropout control.  If unset, use simple dropout      */
+/*      control.  Ignored if @FT_OUTLINE_IGNORE_DROPOUTS is set.  See    */
+/*      below for more information.                                      */
+/*                                                                       */
+/*    FT_OUTLINE_INCLUDE_STUBS ::                                        */
+/*      If set, turn pixels on for `stubs', otherwise exclude them.      */
+/*      Ignored if @FT_OUTLINE_IGNORE_DROPOUTS is set.  See below for    */
+/*      more information.                                                */
+/*                                                                       */
+/*    FT_OUTLINE_HIGH_PRECISION ::                                       */
+/*      This flag indicates that the scan-line converter should try to   */
+/*      convert this outline to bitmaps with the highest possible        */
+/*      quality.  It is typically set for small character sizes.  Note   */
+/*      that this is only a hint that might be completely ignored by a   */
+/*      given scan-converter.                                            */
+/*                                                                       */
+/*    FT_OUTLINE_SINGLE_PASS ::                                          */
+/*      This flag is set to force a given scan-converter to only use a   */
+/*      single pass over the outline to render a bitmap glyph image.     */
+/*      Normally, it is set for very large character sizes.  It is only  */
+/*      a hint that might be completely ignored by a given               */
+/*      scan-converter.                                                  */
+/*                                                                       */
+/* <Note>                                                                */
+/*    The flags @FT_OUTLINE_IGNORE_DROPOUTS, @FT_OUTLINE_SMART_DROPOUTS, */
+/*    and @FT_OUTLINE_INCLUDE_STUBS are ignored by the smooth            */
+/*    rasterizer.                                                        */
+/*                                                                       */
+/*    There exists a second mechanism to pass the drop-out mode to the   */
+/*    B/W rasterizer; see the `tags' field in @FT_Outline.               */
+/*                                                                       */
+/*    Please refer to the description of the `SCANTYPE' instruction in   */
+/*    the OpenType specification (in file `ttinst1.doc') how simple      */
+/*    drop-outs, smart drop-outs, and stubs are defined.                 */
+/*                                                                       */
+public static final int FT_OUTLINE_NONE             =0x0;
+public static final int FT_OUTLINE_OWNER            =0x1;
+public static final int FT_OUTLINE_EVEN_ODD_FILL    =0x2;
+public static final int FT_OUTLINE_REVERSE_FILL     =0x4;
+public static final int FT_OUTLINE_IGNORE_DROPOUTS  =0x8;
+public static final int FT_OUTLINE_SMART_DROPOUTS   =0x10;
+public static final int FT_OUTLINE_INCLUDE_STUBS    =0x20;
+
+public static final int FT_OUTLINE_HIGH_PRECISION   =0x100;
+public static final int FT_OUTLINE_SINGLE_PASS      =0x200;
+
 
 
 /*************************************************************************/
@@ -912,12 +1013,27 @@ _flFTInitialize()
 
 	
 	public static FLbitmap flUniGetBitmap(
-    byte[]                        fontList , /* "fn1,fn2,fn3, ..." */
+    String                        fontList , /* "fn1,fn2,fn3, ..." */
     char                      UCS2) {
-		// TODO
-		return null;
+  FLfontStruct[] fsList;
+  FLbitmap bitmap;
+
+  //TRACE(("flUniGetBitmap\n"));
+
+  fsList = fl._flGetFontInfoList(fontList);
+  bitmap = fl._flUniGetBitmap(fsList, UCS2);
+  //free(fsList);
+  return bitmap;
 	}
 	
+	private static FLbitmap _flUniGetBitmap(FLfontStruct[] fsList, char uCS2) {
+		FLfontImpl impl = _flGetFontImpl();
+
+		//CHECK(fsList, impl, getUniBitmap, NULL);
+
+		return impl.getUniBitmap(fsList, uCS2);
+	}
+
 	private static FLfontStruct[] 
 	_flGetFontInfoList(String fontList /* "fn1,fn2,fn3, ..." */)
 	{
@@ -1377,8 +1493,120 @@ _flFTConvertGlyph(FLFreeTypeOutline ch, FT_Raster  raster, FT_Outline outline)
 		  ch.vertex[segmentIndex] = segment.toArray(new FLpt2[segment.size()]);
 		  Collections.reverse(Arrays.asList(ch.vertex[segmentIndex]));
 	}
+	
+	FT_Bitmap bitmap = slot.bitmap;
+	float size = ttFace.size;
+	
+	BufferedImage bufferedImage = stringToBufferedImage(font, chars[0],size);
+	Raster rasterData = bufferedImage.getData();
+	if(rasterData != null) {
+		DataBuffer dataBuffer = rasterData.getDataBuffer();
+		if(dataBuffer instanceof DataBufferByte) {
+			DataBufferByte dataBufferByte = (DataBufferByte)dataBuffer;
+			int width = bufferedImage.getWidth();
+			int height = bufferedImage.getHeight();
+			byte[] ba = dataBufferByte.getData();
+			byte[] binvert = new byte[ba.length];
+			int nbByte = width/8;
+			for(int row = 0; row<height;row++) {
+				int rowInvert = height-row-1;
+				for(int b = 0; b<nbByte;b++) {
+					binvert[rowInvert*nbByte+b] = ba[row*nbByte+b];
+				}
+			}
+			bitmap.buffer = binvert;
+			bitmap.width = width;
+			bitmap.rows = height;
+			slot.metrics.horiAdvance = (width(font, chars[0],size)) << BM_PRECISION_BITS;
+		}
+	}
 
 	return error;
+}
+
+public static BufferedImage stringToBufferedImage(Font font, char c, float size) {
+    //First, we have to calculate the string's width and height
+	AffineTransform trsf = new AffineTransform();
+	trsf.scale(size, size);
+	font = font.deriveFont(trsf);
+	
+	// create the binary mapping
+    byte BLACK = (byte)0, WHITE = (byte)255;
+    byte[] map = {BLACK, WHITE};
+    IndexColorModel icm = new IndexColorModel(1, map.length, map, map, map);
+
+    // create image from color model and data
+    WritableRaster raster = icm.createCompatibleWritableRaster(1, 1);
+    BufferedImage img = new BufferedImage(icm, raster, false, null);	
+
+    //BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_BYTE_BINARY);
+    Graphics g = img.getGraphics();
+
+    //Set the font to be used when drawing the string
+    g.setFont(font);
+
+    //Get the string visual bounds
+    FontRenderContext frc = g.getFontMetrics().getFontRenderContext();
+    String s = ""+c;
+    Rectangle2D rect = font.getStringBounds(s, frc);
+    //Release resources
+    g.dispose();
+
+    //Then, we have to draw the string on the final image
+
+    //Create a new image where to print the character
+    int width = Math.max(1,(int) Math.ceil(rect.getWidth()));
+    width = (int)Math.ceil(width/32.0)*32;
+    int height = Math.max(1,(int) Math.ceil(rect.getHeight()));
+    raster = icm.createCompatibleWritableRaster(width, height);
+    //img = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+    img = new BufferedImage(icm, raster, false, null);	
+    g = img.getGraphics();
+    g.setColor(Color.white); //Otherwise the text would be white
+    g.setFont(font);
+
+    //Calculate x and y for that string
+    FontMetrics fm = g.getFontMetrics();
+    int x = 0;
+    int y = fm.getAscent(); //getAscent() = baseline
+    g.drawString(s, x, y);
+
+    //Release resources
+    g.dispose();
+
+    //Return the image
+    return img;
+}
+
+public static int width(Font font, char c, float size) {
+    //First, we have to calculate the string's width and height
+	AffineTransform trsf = new AffineTransform();
+	trsf.scale(size, size);
+	font = font.deriveFont(trsf);
+	
+	// create the binary mapping
+    byte BLACK = (byte)0, WHITE = (byte)255;
+    byte[] map = {BLACK, WHITE};
+    IndexColorModel icm = new IndexColorModel(1, map.length, map, map, map);
+
+    // create image from color model and data
+    WritableRaster raster = icm.createCompatibleWritableRaster(1, 1);
+    BufferedImage img = new BufferedImage(icm, raster, false, null);	
+
+    //BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_BYTE_BINARY);
+    Graphics g = img.getGraphics();
+
+    //Set the font to be used when drawing the string
+    g.setFont(font);
+
+    //Get the string visual bounds
+    FontRenderContext frc = g.getFontMetrics().getFontRenderContext();
+    String s = ""+c;
+    Rectangle2D rect = font.getStringBounds(s, frc);
+    //Release resources
+    g.dispose();
+
+    return (int)rect.getWidth();
 }
 
 /**
@@ -1510,6 +1738,159 @@ static FLfontStruct _flFTCreateFont(String fontName,
   }
 
   return null;
+}
+
+
+private static FLbitmap _flFTUniGetBitmap(FLfontStruct[] fsList, char uCS2) {
+
+  FLfontStruct fs;
+  FLbitmap bitmap;
+//#ifdef FL_LITTLE_ENDIAN
+  int c = uCS2;//(UCS2[1] << 8) | UCS2[0];
+//#else
+//  GLuint c = (UCS2[0] << 8) | UCS2[1];
+//#endif
+
+  //TRACE(("_flFTUniGetBitmap: 0x%04x\n", c));
+  int fsListIndex = 0;
+  while ((fs = fsList[fsListIndex++])!= null)
+    if ((bitmap = _flFTGetBitmap(fs, c))!= null)
+      return bitmap;
+
+  return null;
+}
+
+
+private static FLbitmap _flFTGetBitmap(FLfontStruct _fs, int c) {
+  FLFreeTypeFontStruct fs = (FLFreeTypeFontStruct ) _fs;
+  FLFreeTypeOutline outline = (FLFreeTypeOutline ) _flFTGetOutline(_fs, c);
+  FT_Face face = fs.face;
+  FT_GlyphSlot glyph = outline.glyph;
+  final FT_Bitmap  bit2 = new FT_Bitmap();
+  FLbitmap bit3;
+  FT_Error error;
+  int width, height, pitch, size;
+  int left, right, top, bottom;
+  int bbox_width, bbox_height;
+  int bearing_x, bearing_y;
+  int pitch2, size2;
+
+  //TRACE(("_flFTGetBitmap: '%c'(0x%04x)\n", c, c));
+
+  /* See if it is already created */
+  bit3 = outline.bitmap;
+  if (bit3.bitmap != null)
+    return bit3;
+
+  /* No, proceed to create it */
+  left        = BM_FLOOR(glyph.metrics.horiBearingX);
+  right       = BM_CEILING(glyph.metrics.horiBearingX + glyph.metrics.width);
+  width       = BM_TRUNC(right - left);
+    
+  top         = BM_CEILING(glyph.metrics.horiBearingY);
+  bottom      = BM_FLOOR(glyph.metrics.horiBearingY - glyph.metrics.height);
+  height      = BM_TRUNC(top - bottom);
+
+  bearing_x   = BM_TRUNC(glyph.metrics.horiBearingX);
+  bearing_y   = BM_TRUNC(glyph.metrics.horiBearingY);
+
+  bbox_width  = BM_TRUNC(face.bbox.xMax - face.bbox.xMin);
+  bbox_height = BM_TRUNC(face.bbox.yMax - face.bbox.yMin);
+
+  if (glyph.format == FT_Glyph_Format.FT_GLYPH_FORMAT_OUTLINE) {    
+    pitch     = (width + 7) >> 3;
+    size      = pitch * height; 
+    pitch2    = ((width + (PIXEL_ROW_ALIGNMENT << 3) - 1) >> 5) << 2;
+    size2     = pitch2 * height;
+
+    bit2.width      = width;
+    bit2.rows       = height;
+    bit2.pitch      = pitch;
+    bit2.pixel_mode = FT_Pixel_Mode.FT_PIXEL_MODE_MONO;
+    bit2.buffer     = new byte[size];
+
+    bit3.width     = bit2.width;
+    bit3.height    = bit2.rows;
+    bit3.xorig     = -bearing_x;
+    bit3.yorig     = height - bearing_y;
+    bit3.xmove     = BM_TRUNC(glyph.metrics.horiAdvance);
+    bit3.ymove     = 0.0f;
+    bit3.bitmap    = new byte[size2];
+
+    FT_Outline_Translate(glyph.outline, -left, -bottom);
+    //memset(bit2.buffer, 0, size); java port
+    //memset(bit3.bitmap, 0, size2); java port
+
+    if (fs.lowPrec)
+      glyph.outline.flags &= ~FT_OUTLINE_HIGH_PRECISION;
+      
+    error = FT_Outline_Get_Bitmap(library, glyph.outline, bit2);
+
+    bitmap_convert(width, height, pitch, pitch2, bit2.buffer, bit3.bitmap);
+
+    //free(bit2.buffer); java port
+  }
+  else {
+    bit3.width     = glyph.bitmap.width;
+    bit3.height    = glyph.bitmap.rows;
+    bit3.xorig     = -bearing_x;
+    bit3.yorig     = height - bearing_y;
+    bit3.xmove     = BM_TRUNC(glyph.metrics.horiAdvance);
+    bit3.ymove     = 0.0f;
+    bit3.bitmap    = glyph.bitmap.buffer;
+  }
+
+  return bit3;
+}
+
+private static void bitmap_convert(int width, int height, int pitch, int pitch2, byte[] src, byte[] dst) {
+	  int i, j, c;
+	  byte bit;
+	  int p;
+
+	  int srcIndex=0;
+	  for (j = 0; j < height; j++) {
+	    bit = (byte)0x80;
+	    p = 0/*src*/;
+	    c = src[p+srcIndex];
+	    for (i = 0; i < width; i++) {
+	      if ((c & bit)!=0)
+	        dst[(height - 1 - j) * pitch2 + i / 8] |= (1 << (7 - (i & 7)));
+
+	      bit >>= 1;
+	      if ( bit==0) {
+	        bit = (byte)0x80;
+	        p++;
+	        c = src[p+srcIndex];
+	      }
+	    }
+
+	    srcIndex += pitch;
+	  }
+}
+
+private static FT_Error FT_Outline_Get_Bitmap(FT_Library library2, FT_Outline outline, FT_Bitmap bit2) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+private static void FT_Outline_Translate(FT_Outline outline, int xOffset, int yOffset) {
+    short   n;
+    FT_Vector[]  vec;
+
+
+    if ( outline == null)
+      return;
+
+    vec = outline.points;
+
+    int vecIndex =0;
+    for ( n = 0; n < outline.n_points; n++ )
+    {
+      vec[vecIndex].x += xOffset;
+      vec[vecIndex].y += yOffset;
+      vecIndex++;
+    }
 }
 
 private static int FT_New_Face(FT_Library library2, String pathname, int face_index, FT_Face[] aface) {
@@ -1880,6 +2261,10 @@ private static String _flSearchFont(String fontName) {
 	if(path.toFile().exists() && path.toFile().isFile()) {
 		return path.toString();
 	}
+	path = fs.getPath(fontDefault);
+	if(path.toFile().exists() && path.toFile().isFile()) {
+		return path.toString();
+	}
 	return null;
 }
 
@@ -1943,6 +2328,8 @@ FT_Request_Size( FT_Face          face,
   {
     int  error;
 
+    TT_Face ttf = (TT_Face) face;
+    ttf.size = req.height >> 6;
 
     error = 0;//clazz.request_size( face.size, req ); TODO
 

@@ -57,17 +57,23 @@ import static jscenegraph.database.inventor.libFL.FLcontext.FL_FONTNAME;
 import static jscenegraph.database.inventor.libFL.FLcontext.FL_HINT_MINOUTLINESIZE;
 
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbDict;
+import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.caches.SoCache;
 import jscenegraph.database.inventor.elements.SoCacheElement;
+import jscenegraph.database.inventor.elements.SoFontNameElement;
+import jscenegraph.database.inventor.elements.SoFontSizeElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
+import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoMFString;
 import jscenegraph.database.inventor.libFL.FLcontext;
@@ -88,6 +94,8 @@ import jscenegraph.port.fl;
  *
  */
 public class SoBitmapFontCache extends SoCache {
+
+	public static final String IV_DEFAULT_FONTNAME = "Times";
 
     // Static list of all fonts.  OPTIMIZATION:  If there turn out to
     // be applications that use lots of fonts, we could change this
@@ -117,7 +125,8 @@ public class SoBitmapFontCache extends SoCache {
     // And some font library stuff:
     private static FLcontext    flContext;
 
-    private byte[] fontNumList;
+    private String fontNumList;
+    private SbPList fontNums;
 
     // char* pointers of UCS-2 strings:
     private final SbPList     UCSStrings = new SbPList();
@@ -140,8 +149,116 @@ public SoBitmapFontCache(SoState state) { super(state);
 
     ref();
     
-    //TODO
+    list = null;
+
+    // Grab all the stuff we'll need to determine our validity from
+    // the state.
+    SbName fontName = SoFontNameElement.get(state);
+    addElement(state.getConstElement(
+        SoFontNameElement.getClassStackIndex(SoFontNameElement.class)));
+    if (fontName.operator_equal_equal(SoFontNameElement.getDefault())) {
+        fontName = new SbName(IV_DEFAULT_FONTNAME);
+    }
+    final SbViewportRegion vpr = SoViewportRegionElement.get(state);
+    addElement(state.getConstElement(
+        SoViewportRegionElement.getClassStackIndex(SoViewportRegionElement.class)));
+    float fontSize = SoFontSizeElement.get(state) * vpr.getPixelsPerPoint();
+    addElement(state.getConstElement(
+        SoFontSizeElement.getClassStackIndex(SoFontSizeElement.class)));
+
+    // Initialize font list
+    fontNumList = createUniFontList(fontName.getString(), fontSize);
+ 
+
+    if (fontNumList == null) {
+        // Try IV_DEFAULT_FONTNAME, unless we just did!
+        if (fontName.operator_not_equal(new SbName(IV_DEFAULT_FONTNAME))) {
+//#ifdef DEBUG
+            SoDebugError.post("SoText2::getFont",
+                      "Couldn't find font "+fontName.getString()+", replacing with "+IV_DEFAULT_FONTNAME);
+//#endif
+            fontNumList = createUniFontList(IV_DEFAULT_FONTNAME, fontSize);
+        
+        }
+        if (fontNumList == null) {
+//#ifdef DEBUG
+            SoDebugError.post("SoText3::getFont",
+                               "Couldn't find font "+IV_DEFAULT_FONTNAME+"!");
+//#endif
+            numChars = 0;
+        }
+    }
+
+    
+    numChars = 65536;  // ??? Just do UCS-2
+    currentNodeId = 0;
+    displayListDict = new SbDict();
+    bitmapDict = new SbDict();
+    
+    fonts.append(this);
 }
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Create a list of font numbers from a list of font names
+//
+// Use: private
+private String createUniFontList(String fontNameList, float size) 
+//
+////////////////////////////////////////////////////////////////////////
+{
+    String s;//char *s, *s1, *ends;
+    int fn;
+    float[][] mat = new float[2][2];
+
+    mat[0][0] = mat[1][1] = size;
+    mat[0][1] = mat[1][0] = 0.0f;
+    
+    //Make a copy of fontNameList so we don't disturb the one we are passed.    
+    //Find \n at end of namelist:
+    String nameCopy = fontNameList;
+
+    //find the last null in nameCopy.    
+    s = nameCopy+ ';';  /* put a guard in the end of string */
+    
+    fontNums = new SbPList();
+      
+//    while (s1 = (char *)strchr(s, ';')) {
+//       *s1 = (char)NULL;  /* font name is pointed to s */
+
+       if ((fn = fl.flCreateFont((String)s.substring(0,s.length()-1), mat, 0, null)) == 0) {
+//#ifdef DEBUG
+            SoDebugError.post("SoBitmapFontCache::createUniFontList", 
+                "Cannot create font "+ s);         
+//#endif          
+       }
+       else {
+         fontNums.append((int)fn);       
+       }
+//       if(s1 == ends) break;
+//       s = (s1 + 1);  /* move to next font name */
+//    }
+  
+    if (fontNums.getLength() == 0 ) return null;
+    
+    // create a comma-separated list of font numbers:
+    String fontList = "";
+    //fontList[0] = '\0';
+    for (int i = 0; i< fontNums.getLength(); i++ ){
+        fn = (int)(fontNums).operator_square_bracket(i);
+        fontList += fn; fontList +=',';//sprintf(&fontList[strlen(fontList)], "%d,", fn);        
+    }
+    //fontList[strlen(fontList) - 1] = '\0'; // the last ',' is replaced with NULL
+    fontList = fontList.substring(0, fontList.length()-1);
+    
+    //delete [] nameCopy;
+                                                    
+    return (String)fontList;
+   
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -247,12 +364,25 @@ public boolean convertToUCS(int nodeid, final SoMFString strings)
     if (nodeid == currentNodeId) return true;
     currentNodeId = nodeid;
     
+    //delete previously converted UCS string
+    UCSStrings.truncate(0);
+    UCSNumChars.truncate(0);
+    
+    //for each line of text, allocate a sufficiently large buffer
+    //An extra two bytes are allocated.
+    for (int i = 0; i< strings.getNum(); i++){
+        String input = (String)strings.operator_square_bracket(i);
+    	UCSStrings.operator_square_bracket(i, CharBuffer.wrap(input.toCharArray()));
+        int inbytes = strings.operator_square_bracket(i).length();
+        UCSNumChars.operator_square_bracket(i, inbytes);
+    }
+    
     return true;
 }
 
     //Returns line of UCS-2 text
-    public String      getUCSString(int line)
-        { return (String)UCSStrings.operator_square_bracket(line);}
+    public CharBuffer      getUCSString(int line)
+        { return (CharBuffer)UCSStrings.operator_square_bracket(line);}
         
     int         getNumUCSChars(int line)
         { return (int)((Integer)UCSNumChars.operator_square_bracket(line));}
@@ -340,7 +470,7 @@ public float getWidth(int line)
 {
     float result = 0.0f;
 
-    String str = getUCSString(line);
+    CharBuffer str = getUCSString(line);
     for (int i = 0; i < getNumUCSChars(line); i++) {
         FLbitmap bmap = getBitmap((char)(str.charAt(/*2**/i)));
         if (bmap != null)
@@ -387,7 +517,7 @@ drawCharacter(char c, GL2 gl2)
     
     if (bmap != null)
         gl2.glBitmap(bmap.width, bmap.height, bmap.xorig, bmap.yorig,
-             bmap.xmove, bmap.ymove, ByteBuffer.wrap(bmap.bitmap));
+             bmap.xmove, bmap.ymove, bmap.bitmap,0);
 //#ifdef DEBUG
     else SoDebugError.post("SoBitmapFontCache::drawCharacter", 
         "no bitmap for character "+uc+" "/*, uc[0]*256+uc[1]*/);
@@ -410,8 +540,8 @@ drawString(int line, GL2 gl2)
 {
     boolean useCallLists = true;
     
-    String str = getUCSString(line);
-    String ustr = (String) str;
+    CharBuffer str = getUCSString(line);
+    String ustr = (String) str.toString();
 
     // If there aren't any other caches open, build display lists for
     // the characters we can:
@@ -488,7 +618,7 @@ hasDisplayList(char c, GL2 gl2)
 ////////////////////////////////////////////////////////////////////////
 {
     char uc = (char)c;
-    int key = /*(uc[0]<<8)|uc[1]*/uc; // java port
+    int key = Character.reverseBytes(uc);//(uc[0]<<8)|uc[1]; java port
     // If we have one, return TRUE
     final Object[] value = new Object[1];
     if (displayListDict.find(key, value)) return true;
@@ -516,12 +646,12 @@ hasDisplayList(char c, GL2 gl2)
 // Use: internal
 
 private void
-callLists(String string, int len, GL2 gl2)
+callLists(CharBuffer string, int len, GL2 gl2)
 //
 ////////////////////////////////////////////////////////////////////////
 {
 
-    gl2.glCallLists(len, GL2.GL_2_BYTES, ByteBuffer.wrap(string.getBytes()));
+    gl2.glCallLists(len, GL2.GL_2_BYTES, string);
 }
 
 

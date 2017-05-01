@@ -214,4 +214,5 @@ import org.freetype.FT_Face;
   /*                                                                       */
 public class TT_Face extends FT_Face {
 	public Font font;
+	public float size;
 }

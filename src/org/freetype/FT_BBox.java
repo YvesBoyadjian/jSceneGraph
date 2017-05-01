@@ -42,9 +42,9 @@ package org.freetype;
 /*                                                                       */
 public class FT_BBox {
 
-    public long  xMin;
-	public long yMin;
-    public long  xMax;
-	public long yMax;
+    public int  xMin;
+	public int yMin;
+    public int  xMax;
+	public int yMax;
 
 }

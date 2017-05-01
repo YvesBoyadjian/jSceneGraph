@@ -194,5 +194,9 @@ public class FT_GlyphSlot {
     public FT_Face           face;
     public final FT_Glyph_Metrics  metrics = new FT_Glyph_Metrics();
 
+    public FT_Glyph_Format   format;
+
+    public final FT_Bitmap         bitmap = new FT_Bitmap();
+
     public final FT_Outline        outline = new FT_Outline();
 }

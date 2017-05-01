@@ -60,7 +60,7 @@ public class FT_Glyph_Metrics {
 
     public int  horiBearingX;
     public int  horiBearingY;
-    int  horiAdvance;
+    public int  horiAdvance;
 
     int  vertBearingX;
     int  vertBearingY;

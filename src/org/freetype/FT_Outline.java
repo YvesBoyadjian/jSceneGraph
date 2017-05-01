@@ -61,12 +61,12 @@ package org.freetype;
 public class FT_Outline {
 
     short       n_contours;      /* number of contours in glyph        */
-    short       n_points;        /* number of points in the glyph      */
+    public short       n_points;        /* number of points in the glyph      */
 
-    FT_Vector[]  points;          /* the outline's points               */
+    public FT_Vector[]  points;          /* the outline's points               */
     char[]       tags;            /* the points flags                   */
     short[]      contours;        /* the contour end points             */
 
-    int         flags;           /* outline masks                      */
+    public int         flags;           /* outline masks                      */
 
 }

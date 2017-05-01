@@ -54,6 +54,8 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import java.nio.CharBuffer;
+
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbBox3f;
@@ -231,6 +233,7 @@ public void destructor()
 ////////////////////////////////////////////////////////////////////////
 {
     if (myFont != null) myFont.unref();
+    super.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -392,6 +395,7 @@ GLRender(SoGLRenderAction action)
                 SoGLCacheContextElement.AutoCache.DONT_AUTO_CACHE.getValue());
     }
     state.pop();
+    mb.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -456,7 +460,7 @@ rayPick(SoRayPickAction action)
         
         int len = myFont.getNumUCSChars(line);
 
-        String str = myFont.getUCSString(line);
+        CharBuffer str = myFont.getUCSString(line);
         
         // Intersect against each line of text's bounding box:
         final SbBox3f lineBbox = new SbBox3f(), charBbox = new SbBox3f();
@@ -614,7 +618,7 @@ computeBBox(SoAction action, final SbBox3f box, final SbVec3f center)
     for (int line = 0; line < string.getNum(); line++) {
     
         int len = myFont.getNumUCSChars(line);
-        String str = myFont.getUCSString(line);
+        CharBuffer str = myFont.getUCSString(line);
        
         // Starting position of string, based on justification:
         final SbVec3f charPosition = getPixelStringOffset(line).operator_add(
