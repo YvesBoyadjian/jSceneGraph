@@ -1467,8 +1467,19 @@ _flFTConvertGlyph(FLFreeTypeOutline ch, FT_Raster  raster, FT_Outline outline)
 		}
 		break;
 		case PathIterator.SEG_CUBICTO: {
+			float xcp = segment.getLast().x;
+			float ycp = segment.getLast().y;
+			float p1x = coords[0];
+			float p1y = -coords[1];
+			float p2x = coords[2];
+			float p2y = -coords[3];
 			float p3x = coords[4];
 			float p3y = -coords[5];
+			for(float t = 0.01f;t<1.0f; t+= 0.01f) {
+				float ptx = b(3,0,t)*xcp+b(3,1,t)*p1x+b(3,2,t)*p2x+ b(3,3,t)*p3x;
+				float pty = b(3,0,t)*ycp+b(3,1,t)*p1y+b(3,2,t)*p2y+ b(3,3,t)*p3y;
+				segment.add(new FLpt2(ptx,pty));
+			}
 			segment.add(new FLpt2(p3x,p3y));									
 		}
 		break;
