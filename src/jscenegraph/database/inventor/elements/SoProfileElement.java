@@ -112,7 +112,7 @@ public void init(SoState state)
 //
 // Use: public
 
-public void add(SoState state, SoProfile profile)
+public static void add(SoState state, SoProfile profile)
 //
 ////////////////////////////////////////////////////////////////////////
 {

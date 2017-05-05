@@ -481,7 +481,7 @@ getByName( SbName name, SoNodeList list)
 		       SoLocateHighlight.initClass();
 		       SoLightModel.initClass();
 		       SoLineSet.initClass();
-//		       SoLinearProfile.initClass();
+		       SoLinearProfile.initClass();
 		       SoMaterial.initClass();
 		       SoMaterialBinding.initClass();
 		       SoMatrixTransform.initClass();
@@ -498,7 +498,7 @@ getByName( SbName name, SoNodeList list)
 		       SoPickStyle.initClass();
 		       SoPointLight.initClass();
 		       SoPointSet.initClass();
-//		       SoProfileCoordinate2.initClass();
+		       SoProfileCoordinate2.initClass();
 //		       SoProfileCoordinate3.initClass();
 //		       SoQuadMesh.initClass();
 		       SoResetTransform.initClass();

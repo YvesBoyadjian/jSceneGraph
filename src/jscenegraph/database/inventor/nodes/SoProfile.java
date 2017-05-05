@@ -59,6 +59,7 @@ import java.util.function.IntConsumer;
 
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
@@ -166,6 +167,114 @@ public abstract class SoProfile extends SoNode {
     abstract void        getVertices(final SoState state, final IntConsumer nVertices,
                                     final Consumer<SbVec2f[]> vertices);
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Constructor
+//
+// Use: protected
+
+public SoProfile()
+//
+////////////////////////////////////////////////////////////////////////
+{
+    nodeHeader.SO_NODE_CONSTRUCTOR(/*SoProfile.class*/);
+    nodeHeader.SO_NODE_ADD_MFIELD(index,"index",   (0));
+    nodeHeader.SO_NODE_ADD_FIELD(linkage,"linkage", (Profile.START_FIRST.getValue()));
+
+    // Set up static info for enumerated type field
+    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Profile.START_FIRST);
+    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Profile.START_NEW);
+    nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Profile.ADD_TO_CURRENT);
+
+    nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(linkage,"linkage", "Profile");
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Destructor
+//
+// Use: private
+
+public void destructor()
+//
+////////////////////////////////////////////////////////////////////////
+{
+	super.destructor();
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Implements all actions.
+//
+// Use: extender
+
+private void
+SoProfile_doAction(SoAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoProfileElement.add(action.getState(), this);
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Does callback action thing.
+//
+// Use: extender
+
+public void callback(SoCallbackAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoProfile_doAction(action);
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Does GL render action.
+//
+// Use: extender
+
+public void GLRender(SoGLRenderAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoProfile_doAction(action);
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Does getBoundingBox action.
+//
+// Use: extender
+
+public void getBoundingBox(SoGetBoundingBoxAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoProfile_doAction(action);
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Does pick action.
+//
+// Use: extender
+
+public void pick(SoPickAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoProfile_doAction(action);
+}
 
 ////////////////////////////////////////////////////////////////////////
 //
