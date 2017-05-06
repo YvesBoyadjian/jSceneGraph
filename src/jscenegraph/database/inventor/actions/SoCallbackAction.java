@@ -191,7 +191,7 @@ class pointCallback implements Destroyable {
            //! when the callback was registered. The second argument is the
            //! action, from which the state can be extracted. The third
            //! argument is the node that the callback is called from.  
-      interface SoCallbackActionCB {
+      public interface SoCallbackActionCB {
     	  
     	  Response run(Object userData,
                                                SoCallbackAction action,
@@ -582,5 +582,30 @@ public SoNode getCurPathTail()
     return(currentNode);
 }
 
+    //! These add a callback function to call when a node of the given type is
+    //! encountered during traversal. The PreCallback is called just before
+    //! the node is traversed, and the PostCallback is called just after. The
+    //! value returned by a callback function indicates whether the action
+    //! should continue with the traversal.
+    public void addPreCallback(SoType type, SoCallbackActionCB cb, Object data) {
+    nodeTypeCallback cbStruct = new nodeTypeCallback();
+    cbStruct.type.copyFrom(type);
+    cbStruct.cb = cb;
+    cbStruct.data = data;
+
+    preCallbackList.append(cbStruct);    	
+    }
 	    
+    //! Routines to add callbacks for generated primitives (triangles, line
+    //! segments, and points) for all shapes of the given type. The callback
+    //! function will be called for each primitive generated for all shapes of
+    //! or derived from that type.
+    public void addTriangleCallback(SoType type, SoTriangleCB cb, Object data) {
+    triangleCallback cbStruct = new triangleCallback();
+    cbStruct.type.copyFrom(type);
+    cbStruct.cb = cb;
+    cbStruct.data = data;
+
+    triangleCallbackList.append(cbStruct);    	
+    }
 }

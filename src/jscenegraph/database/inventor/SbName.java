@@ -270,4 +270,11 @@ public static boolean isIdentStartChar(char c)
 	public void destructor() {
 		entry = null;
 	}
+	
+	/**
+	 * Java port
+	 */
+	public String toString() {
+		return getString();
+	}
 }
