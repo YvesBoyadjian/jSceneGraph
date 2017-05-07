@@ -350,7 +350,10 @@ private void initFile(FILE newFP,          // New file pointer
 //    found.
 //
 // Use: public
-
+// java port
+	public boolean	openFile(String fileName) {
+		return openFile(fileName,false);
+	}
 	public boolean	openFile(String fileName, boolean okIfNotFound)
 	//
 	////////////////////////////////////////////////////////////////////////

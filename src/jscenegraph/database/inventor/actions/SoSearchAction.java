@@ -375,6 +375,7 @@ setName(final SbName n)
 	       //! enum values. Default is no flags at all. Note that setting a node,
 	       //! type, and/or name to search for activates the relevant flag, so you
 	       //! may never need to call this method directly.
+	  public     void setFind(SoSearchAction.LookFor what) { lookingFor = what.getValue(); }
 	  public     void setFind(int what) { lookingFor = what; }
 	  
 	  ////////////////////////////////////////////////////////////////////////

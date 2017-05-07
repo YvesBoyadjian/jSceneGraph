@@ -74,6 +74,7 @@ import jscenegraph.database.inventor.fields.SoSFTime;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.upgraders.SoUpgrader;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.database.inventor.sensors.SoSensorCB;
 import jscenegraph.database.inventor.sensors.SoSensorManager;
@@ -508,6 +509,72 @@ private static boolean read(SoInput in, final SoBase[] base)
 
     return ret;
 }
+
+    //! Reads all graphs and paths from the file specified by the given SoInput.  If
+    //! there is only one graph in the file and its root is an
+    //! SoSeparator, a pointer to the root is returned. In all other
+    //! cases, this creates an SoSeparator, adds the root nodes of all
+    //! graphs read as children of it, and returns a pointer to it. This
+    //! returns NULL on error. This processes directory paths in the same way
+    //! as the other reading routines.
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Reads all graphs from the file specified by the given SoInput.
+//If there is only one graph in the file and its root is an
+//SoSeparator, a pointer to the root is returned. Otherwise, this
+//creates an SoSeparator, adds the root nodes of all graphs read
+//as children of it, and returns a pointer to it. 
+//
+//If a graph is a path, it will be read and its root returned.
+//
+//This returns NULL on error.
+//
+//Use: public, static
+
+    public static SoSeparator  readAll(SoInput in) {
+    final SoBase[]      base = new SoBase[1];
+    SoSeparator root = new SoSeparator();
+
+    root.ref();
+
+    // Keep on reading until there are no more graphs to read
+    do {
+        if (! read(in, base)) {
+            root.unref();
+            return null;
+        }
+        else if (base[0] != null) {
+            // Did we read a node or a path?
+            if (base[0].isOfType(SoNode.getClassTypeId()))
+                root.addChild((SoNode ) base[0]);
+            else if (base[0].isOfType(SoPath.getClassTypeId())) {
+                SoNode pathHead = ((SoPath ) base[0]).getHead();
+                if (pathHead != null) {
+                    pathHead.ref();
+                    root.addChild(pathHead);
+                    pathHead.unref();
+                }
+            }
+        }
+    } while (base[0] != null);
+
+    // If only one graph was read, and it had a separator for a root,
+    // get rid of the one we created
+    if (root.getNumChildren() == 1 &&
+        root.getChild(0).isOfType(SoSeparator.getClassTypeId())) {
+
+        SoSeparator graphRoot = (SoSeparator ) root.getChild(0);
+        graphRoot.ref();
+        root.unref();
+        root = graphRoot;
+    }
+
+    root.unrefNoDelete();
+    return root;
+    	
+    }
+
 
 	   
     //! Initializes the database.  This must be called before calling any

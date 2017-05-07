@@ -4,6 +4,7 @@
 package jscenegraph.interaction.inventor;
 
 import jscenegraph.database.inventor.SoDB;
+import jscenegraph.database.inventor.actions.SoLineHighlightRenderAction;
 import jscenegraph.interaction.inventor.draggers.SoDragger;
 import jscenegraph.interaction.inventor.nodekits.SoInteractionKit;
 import jscenegraph.interaction.inventor.nodes.SoAntiSquish;
@@ -73,7 +74,7 @@ public class SoInteraction {
 		    
 		            // actions
 //		            SoBoxHighlightRenderAction.initClass();
-//		            SoLineHighlightRenderAction.initClass();
+		            SoLineHighlightRenderAction.initClass();
 		    
 		            initialized = true;
 		        }
