@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jscenegraph.database.inventor.nodes;
+package jscenegraph.interaction.inventor.nodes;
 
 import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoPickedPoint;

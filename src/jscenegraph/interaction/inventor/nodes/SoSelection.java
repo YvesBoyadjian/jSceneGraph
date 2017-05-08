@@ -72,7 +72,6 @@ import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.misc.SoCallbackList;
 import jscenegraph.database.inventor.misc.SoCallbackListCB;
 import jscenegraph.database.inventor.nodes.SoNode;
-import jscenegraph.database.inventor.nodes.SoSelectionPickCB;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 
@@ -457,7 +456,7 @@ public SoPath getPath(int index)
 //
 // Description:
 //    Find 'this' in the path, then copy the path from 'this' down to
-// the path tail. If 'this' is not in the path, return NULL.
+// the path tail. If 'this' is not in the path, return null.
 //
 // Use: private
 //
@@ -580,7 +579,7 @@ public void performSingleSelection(SoPath path)
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Add path to the selection list. It is assumed that path->head
+//    Add path to the selection list. It is assumed that path.head
 // is this - DO NOT CALL THIS FUNCTION unless this is true. Also, the
 // path must include more than just the selection node by itself.
 //
@@ -637,7 +636,7 @@ protected int findPath(final SoPath path)
              selPath = copyFromThis(path);
         else selPath = (SoPath ) path; // const cast away
         
-        // selPath still not NULL? (copyFromThis() might have returned NULL)
+        // selPath still not null? (copyFromThis() might have returned null)
         if (selPath != null) {
             selPath.ref();
             index = ((SoPathList)selectionList).findPath(selPath);
@@ -738,6 +737,48 @@ public void performToggleSelection(SoPath path)
             finishCBList.invokeCallbacks(this);
     }
 }
+
+    //! The selection callbacks are invoked every time an object is selected, whether
+    //! it be from user interaction or from method call.
+    //! The callbacks are invoked after the object has been added to the selection list.
+public void    addSelectionCallback(SoSelectionPathCB f) {
+	addSelectionCallback(f, null);
+}
+    public void    addSelectionCallback(SoSelectionPathCB f, Object userData) {
+    if (selCBList == null)
+        selCBList = new SoCallbackList();
+    selCBList.addCallback((callbackData)->f.invoke(userData, (SoPath)callbackData), userData);    	
+    }
+    //! Remove selection callback.
+    public void    removeSelectionCallback(SoSelectionPathCB f) {
+    	removeSelectionCallback(f, null);    	
+    }
+    public void    removeSelectionCallback(SoSelectionPathCB f, Object userData) {
+    if (selCBList != null)
+        selCBList.removeCallback((SoCallbackListCB ) f, userData);
+    	
+    }
+
+    //! The deselection callbacks are invoked every time an object is deselected, whether
+    //! it be from user interaction or from method call.
+    //! This is invoked after the object has been removed from the selection list.
+    public void    addDeselectionCallback(SoSelectionPathCB f) {
+    	addDeselectionCallback(f, null);    	
+    }
+    public void    addDeselectionCallback(SoSelectionPathCB f, Object userData) {
+    if (deselCBList == null)
+        deselCBList = new SoCallbackList();
+    deselCBList.addCallback((callbackData)->f.invoke(userData, (SoPath)callbackData), userData);    	
+    }
+    //! Remove deselection callback.
+    public void    removeDeselectionCallback(SoSelectionPathCB f) {
+    	removeDeselectionCallback(f, null);
+    }
+    public void    removeDeselectionCallback(SoSelectionPathCB f, Object userData) {
+    	    if (deselCBList != null)
+        deselCBList.removeCallback((SoCallbackListCB ) f, userData);    	
+    }
+
 
 	 
 	 ////////////////////////////////////////////////////////////////////////
