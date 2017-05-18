@@ -70,6 +70,7 @@
 
 package jscenegraph.database.inventor;
 
+import jscenegraph.port.Mutable;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! 4D vector class.
@@ -90,7 +91,7 @@ SbVec2f, SbVec3f, SbVec2s, SbRotation
  * @author Yves Boyadjian
  *
  */
-public class SbVec4f {
+public class SbVec4f implements Mutable {
 	
 	   protected
 		        final float[]       vec = new float[4];         //!< Storage for vector components
@@ -190,5 +191,49 @@ setValue(float x, float y, float z, float w)
     return (this);
 }
 
+
+//
+// Component-wise binary vector subtraction operator
+//
+
+public SbVec4f
+operator_minus(final SbVec4f v2)
+{
+	final SbVec4f v1 = this;
+    return new SbVec4f(v1.vec[0] - v2.vec[0],
+                   v1.vec[1] - v2.vec[1],
+                   v1.vec[2] - v2.vec[2],
+                   v1.vec[3] - v2.vec[3]);
+}
+
+
+//
+// Equality comparison operator within a tolerance.
+//
+
+public boolean
+equals(final SbVec4f v, float tolerance) 
+{
+    final SbVec4f     diff = this.operator_minus(v);
+
+    return diff.dot(diff) <= tolerance;
+}
 	
+
+//
+// Returns dot (inner) product of vector and another vector
+//
+
+public float
+dot(final SbVec4f v)
+{
+    return vec[0] * v.vec[0] + vec[1] * v.vec[1] + 
+           vec[2] * v.vec[2] + vec[3] * v.vec[3] ;
+}
+
+@Override
+public void copyFrom(Object other) {
+	copyFrom((SbVec4f)other);
+}
+
  }

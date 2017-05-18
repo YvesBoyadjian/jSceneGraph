@@ -96,6 +96,14 @@ public class SoTransformation extends SoNode {
 	  }
 	  public  static SoFieldData[] getFieldDataPtr()                              
 	        { return SoSubNode.getFieldDataPtr(SoTransformation.class); }    	  	
+	  
+	  public SoTransformation() {
+		  nodeHeader.SO_NODE_CONSTRUCTOR();
+	  }
+	  
+	  public void destructor() {
+		  super.destructor();
+	  }
 	
 	 ////////////////////////////////////////////////////////////////////////
 	  //

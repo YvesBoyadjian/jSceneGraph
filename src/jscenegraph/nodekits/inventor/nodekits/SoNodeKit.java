@@ -55,6 +55,7 @@
 package jscenegraph.nodekits.inventor.nodekits;
 
 import jscenegraph.database.inventor.SoDB;
+import jscenegraph.database.inventor.details.SoNodeKitDetail;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +118,7 @@ public class SoNodeKit {
 //		           SoSceneKit.initClass();
 		   
 		           // The detail class -- Not a node class, but a detail used by them.
-		           //SoNodeKitDetail.initClass();
+		           SoNodeKitDetail.initClass();
 		   
 		           // Initialize the V1.0 to V2.0 upgrader classes
 		           //SoV1NodeKit.init();

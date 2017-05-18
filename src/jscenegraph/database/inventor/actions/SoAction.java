@@ -327,7 +327,7 @@ public abstract class SoAction implements Destroyable {
 	         appliedTo.code = AppliedCode.PATH;
 	         appliedTo.path = path;
 	         appliedTo.path.ref();
-	         appliedTo.curPathCode = ((path.getFullLength() == 1) ?
+	         appliedTo.curPathCode = ((SoFullPath.cast(path).getLength() == 1) ?
 	                                  PathCode.BELOW_PATH : PathCode.IN_PATH);
 	     
 	         curPath.setHead(path.getHead());

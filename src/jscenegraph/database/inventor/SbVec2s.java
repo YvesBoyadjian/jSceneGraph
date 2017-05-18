@@ -140,7 +140,7 @@ public class SbVec2s implements Mutable {
 	public short operator_square_bracket(int i) {
 		return vec[i];
 	}
-
+	
 //
 // Component-wise binary vector addition operator
 //
@@ -152,6 +152,21 @@ operator_add(final SbVec2s v2)
     return new SbVec2s((short)(v1.vec[0] + v2.vec[0]),
                   (short)(v1.vec[1] + v2.vec[1]));
 }
+
+
+//
+// Component-wise binary vector subtraction operator
+//
+
+public SbVec2s
+operator_minus(final SbVec2s v2)
+{
+	final SbVec2s v1 = this;
+    return new SbVec2s((short)(v1.vec[0] - v2.vec[0]),
+                  (short)(v1.vec[1] - v2.vec[1]));
+}
+
+
 
 	//! Returns vector components.
     public short[] getValue() {

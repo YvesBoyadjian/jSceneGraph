@@ -57,6 +57,7 @@
 
 package jscenegraph.database.inventor;
 
+import jscenegraph.port.Mutable;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! 2D box class.
@@ -78,7 +79,7 @@ SbBox3f, SbXfBox3f, SbBox2s, SbVec3f, SbVec2f, SbVec2s, SbMatrix
  * @author Yves Boyadjian
  *
  */
-public class SbBox2f {
+public class SbBox2f implements Mutable {
 	
 	   private
 		   final      SbVec2f     min = new SbVec2f(), max = new SbVec2f();
@@ -139,6 +140,13 @@ makeEmpty()
 
     public void        getBounds(final SbVec2f _min, final SbVec2f _max)
         { _min.copyFrom(min); _max.copyFrom(max); }
+
+	@Override
+	public void copyFrom(Object other) {
+		SbBox2f otherB = (SbBox2f)other;
+		min.copyFrom(otherB.min);
+		max.copyFrom(otherB.max);
+	}
 
 
 }

@@ -471,4 +471,14 @@ public class SoKeyboardEvent extends SoButtonEvent
                  return '\0';
              }
             }
+    
+//! some convenience macros for determining if an event matches
+
+    public static boolean SO_KEY_PRESS_EVENT(SoEvent EVENT, SoKeyboardEvent.Key KEY) {
+    return (SoKeyboardEvent.isKeyPressEvent(EVENT,KEY));
+    }
+    public static boolean SO_KEY_RELEASE_EVENT(SoEvent EVENT, SoKeyboardEvent.Key KEY) { 
+    return (SoKeyboardEvent.isKeyReleaseEvent(EVENT,KEY));
+    }
+    
     }

@@ -848,6 +848,11 @@ public static final int VALUE_CHUNK_SIZE        =32;
 		return flags.readOnly;
 	}
 
+    //! Returns TRUE if the given field is of the same type and has the
+    //! same value(s) as this. Subclasses must define this as well as
+    //! an == operator.
+    public abstract boolean        isSame(final SoField f);
+
 	public abstract void copyFrom(final SoField f);
 
 	/**
@@ -1497,31 +1502,31 @@ public boolean readConnection(SoInput in)
     boolean wasNotifyEnabled = flags.notifyEnabled;
     flags.notifyEnabled = false;
 
-    if (in.isBinary()) { //TODO
-//        short   readFlags;
-//
-//        if (! readValue(in)) {
-//            SoReadError.post(in,
-//                              "Couldn't read binary value for field \""+name.getString()+"\"");
-//            flags.notifyEnabled = wasNotifyEnabled;
-//            return false;
-//        }
-//
-//        // Read flags
-//        if (! in.read(readFlags)) {
-//            SoReadError.post(in,
-//                              "Couldn't read binary flags for field \""+name.getString()+"\"");
-//            flags.notifyEnabled = wasNotifyEnabled;
-//            return false;
-//        }
-//
-//        // (Don't use setIgnored() to set this, since it would cause
-//        // notification, which we don't want to have happen for trigger
-//        // fields.)
-//        flags.ignored = (readFlags & FIELD_IGNORED) != 0;
-//        shouldReadConnection = (readFlags & FIELD_CONNECTED) != 0;
-//        setDefault((readFlags & FIELD_DEFAULT) != 0);
-//        gotValue      = true;
+    if (in.isBinary()) {
+        final short[]   readFlags = new short[1];
+
+        if (! readValue(in)) {
+            SoReadError.post(in,
+                              "Couldn't read binary value for field \""+name.getString()+"\"");
+            flags.notifyEnabled = wasNotifyEnabled;
+            return false;
+        }
+
+        // Read flags
+        if (! in.read(readFlags)) {
+            SoReadError.post(in,
+                              "Couldn't read binary flags for field \""+name.getString()+"\"");
+            flags.notifyEnabled = wasNotifyEnabled;
+            return false;
+        }
+
+        // (Don't use setIgnored() to set this, since it would cause
+        // notification, which we don't want to have happen for trigger
+        // fields.)
+        flags.ignored = (readFlags[0] & FIELD_IGNORED) != 0;
+        shouldReadConnection = (readFlags[0] & FIELD_CONNECTED) != 0;
+        setDefault((readFlags[0] & FIELD_DEFAULT) != 0);
+        gotValue      = true;
     }
 
     // ASCII version...

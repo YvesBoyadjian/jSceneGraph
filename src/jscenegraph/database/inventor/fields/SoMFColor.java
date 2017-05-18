@@ -143,4 +143,26 @@ public boolean read1Value(SoInput in, int index)
             in.read(ret[2]));
 }
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads array of binary values from file as one chunk.
+//
+// Use: private
+
+protected boolean
+readBinaryValues(SoInput in, int numToRead)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	float[] valsFloat = new float[3 * numToRead];
+    if(in.readBinaryArray((float[] ) valsFloat, 3 * numToRead)) {
+	    for(int i=0; i< numToRead;i++) {	    	
+	    	((SbColor)values[i]).setValue(valsFloat[3*i],valsFloat[3*i+1],valsFloat[3*i+2]);
+	    }
+	    return true;
+    }
+    return false;
+}
 }

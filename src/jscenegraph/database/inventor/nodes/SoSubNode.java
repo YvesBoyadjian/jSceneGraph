@@ -118,8 +118,8 @@ import jscenegraph.database.inventor.misc.SoBase;
  */
 public class SoSubNode {
 
-	private Class thisClass;
-	private SoNode thisParent;
+	protected Class thisClass;
+	protected SoNode thisParent;
 	
 	  private static final Map<Class,SoType> classTypeId = new HashMap<Class,SoType>();            /* Type id              */    
 	  private  static final Set<Class>      firstInstance = new HashSet<Class>(); /* true until 2nd c'tor call */        

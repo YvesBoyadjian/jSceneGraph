@@ -6,9 +6,12 @@ package jscenegraph.interaction.inventor;
 import jscenegraph.database.inventor.SoDB;
 import jscenegraph.database.inventor.actions.SoLineHighlightRenderAction;
 import jscenegraph.interaction.inventor.draggers.SoDragger;
+import jscenegraph.interaction.inventor.manips.SoHandleBoxManip;
+import jscenegraph.interaction.inventor.manips.SoTransformManip;
 import jscenegraph.interaction.inventor.nodekits.SoInteractionKit;
 import jscenegraph.interaction.inventor.nodes.SoAntiSquish;
 import jscenegraph.interaction.inventor.nodes.SoSelection;
+import jscenegraph.interaction.inventor.nodes.SoSurroundScale;
 import jscenegraph.nodekits.inventor.nodekits.SoNodeKit;
 
 /**
@@ -48,16 +51,16 @@ public class SoInteraction {
 		    
 		            // Nodes used in interaction kits to help with transforms.
 		            SoAntiSquish.initClass();
-//		            SoSurroundScale.initClass();
+		            SoSurroundScale.initClass();
 		    
 		            // draggers
 		            SoInteractionKit.initClass();
 		            SoDragger.initClasses();
 		    
 		            // transform manips
-//		            SoTransformManip.initClass();
+		            SoTransformManip.initClass();
 //		            SoCenterballManip.initClass();
-//		            SoHandleBoxManip.initClass();
+		            SoHandleBoxManip.initClass();
 //		            SoJackManip.initClass();
 //		            SoTabBoxManip.initClass();
 //		            SoTrackballManip.initClass();

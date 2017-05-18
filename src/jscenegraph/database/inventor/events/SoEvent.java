@@ -56,7 +56,9 @@ package jscenegraph.database.inventor.events;
 
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbTime;
+import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
+import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.SoType;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +92,9 @@ public class SoEvent {
 	private boolean ctrlDown;
 	private boolean altDown;
 	
-    private final SbVec2s position = new SbVec2s();   
+    private final SbVec2s position = new SbVec2s();   //!< locator position when event occurred
+    private final SbVec2s             viewportPos = new SbVec2s();    //!< position relative to viewport
+    private final SbVec2f             normalizedPos = new SbVec2f();  //!< normalized position
     
     private static SoType       classTypeId;
     
@@ -172,6 +176,57 @@ public SoEvent()
 	public SbVec2s getPosition() {
 		 return position; 
 	}
+	
+
+////////////////////////////////////////////////////////////////////////
+//
+// calculates the window position within the space of the viewport
+// given by vpRgn.
+//
+public SbVec2s 
+getPosition(final SbViewportRegion vpRgn) 
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoEvent             ev = (SoEvent )this;
+    final SbVec2s       pixSize = vpRgn.getViewportOriginPixels();
+
+    ev.viewportPos.getValue()[0] = (short)(position.getValue()[0] - pixSize.getValue()[0]);
+    ev.viewportPos.getValue()[1] = (short)(position.getValue()[1] - pixSize.getValue()[1]);
+
+    return viewportPos;
+}
+
+//! Get the normalized location of the cursor when the event occurred,
+//! relative to the specified viewport region. The returned value will
+//! lie between 0.0 and 1.0.
+////////////////////////////////////////////////////////////////////////
+//
+//calculates the window position, normalizing coords to 0.0-1.0
+//within the space of the viewport given by vpRgn.
+//
+public final SbVec2f  getNormalizedPosition(final SbViewportRegion vpRgn) {
+	SoEvent             ev = (SoEvent )this;
+    final SbVec2s       pixSize = vpRgn.getViewportSizePixels();
+
+    final SbVec2f vpSize = new SbVec2f((float) pixSize.getValue()[0], (float) pixSize.getValue()[1]);
+
+    final SbVec2s vpPos = new SbVec2s(getPosition( vpRgn ));
+
+    if ( vpSize.getValue()[0] == 0.0 )
+        ev.normalizedPos.getValue()[0] = 0.0f;
+    else
+        ev.normalizedPos.getValue()[0] = ((float) vpPos.getValue()[0]) / vpSize.getValue()[0];
+
+    if ( vpSize.getValue()[1] == 0.0 )
+        ev.normalizedPos.getValue()[1] = 0.0f;
+    else
+        ev.normalizedPos.getValue()[1] = ((float) vpPos.getValue()[1]) / vpSize.getValue()[1];
+
+    return normalizedPos;
+	
+}
+	
 
     //! Set whether the modifier keys were down when the event occurred.
       public void                setShiftDown(boolean isDown)     { shiftDown = isDown; }

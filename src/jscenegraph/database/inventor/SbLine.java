@@ -423,5 +423,35 @@ getClosestPoints( final SbLine line2,
 }
 
 
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//  Returns the closes point on this line to the given point.
+//
+// Use: public
+
+public SbVec3f
+getClosestPoint(final SbVec3f point) 
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // vector from origin of this line to given point
+    SbVec3f p = point.operator_minus(pos);
+
+    // find the length of p when projected onto this line
+    // (which has direction d)
+    // length = |p| * cos(angle b/w p and d) = (p.d)/|d|
+    // but |d| = 1, so
+    float length = p.dot(dir);
+
+    // vector coincident with this line
+    final SbVec3f proj = new SbVec3f(dir);
+    proj.operator_mul_equal( length);
+
+    SbVec3f result = pos.operator_add(proj);
+    return result;
+}    
+
+
 
 }

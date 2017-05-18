@@ -166,6 +166,7 @@ public void destructor()
 ////////////////////////////////////////////////////////////////////////
 {
     if (setFunction) state.pop();
+    //super.destructor();
 }
 
     

@@ -1240,6 +1240,105 @@ transpose()
                     matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3]);
 }
 
+
+//
+// Composes the matrix from translation, rotation, scale, etc.
+//
+
+	private void TRANSLATE(SbVec3f vec, final SbMatrix m) {
+		m.setTranslate(vec);
+		multLeft(m);
+		}
+	private void ROTATE(SbRotation rot, final SbMatrix m) {
+		rot.getValue(m);
+		multLeft(m);
+	}
+
+public void setTransform(final SbVec3f translation,
+                 final SbRotation rotation,
+                 final SbVec3f scaleFactor,
+                 final SbRotation scaleOrientation,
+                 final SbVec3f center)
+{
+    final SbMatrix m = new SbMatrix();
+
+    makeIdentity();
+    
+    if (translation.operator_not_equal(new SbVec3f(0,0,0)))
+        TRANSLATE(translation,m);
+
+    if (center.operator_not_equal(new SbVec3f(0,0,0)))
+        TRANSLATE(center,m);
+
+    if (rotation.operator_not_equal(new SbRotation(0,0,0,1)))
+        ROTATE(rotation,m);
+
+    if (scaleFactor.operator_not_equal(new SbVec3f(1,1,1))) {
+        SbRotation so = scaleOrientation;
+        if (so.operator_not_equal(new SbRotation(0,0,0,1)))
+            ROTATE(so,m);
+        
+        m.setScale(scaleFactor);
+        multLeft(m);
+
+        if (so.operator_not_equal(new SbRotation(0,0,0,1))) {
+            so.invert();
+            ROTATE(so,m);
+        }
+    }
+
+    if (center.operator_not_equal(new SbVec3f(0,0,0)))
+        TRANSLATE(center.operator_minus(),m);
+
+//#undef TRANSLATE
+//#undef ROTATE
+}
+
+    //! Overloaded methods as a kludge because the compiler won't let
+    //! us have SbVec3f(0,0,0) as a default value:
+    public void        setTransform(final SbVec3f t, final SbRotation r,
+                             final SbVec3f s)
+                { setTransform(t, r, s,
+                               new SbRotation(0,0,0,1), new SbVec3f(0,0,0)); }
+    public void        setTransform(final SbVec3f t, final SbRotation r,
+                             final SbVec3f s, final SbRotation so)
+                { setTransform(t, r, s, so, new SbVec3f(0,0,0)); }
+
+
+//
+// Decomposes a rotation into translation etc, based on scale
+//
+
+public void getTransform(SbVec3f translation,
+                    SbRotation rotation,
+                    SbVec3f scaleFactor,
+                    SbRotation scaleOrientation,
+                    final SbVec3f center)
+{
+    final SbMatrix so = new SbMatrix(), rot = new SbMatrix(), proj = new SbMatrix();
+    if (center.operator_not_equal(new SbVec3f(0,0,0))) {
+        // to get fields for a non-0 center, we
+        // need to decompose a new matrix "m" such
+        // that [-center][m][center] = [this]
+        // i.e., [m] = [center][this][-center]
+        // (this trick stolen from Showcase code)
+        final SbMatrix m = new SbMatrix(),c = new SbMatrix();
+        m.setTranslate(center.operator_minus());
+        m.multLeft(this);
+        c.setTranslate(center);
+        m.multLeft(c);
+        m.factor(so,scaleFactor,rot,translation,proj);
+    }
+    else
+        this.factor(so,scaleFactor,rot,translation,proj);
+
+    scaleOrientation.copyFrom(so.transpose());  // have to transpose because factor 
+                                        // gives us transpose of correct answer.
+    rotation.copyFrom(rot);
+}
+
+
+
     //! Returns determinant of upper-left 3x3 submatrix
 public float       det3() { return det3(0, 1, 2, 0, 1, 2); }
 

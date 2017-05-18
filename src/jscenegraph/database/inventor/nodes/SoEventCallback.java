@@ -96,6 +96,23 @@ SoInteraction, SoSelection, SoHandleEventAction, SoDragger
  *
  */
 public class SoEventCallback extends SoNode implements Destroyable {
+
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoEventCallback.class,this);
+	   
+	public                                                                     
+    static SoType       getClassTypeId()        /* Returns class type id */   
+                                    { return SoSubNode.getClassTypeId(SoEventCallback.class); }                   
+    public SoType      getTypeId()       /* Returns type id      */
+    {
+		return nodeHeader.getClassTypeId();		    	
+    }
+  public                                                                  
+    SoFieldData   getFieldData() {
+	  return nodeHeader.getFieldData(); 
+  }
+  public  static SoFieldData[] getFieldDataPtr()                              
+        { return SoSubNode.getFieldDataPtr(SoEventCallback.class); }              
+
 	
 	private class SoEventCallbackData implements Destroyable {
 		public final SoType eventType = new SoType();
@@ -119,29 +136,6 @@ public class SoEventCallback extends SoNode implements Destroyable {
     //! so that the apps callback routine can invoke methods on the action.
  	private  SoHandleEventAction eventAction;
 
-	private static SoType classTypeId;            /* Type id              */
-	
-    /* Returns class type id */
-	public static SoType getClassTypeId() {
-		return classTypeId;
-	}
-
-	/* Returns type id      */
-	public SoType getTypeId() {
-		return classTypeId;		
-	}
-	
-  public                                                                  
-    SoFieldData   getFieldData() {
-	  return fieldData[0]; 
-  }
-  public  static SoFieldData[] getFieldDataPtr()                              
-        { return fieldData; }              
-  private                                                                    
-    static boolean       firstInstance; /* true until 2nd c'tor call */        
-    private static final SoFieldData[] fieldData = new SoFieldData[1];                                   
-    private static final SoFieldData[][]    parentFieldData = new SoFieldData[1][];	
-
 	 ////////////////////////////////////////////////////////////////////////
 	    //
 	    // Constructor
@@ -150,14 +144,7 @@ public class SoEventCallback extends SoNode implements Destroyable {
 	    //
 	    ////////////////////////////////////////////////////////////////////////
 	    {
-	        //SO_NODE_CONSTRUCTOR(SoEventCallback);
-		    //SO__NODE_CHECK_INIT(SoEventCallback);                                           
-		    if (fieldData[0] == null)                                                    
-		        fieldData[0] = new SoFieldData(                                          
-		            parentFieldData[0] != null ? parentFieldData[0][0] : null);                       
-		    else                                                                      
-		        firstInstance = false;                                                
-		    isBuiltIn = false;                                                        
+	        nodeHeader.SO_NODE_CONSTRUCTOR(/*SoEventCallback.class*/);
 		  		 	    
 	        isBuiltIn        = true;
 	        cblist           = new SbPList();
@@ -339,6 +326,6 @@ setPath(SoPath path)
 	   //
 	   ////////////////////////////////////////////////////////////////////////
 	   {
-	       classTypeId = SO__NODE_INIT_CLASS(SoEventCallback.class, "EventCallback", SoNode.class, parentFieldData);
+	       SO__NODE_INIT_CLASS(SoEventCallback.class, "EventCallback", SoNode.class);
 	   }
 	   }

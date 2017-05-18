@@ -137,6 +137,9 @@ public class SbName implements Mutable, Destroyable {
 		 return entry.isEmpty(); 
 	}
 	
+	public boolean operator_equal_equal(String other) {
+		return operator_equal_equal(new SbName(other));
+	}
 	public boolean operator_equal_equal(SbName other) {
 		return operator_equals(other);
 	}
@@ -262,6 +265,9 @@ public static boolean isIdentStartChar(char c)
 	
 	@Override
 	public void copyFrom(Object other) {
+		if(other instanceof String) {
+			other = new SbName((String)other);
+		}
 		SbName sbName = (SbName)other;
 		entry = sbName.entry;
 	}

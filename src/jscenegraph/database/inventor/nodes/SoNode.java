@@ -669,11 +669,11 @@ getByName( SbName name, SoNodeList list)
 		  // not implemented
 	  }
 	  
-	  protected static SoType SO__NODE_INIT_ABSTRACT_CLASS(Class className, String classPrintName, 
-			  Class<? extends SoBase> parentClass,
-			  SoFieldData[][]    parentFieldData) {
-		  return SO__NODE_INIT_CLASS(className,classPrintName,parentClass,parentFieldData,false);
-	  }
+//	  protected static SoType SO__NODE_INIT_ABSTRACT_CLASS(Class className, String classPrintName, 
+//			  Class<? extends SoBase> parentClass,
+//			  SoFieldData[][]    parentFieldData) {
+//		  return SO__NODE_INIT_CLASS(className,classPrintName,parentClass,parentFieldData,false);
+//	  }
 
 	  protected static void SO__NODE_INIT_ABSTRACT_CLASS(
 			  Class className, String classPrintName, 
@@ -687,83 +687,83 @@ getByName( SbName name, SoNodeList list)
 		  SoSubNode.SO__NODE_INIT_CLASS(className, classPrintName, parentClass);
 	  }
 
-	  protected static SoType SO__NODE_INIT_CLASS(
-			  Class className, String classPrintName, 
-			  Class<? extends SoBase> parentClass,
-			  SoFieldData[][]    parentFieldData) {
-		  return SO__NODE_INIT_CLASS(className,classPrintName,parentClass,parentFieldData,true);
-	  }
-	  protected static SoType SO__NODE_INIT_CLASS(
-			  Class className, String classPrintName, 
-			  Class<? extends SoBase> parentClass,
-			  SoFieldData[][]    parentFieldData,boolean create) {
-		    if ((SoNode.nextActionMethodIndex <     0) ||                            
-		            (SoNode.nextActionMethodIndex > 32767)){                             
-		            SoDebugError.post("SO__NODE_INIT_CLASS",                             
-		                               "Overflow of SoNode::nextActionMethodIndex");      
-		            //abort();
-		            throw new IllegalStateException("Overflow of SoNode::nextActionMethodIndex");
-		        }
-		    	SoType parent = null;
-				try {
-					parent = (SoType)parentClass.getMethod("getClassTypeId").invoke(null);
-				} catch (IllegalArgumentException e2) {
-					throw new IllegalStateException(e2);
-				} catch (SecurityException e2) {
-					throw new IllegalStateException(e2);
-				} catch (IllegalAccessException e2) {
-					throw new IllegalStateException(e2);
-				} catch (InvocationTargetException e2) {
-					throw new IllegalStateException(e2);
-				} catch (NoSuchMethodException e2) {
-					throw new IllegalStateException(e2);
-				}
-		    	
-				try {
-					CreateMethod createMethod = null;
-					if(create) {
-						final Constructor<?> constructor = className.getConstructor();
-	
-				    	createMethod = new CreateMethod() {
-	
-							@Override
-							public Object run() {						
-								try {
-									return constructor.newInstance();
-								} catch (IllegalArgumentException e) {
-									throw new RuntimeException(e);
-								} catch (InstantiationException e) {
-									throw new RuntimeException(e);
-								} catch (IllegalAccessException e) {
-									throw new RuntimeException(e);
-								} catch (InvocationTargetException e) {
-									throw new RuntimeException(e);
-								}
-							}
-				    		
-				    	};
-					}
-			        try {
-						parentFieldData[0] = (SoFieldData[])parentClass.getMethod("getFieldDataPtr").invoke(null);
-					} catch (IllegalArgumentException e) {
-						throw new RuntimeException(e);
-					} catch (IllegalAccessException e) {
-						throw new RuntimeException(e);
-					} catch (InvocationTargetException e) {
-						throw new RuntimeException(e);
-					}//parentClass.getFieldDataPtr();                         
-			  
-			        return SoType.createType(parent/*parentClass.getClassTypeId()*/,                     
-			                       new SbName(classPrintName),                                            
-			                       createMethod/*className.createInstance*/,                                
-			                       (short)(SoNode.nextActionMethodIndex++));      
-			        
-				} catch (SecurityException e1) {
-					throw new IllegalStateException(e1);
-				} catch (NoSuchMethodException e1) {
-					throw new IllegalStateException(e1);
-				}
-	  }
+//	  protected static SoType SO__NODE_INIT_CLASS(
+//			  Class className, String classPrintName, 
+//			  Class<? extends SoBase> parentClass,
+//			  SoFieldData[][]    parentFieldData) {
+//		  return SO__NODE_INIT_CLASS(className,classPrintName,parentClass,parentFieldData,true);
+//	  }
+//	  protected static SoType SO__NODE_INIT_CLASS(
+//			  Class className, String classPrintName, 
+//			  Class<? extends SoBase> parentClass,
+//			  SoFieldData[][]    parentFieldData,boolean create) {
+//		    if ((SoNode.nextActionMethodIndex <     0) ||                            
+//		            (SoNode.nextActionMethodIndex > 32767)){                             
+//		            SoDebugError.post("SO__NODE_INIT_CLASS",                             
+//		                               "Overflow of SoNode::nextActionMethodIndex");      
+//		            //abort();
+//		            throw new IllegalStateException("Overflow of SoNode::nextActionMethodIndex");
+//		        }
+//		    	SoType parent = null;
+//				try {
+//					parent = (SoType)parentClass.getMethod("getClassTypeId").invoke(null);
+//				} catch (IllegalArgumentException e2) {
+//					throw new IllegalStateException(e2);
+//				} catch (SecurityException e2) {
+//					throw new IllegalStateException(e2);
+//				} catch (IllegalAccessException e2) {
+//					throw new IllegalStateException(e2);
+//				} catch (InvocationTargetException e2) {
+//					throw new IllegalStateException(e2);
+//				} catch (NoSuchMethodException e2) {
+//					throw new IllegalStateException(e2);
+//				}
+//		    	
+//				try {
+//					CreateMethod createMethod = null;
+//					if(create) {
+//						final Constructor<?> constructor = className.getConstructor();
+//	
+//				    	createMethod = new CreateMethod() {
+//	
+//							@Override
+//							public Object run() {						
+//								try {
+//									return constructor.newInstance();
+//								} catch (IllegalArgumentException e) {
+//									throw new RuntimeException(e);
+//								} catch (InstantiationException e) {
+//									throw new RuntimeException(e);
+//								} catch (IllegalAccessException e) {
+//									throw new RuntimeException(e);
+//								} catch (InvocationTargetException e) {
+//									throw new RuntimeException(e);
+//								}
+//							}
+//				    		
+//				    	};
+//					}
+//			        try {
+//						parentFieldData[0] = (SoFieldData[])parentClass.getMethod("getFieldDataPtr").invoke(null);
+//					} catch (IllegalArgumentException e) {
+//						throw new RuntimeException(e);
+//					} catch (IllegalAccessException e) {
+//						throw new RuntimeException(e);
+//					} catch (InvocationTargetException e) {
+//						throw new RuntimeException(e);
+//					}//parentClass.getFieldDataPtr();                         
+//			  
+//			        return SoType.createType(parent/*parentClass.getClassTypeId()*/,                     
+//			                       new SbName(classPrintName),                                            
+//			                       createMethod/*className.createInstance*/,                                
+//			                       (short)(SoNode.nextActionMethodIndex++));      
+//			        
+//				} catch (SecurityException e1) {
+//					throw new IllegalStateException(e1);
+//				} catch (NoSuchMethodException e1) {
+//					throw new IllegalStateException(e1);
+//				}
+//	  }
 	  
 	  protected static void SO_ENABLE(Class<? extends SoAction> actionClass, Class<? extends SoElement> elementClass) {
 		  

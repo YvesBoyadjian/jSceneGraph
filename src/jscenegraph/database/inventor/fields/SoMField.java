@@ -54,6 +54,8 @@
 
 package jscenegraph.database.inventor.fields;
 
+import java.util.Objects;
+
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.port.Mutable;
@@ -278,7 +280,7 @@ public boolean readValue(SoInput in)
 //
 // Use: private
 
-private boolean readBinaryValues(SoInput in,    // Reading specification
+protected boolean readBinaryValues(SoInput in,    // Reading specification
                            int numToRead)  // Number of values to read
 //
 ////////////////////////////////////////////////////////////////////////
@@ -488,5 +490,32 @@ public String get1(int index) {
 	//TODO
 	return valueString;
 }
+
+                                                                              
+public boolean                                                                              
+operator_equal_equal(final SoMField<T> f)                               
+{                                                                             
+    int                 i, localNum = getNum();                               
+    T[]     myVals, itsVals;                                    
+                                                                              
+    if (localNum != f.getNum())                                               
+        return false;                                                         
+                                                                              
+    myVals  = getValues(0);                                                   
+    itsVals = f.getValues(0);                                                 
+                                                                              
+    for (i = 0; i < localNum; i++)                                                    
+        if (! Objects.equals(myVals[i] , itsVals[i]))                                      
+            return false;                                                     
+                                                                              
+    return true;                                                              
+}                                                                             
+                                                                              
+
 	    
+public boolean        isSame(final SoField f) {
+	return (getTypeId().operator_equal_equal(f.getTypeId()) &&
+			this.operator_equal_equal((SoMField)f));
+}
+
 }

@@ -356,7 +356,7 @@ public boolean readInstance(SoInput in, short flags)
     for (i = 0; i < myFields.getLength(); i++) {
     	((SoField)myFields.operator_square_bracket(i)).enableNotify(true);
     }
-
+    myFields.destructor();
     return result;
 }
 

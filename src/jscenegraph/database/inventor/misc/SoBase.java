@@ -378,7 +378,7 @@ protected SoBase()
 	
     //! Returns auditor list-- used by SoField and SoEngineOutput to
     //! trace forward connections
-    SoAuditorList getAuditors() { return auditors; }
+    public SoAuditorList getAuditors() { return auditors; }
 
 	
 	/**

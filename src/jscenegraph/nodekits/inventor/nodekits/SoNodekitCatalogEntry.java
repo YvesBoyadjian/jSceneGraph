@@ -53,6 +53,9 @@ public class SoNodekitCatalogEntry {
 		 return publicPart; 
 	}
 	
+	public boolean    isNullByDefault() { return nullByDefault; };
+	
+	
 	 //
 	   // Description:
 	   //    Looks for the given part.
@@ -122,4 +125,107 @@ public class SoNodekitCatalogEntry {
 	   
 	       return false;  // couldn't find it ANYwhere!
 	   }	   	  	
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Constructor
+//
+// Use: internal
+
+SoNodekitCatalogEntry( final SbName theName, 
+                              SoType  theType , SoType theDefaultType,
+                              boolean     theNullByDefault,
+                        final SbName  theParentName, 
+                        final SbName  theRightSiblingName, boolean theListPart, 
+                              SoType  theListContainerType,
+                        final SoTypeList theListItemTypes,
+                              boolean thePublicPart )
+//
+////////////////////////////////////////////////////////////////////////
+{
+    name                   .copyFrom( theName);
+    type                   .copyFrom( theType);
+    defaultType            .copyFrom( theDefaultType);
+    nullByDefault          = theNullByDefault;
+    leafPart               = true;    // everything is a leaf 'til given a child
+    parentName             .copyFrom( theParentName);
+    rightSiblingName       .copyFrom( theRightSiblingName);
+    listPart               = theListPart;
+    listContainerType      .copyFrom( theListContainerType);
+    listItemTypes.copy( theListItemTypes );
+    publicPart             = thePublicPart;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Creates a new copy of this catalog
+//
+// Use: private
+
+public SoNodekitCatalogEntry 
+clone() 
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // make a clone with the current type and defaultType...
+    return clone( type, defaultType );
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Creates a new copy of this catalog, but sets the type to newType
+//
+// Use: private
+
+public SoNodekitCatalogEntry 
+clone( SoType newType, 
+                              SoType newDefaultType )
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoNodekitCatalogEntry theClone;
+
+    theClone = new SoNodekitCatalogEntry( name, newType, newDefaultType,
+         nullByDefault, parentName, rightSiblingName, listPart, 
+         listContainerType, listItemTypes, publicPart );
+    theClone.leafPart = leafPart;
+
+    return theClone;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Creates a new copy of this catalog
+//
+// Use: public
+
+public void
+addListItemType( SoType typeToAdd )
+//
+////////////////////////////////////////////////////////////////////////
+{
+    listItemTypes.append( typeToAdd );
+}
+
+
+
+        public void setNullByDefault( boolean newNullByDefault ) 
+                { nullByDefault = newNullByDefault; }
+        //! these should only by used by catalogs when an entry
+        //! is given a new child or left sibling...
+        public void setPublic( boolean newPublic ) { publicPart = newPublic; }
+        public void setLeaf( boolean newLeafPart ) { leafPart = newLeafPart; }
+        public void setRightSiblingName( final SbName newN ) { rightSiblingName.copyFrom(newN); }
+        //! This should only by used by catalogs when an entry is changing
+        //! type and/or defaultType
+        public void setTypes( SoType newType, SoType newDefaultType )
+                            { type.copyFrom(newType); defaultType.copyFrom(newDefaultType); }
+
 }

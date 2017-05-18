@@ -237,8 +237,8 @@ public void getMatrix(SoGetMatrixAction action)
 ////////////////////////////////////////////////////////////////////////
 {
     if (! scaleFactor.isIgnored() && ! scaleFactor.isDefault()) {
-        SbVec3f         sc = scaleFactor.getValue();
-        SbVec3f         si = new SbVec3f(1.0f / sc.getValue()[0], 1.0f / sc.getValue()[1], 1.0f / sc.getValue()[2]);
+        final SbVec3f         sc = new SbVec3f(scaleFactor.getValue());
+        final SbVec3f         si = new SbVec3f(1.0f / sc.getValue()[0], 1.0f / sc.getValue()[1], 1.0f / sc.getValue()[2]);
         SbMatrix        ctm = action.getMatrix();
         SbMatrix        inv = action.getInverse();
         SbMatrix        m = new SbMatrix();

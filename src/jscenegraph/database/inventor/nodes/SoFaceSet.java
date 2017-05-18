@@ -238,6 +238,7 @@ private static final int AUTO_CACHE_FS_MAX = SoGLCacheContextElement.OIV_AUTO_CA
     private static PMFS[] GenRenderFunc = new PMFS[32];
     
     static {
+    	QuadRenderFunc[0] = (set, action)-> set.QuadOmOn(action);
     	QuadRenderFunc[1] = (set, action)-> set.QuadOmOnT(action);
     	QuadRenderFunc[7] = (set, action)-> set.QuadOmVnT(action);
     }
@@ -378,6 +379,8 @@ createTriangleDetail(SoRayPickAction action,
   newFD.setFaceIndex(hitFace);
   newFD.setPartIndex(hitFace);
 
+  tcb.destructor();
+  pd.destructor();
   return newFD;
 }
 
@@ -1055,6 +1058,38 @@ public static void initClass()
     SoSubNode.SO__NODE_INIT_CLASS(SoFaceSet.class, "FaceSet", SoNonIndexedShape.class);
 }
 
+private void
+QuadOmOn
+    (SoGLRenderAction action) {
+
+    GL2 gl2 = action.getCacheContext();
+    
+    // Send one normal, if there are any normals in vpCache:
+    if (vpCache.getNumNormals() > 0)
+	vpCache.sendNormal(gl2,(FloatBuffer)vpCache.getNormals(0));
+    Buffer vertexPtr = vpCache.getVertices(startIndex.getValue()+3*numTris);
+    int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+
+    gl2.glBegin(GL2.GL_QUADS);
+
+	int vertexPtrIndex = 0;
+    for (int quad = 0; quad < numQuads; quad++) {
+    	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+	vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+    }
+    gl2.glEnd();
+}
 
 
 private void

@@ -29,7 +29,8 @@ public class Offset {
 
 	public Object plus(SoFieldContainer container) {
 		try {
-			Field field = container.getClass().getField(fieldName);
+			Field field = getField(container.getClass(),fieldName);
+			field.setAccessible(true);
 			Object fieldObject = field.get(container);
 			return fieldObject;
 		} catch (NoSuchFieldException | SecurityException e) {
@@ -40,4 +41,18 @@ public class Offset {
 			throw new IllegalStateException(e);
 		}
 	}
+	
+	private static Field getField(Class clazz, String fieldName)
+	        throws NoSuchFieldException {
+	    try {
+	      return clazz.getDeclaredField(fieldName);
+	    } catch (NoSuchFieldException e) {
+	      Class superClass = clazz.getSuperclass();
+	      if (superClass == null) {
+	        throw e;
+	      } else {
+	        return getField(superClass, fieldName);
+	      }
+	    }
+	  }
 }

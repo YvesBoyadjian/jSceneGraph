@@ -451,7 +451,7 @@ makeInternal()
 	          boolean notFound = !nameDict.find(nameChars, b);
 	          
 	          if(notFound && (name.getLength() > 2)  &&
-	        	        (nameString.substring(0,2) == "So")) {
+	        	        (nameString.substring(0,2).equals("So"))) {
 	        	  notFound = !nameDict.find(new SbName(nameChars.substring(2)).getString(), b);
 	          }
 	          if(b[0] == null) {

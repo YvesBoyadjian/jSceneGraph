@@ -171,7 +171,7 @@ public void setWorkingSpace(final SbMatrix space)
  		       final SbLine workingLine = new SbLine();
  		       worldToWorking.multLineMatrix(worldLine, workingLine);
  		   
- 		       return workingLine;
+ 		       return new SbLine(workingLine);
  		  	}
  	
     //! Creates and returns an exact copy of the projector.

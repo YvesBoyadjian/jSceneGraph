@@ -9,6 +9,8 @@ import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoFullPath;
 import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoTypeList;
+import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFNode;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
@@ -19,13 +21,91 @@ import jscenegraph.database.inventor.nodes.SoSwitch;
  * @author Yves Boyadjian
  *
  */
-public class SoNodekitParts {
+public class SoNodekitParts { //TODO
 
 	private SoNodekitCatalog catalog;
 	int numEntries;
-	private SoBaseKit rootPointer;
+	SoBaseKit rootPointer;
 	SoSFNode[] fieldList;
 	
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Constructor
+//
+// Use: internal
+
+public SoNodekitParts( SoBaseKit rootOfKit )
+//
+////////////////////////////////////////////////////////////////////////
+{
+//#ifdef DEBUG
+    if ( rootOfKit == null ) {
+        SoDebugError.post("SoNodekitParts::SoNodekitParts",
+    "rootOfKit is NULL. Can not continue construction. Expect a core dump");
+        return;
+    }
+//#endif
+
+    rootPointer = rootOfKit;
+    catalog = rootOfKit.getNodekitCatalog();  // assign the catalog
+
+    numEntries = catalog.getNumEntries();        // make a empty node list
+    fieldList = new  SoSFNode [numEntries] ;
+
+    // Make each field in the fieldList point to the field corresponding
+    // to the similarly indexed catalog entry.
+    final SbName partName = new SbName();
+    final SbName fieldName = new SbName();
+
+    for ( int i = 0; i < numEntries; i++ ) {
+        // Get the name of the part from the catalog
+         partName.copyFrom(catalog.getName( i ));
+
+        // Find the field for that part, and set fieldList entry 
+        // to point at it.
+         if ( i == SoNodekitCatalog.SO_CATALOG_THIS_PART_NUM ) {
+            // For the part "this" we do NOT fill in a field. We set it to
+            // NULL and are careful not to try to look at its contents.
+            fieldList[i] = null;
+         }
+         else {
+            SoFieldData fData;
+            fData = rootOfKit.getFieldData();
+            for ( int j = 0; j < fData.getNumFields(); j++ ) {
+                fieldName.copyFrom(fData.getFieldName(j));
+                if (partName.operator_equal_equal( fieldName)) {
+                    SoSFNode theField =
+                                (SoSFNode ) fData.getField(rootOfKit,j);
+                    fieldList[i] = theField;
+
+                    // Turn off notification on this field.
+                    // We store the info as a field, but unless we 
+                    // turn off notification, everything takes forever.
+                    theField.enableNotify(false);
+                }
+            }
+         }
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Destructor
+//
+//Use: internal
+
+public void destructor()
+//
+////////////////////////////////////////////////////////////////////////
+{
+// delete the nodelist
+	fieldList = null;//delete [ /*numEntries*/ ] fieldList;
+}
+
 	
 	
 ////////////////////////////////////////////////////////////////////////

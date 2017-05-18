@@ -58,6 +58,8 @@
 
 package jscenegraph.database.inventor.elements;
 
+import java.util.Objects;
+
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoType;
@@ -179,7 +181,7 @@ matches( SoElement elt)
         return false;
 
     for (i = 0; i < nodeIds.getLength(); i++)
-        if (nodeIds.operator_square_bracket(i) != accElt.nodeIds.operator_square_bracket(i))
+        if (!Objects.equals(nodeIds.operator_square_bracket(i), accElt.nodeIds.operator_square_bracket(i)))
             return false;
 
     return true;

@@ -108,23 +108,23 @@ SoResetTransform, SoTransformation
 public class SoTransformSeparator extends SoGroup {
 	
     //SO_NODE_HEADER(SoTransformSeparator);
+
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoTransformSeparator.class,this);
+	   
 	public                                                                     
     static SoType       getClassTypeId()        /* Returns class type id */   
-                                    { return classTypeId; }                   
-    public SoType      getTypeId() {      /* Returns type id      */
-    	return classTypeId;
+                                    { return SoSubNode.getClassTypeId(SoTransformSeparator.class); }                   
+    public SoType      getTypeId()       /* Returns type id      */
+    {
+		return nodeHeader.getClassTypeId();		    	
     }
   public                                                                  
     SoFieldData   getFieldData() {
-	  return fieldData[0];
+	  return nodeHeader.getFieldData(); 
   }
-   public static SoFieldData[] getFieldDataPtr()                              
-        { return fieldData; }              
-  private                                                                    
-    static SoType       classTypeId;            /* Type id              */    
-   private static boolean       firstInstance; /* true until 2nd c'tor call */        
-   private static final SoFieldData[]          fieldData = new SoFieldData[1];                                   
-   private static final SoFieldData[][]    parentFieldData = new SoFieldData[1][];  	
+  public  static SoFieldData[] getFieldDataPtr()                              
+        { return SoSubNode.getFieldDataPtr(SoTransformSeparator.class); }              
+
 
    ////////////////////////////////////////////////////////////////////////
     //
@@ -137,28 +137,8 @@ public class SoTransformSeparator extends SoGroup {
     //
     ////////////////////////////////////////////////////////////////////////
     {
-	   super();
-	   
-       // SO_NODE_CONSTRUCTOR(SoTransformSeparator);
-       //SO__NODE_CHECK_INIT(SoGroup);   
-       if (classTypeId == SoType.badType()) {                                   
-           SoDebugError.post("SO_NODE_CONSTRUCTOR",                             
-                              "Can't construct a node of type "+                  
-                              "SoTransformSeparator"                         +      
-                              " until initClass() has been called");             
-           return;                                                               
-       }                                                                         
-       
-       
-       if (fieldData[0] == null)                                                    
-           fieldData[0] = new SoFieldData(                                          
-               (parentFieldData[0] != null) ? parentFieldData[0][0] : null);                       
-       else                                                                      
-           firstInstance = false;                                                
-       isBuiltIn = false;                                                        
-       
-        
-        
+	   super();	         
+       nodeHeader.SO_NODE_CONSTRUCTOR(/*SoTransformSeparator.class*/);               
         isBuiltIn = true;
     }
        
@@ -175,26 +155,7 @@ public class SoTransformSeparator extends SoGroup {
 	    ////////////////////////////////////////////////////////////////////////
 	    {
 			super(nChildren);
-		   
-	        //SO_NODE_CONSTRUCTOR(SoTransformSeparator);
-	        //SO__NODE_CHECK_INIT(SoGroup);   
-	        if (classTypeId == SoType.badType()) {                                   
-	            SoDebugError.post("SO_NODE_CONSTRUCTOR",                             
-	                               "Can't construct a node of type "+                  
-	                               "SoTransformSeparator"                         +      
-	                               " until initClass() has been called");             
-	            return;                                                               
-	        }                                                                         
-	        
-	        
-	        if (fieldData[0] == null)                                                    
-	            fieldData[0] = new SoFieldData(                                          
-	                (parentFieldData[0] != null) ? parentFieldData[0][0] : null);                       
-	        else                                                                      
-	            firstInstance = false;                                                
-	        isBuiltIn = false;                                                        
-	        
-	        
+			nodeHeader.SO_NODE_CONSTRUCTOR(/*SoTransformSeparator.class*/);               
 	        isBuiltIn = true;
 	    }
 	   
@@ -210,7 +171,7 @@ public class SoTransformSeparator extends SoGroup {
 	    //
 	    ////////////////////////////////////////////////////////////////////////
 	    {
-	        classTypeId = SO__NODE_INIT_CLASS(SoTransformSeparator.class, "TransformSeparator", SoGroup.class,parentFieldData);
+	        SO__NODE_INIT_CLASS(SoTransformSeparator.class, "TransformSeparator", SoGroup.class);
 	    }
 
 

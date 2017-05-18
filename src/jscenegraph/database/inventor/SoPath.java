@@ -63,6 +63,7 @@ import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.nodekits.inventor.SoNodeKitPath;
 import jscenegraph.port.Destroyable;
 
 
@@ -913,6 +914,38 @@ findFork(final SoPath path)
 
     // All the nodes matched - return the index of the tail
     return shorterLength - 1;
+}
+
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((impl == null) ? 0 : impl.hashCode());
+	return result;
+}
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (!(obj instanceof SoPath))
+		return false;
+	SoPath other = (SoPath) obj;
+	if (impl == null) {
+		if (other.impl != null)
+			return false;
+	} else if (impl != other.impl)
+		return false;
+	return true;
+}
+
+public static SoPath cast(SoPath path) {
+	if(path == null) {
+		return null;
+	}
+	return new SoPath(path);
 }
 
 	   

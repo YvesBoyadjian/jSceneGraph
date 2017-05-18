@@ -201,7 +201,7 @@ public SbViewVolume(SbViewVolume other) {
     // Therefore, its inverse takes our probably rotated and potentially
     // skewed view volume and makes it orthogonal (unskewed) and aligned
     // with neg-z axis
-    final SbMatrix skewMatInv = skewMatM.inverse();
+    final SbMatrix skewMatInv = new SbMatrix(skewMatM.inverse());
 
     affine.setTranslate((llfO.operator_add(projPoint).operator_minus()));
     affine.multRight( skewMatInv );

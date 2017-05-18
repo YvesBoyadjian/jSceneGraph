@@ -58,6 +58,7 @@
 package jscenegraph.database.inventor;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import jscenegraph.database.inventor.SoDB.SoDBHeaderCB;
 import jscenegraph.port.FILE;
@@ -123,5 +124,22 @@ public class SoInputFile {
 		refDict = null;
 		postReadCB = null;
 		CBData = null;
+	}
+	
+	// java port
+	public int curBufAsInt() {
+		int n = Integer.BYTES;
+		byte[] bytes = new byte[n];
+		for(int i=0; i<n;i++) {
+			bytes[i] = (byte)buffer.charAt(curBuf+i);
+		}
+		return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().get(0);
+	}
+
+	//java port
+	public void memcpy(byte[] buf, int curBuf2, int n) {
+		for(int i=0;i<n;i++,curBuf2++) {
+			buf[i] = (byte)buffer.charAt(curBuf2);
+		}
 	}
 }

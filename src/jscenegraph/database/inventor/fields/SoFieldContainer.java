@@ -516,6 +516,9 @@ public int getFields(SoFieldList list)
 
     //! Returns a pointer to the field with the given name. If no such
     //! field exists, NULL is returned.
+	public SoField getField(final String fieldName) { // java port
+		return getField(new SbName(fieldName));
+	}
     public SoField getField(final SbName fieldName) {
     int                 i;
     final SoFieldData   fd = getFieldData();
@@ -525,7 +528,7 @@ public int getFields(SoFieldList list)
 
     // Search fields for one with given name
     for (i = 0; i < fd.getNumFields(); i++)
-        if (fd.getFieldName(i) == fieldName)
+        if (fd.getFieldName(i).operator_equal_equal(fieldName))
             return fd.getField(this, i);
 
     // Not found...

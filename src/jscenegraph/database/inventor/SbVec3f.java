@@ -449,4 +449,17 @@ public static SbVec3f[] allocate(int num) {
 		ref[2] = value -> vec[2] = (float)value;
 		return ref;
 	}
+
+//
+// Equality comparison operator within a tolerance.
+//
+
+public boolean
+equals(final SbVec3f v, float tolerance)
+{
+    final SbVec3f     diff = this.operator_minus(v);
+
+    return diff.dot(diff) <= tolerance;
+}
+
 }

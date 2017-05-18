@@ -557,6 +557,9 @@ public void getValue(final float[] q0q1q2q3)
     
 	@Override
 	public void copyFrom(Object other) {
+		if(other instanceof SbMatrix) {
+			other = new SbRotation((SbMatrix) other);
+		}
 		SbRotation otherRotation = (SbRotation)other;
 		quat[0] = otherRotation.quat[0];
 		quat[1] = otherRotation.quat[1];
@@ -658,5 +661,48 @@ public void getValue(final float[] q0q1q2q3)
 	     //! Returns a null rotation.
 	   public     static SbRotation   identity()
 	            { return new SbRotation(0.0f, 0.0f, 0.0f, 1.0f); }
+
+	public boolean operator_not_equal(SbRotation value) {
+		return !operator_equal_equal(value);
+	}
 	    
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Equality comparison operator.
+//
+// Use: public
+
+public boolean
+operator_equal_equal(final SbRotation q2)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	final SbRotation q1 = this;
+    return (q1.quat[0] == q2.quat[0] &&
+            q1.quat[1] == q2.quat[1] &&
+            q1.quat[2] == q2.quat[2] &&
+            q1.quat[3] == q2.quat[3]);
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Equality comparison operator within given tolerance - the square
+//    of the length of the maximum distance between the two vectors.
+//
+// Use: public
+
+public boolean
+equals(final SbRotation r, float tolerance)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return new SbVec4f(quat).equals(new SbVec4f(r.quat), tolerance);
+}
+
+
+
 	     }

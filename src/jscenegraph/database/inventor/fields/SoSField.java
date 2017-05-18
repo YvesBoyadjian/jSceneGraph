@@ -161,6 +161,11 @@ public abstract class SoSField<T extends Object> extends SoField {
 		return getValue().equals(f.getValue());
 	}
 
+    public boolean        isSame(final SoField f) {
+    	return (getTypeId().operator_equal_equal(f.getTypeId()) &&
+    			getValue().equals(((SoSField)f).getValue()));
+    }
+	
 	// java port
     protected abstract T constructor();
     

@@ -58,6 +58,7 @@
 package jscenegraph.database.inventor;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -1015,20 +1016,20 @@ public boolean read(final int[] i)
     boolean ok = false;                                                                
     if (! skipWhiteSpace())                                                   
         ok = false;                                                           
-    else if (curFile.binary) { //TODO                                               
-//        int n = M_SIZEOF(dglType);                                            
-//        int pad = ((n+3) & ~0003) - n;                                        
-//        dglType tnum;                                                         
-//        if (fromBuffer()) {                                                   
-//            if (eof())                                                        
-//                ok = FALSE;                                                   
-//            else {                                                            
-//                ok = TRUE;                                                    
-//                dglFunc(curFile->curBuf, (dglType *)&tnum);                   
-//                curFile->curBuf += M_SIZEOF(dglType) + pad;                   
-//            }                                                                 
-//        }                                                                     
-//        else {                                                                
+    else if (curFile.binary) {                                               
+        int n = Integer.BYTES;//M_SIZEOF(dglType);                                            
+        int pad = ((n+3) & ~0003) - n;                                        
+        int tnum = 0;                                                         
+        if (fromBuffer()) {                                                   
+            if (eof())                                                        
+                ok = false;                                                   
+            else {                                                            
+                ok = true;                                                    
+                tnum = SoMachine.DGL_NTOH_INT32(curFile.curBufAsInt());//dglFunc(curFile->curBuf, (dglType *)&tnum);                   
+                curFile.curBuf += Integer.BYTES + pad;                   
+            }                                                                 
+        }                                                                     
+        else { //TODO                                                
 //            if (backupBufUsed == TRUE) {                                      
 //                num = (type)(*(type *)backupBuf);                             
 //                backupBufUsed = FALSE;                                        
@@ -1040,8 +1041,8 @@ public boolean read(final int[] i)
 //            dglFunc((char *)tmpBuffer, (dglType *)&tnum);                     
 //            if (pad != 0)                                                     
 //                ok = fread((void *)padbuf, M_SIZEOF(char), pad, curFile->fp)!=0; 
-//        }                                                                     
-//        num = (type)tnum;                                                     
+        }                                                                     
+        i[0] = (int)tnum;                                                     
     }                                                                         
     else {                                                                    
         final int[] _tmp = new int[1];                                                        
@@ -1061,7 +1062,32 @@ public boolean read(final short[] s)
 		ok = false;
 	}
 	else if(curFile.binary) {
-		//TODO
+        int n = Integer.BYTES;// M_SIZEOF(int);                                            
+        int pad = ((n+3) & ~0003) - n;                                        
+        int tnum = 0;                                                         
+        if (fromBuffer()) {                                                   
+            if (eof())                                                        
+                ok = false;                                                   
+            else {                                                            
+                ok = true;                                                    
+                tnum = SoMachine.DGL_NTOH_INT32(curFile.curBufAsInt());                   
+                curFile.curBuf += Integer.BYTES + pad;                   
+            }                                                                 
+        }                                                                     
+        else { //TODO                                                                
+//            if (backupBufUsed == true) {                                      
+//                num = (type)(*(type *)backupBuf);                             
+//                backupBufUsed = false;                                        
+//                return true;                                                  
+//            }                                                                 
+//            char padbuf[4];                                                   
+//            makeRoomInBuf(M_SIZEOF(int32_t));                                 
+//            ok = fread(tmpBuffer, M_SIZEOF(int32_t), 1, curFile->fp)!=0;      
+//            convertInt32((char *)tmpBuffer, (int *)&tnum);                     
+//            if (pad != 0)                                                     
+//                ok = fread((void *)padbuf, M_SIZEOF(char), pad, curFile->fp)!=0; 
+        }                                                                     
+        s[0] = (short)tnum;                                                     
 	}
 	else {
 		final short[] _tmp = new short[1];
@@ -1088,20 +1114,20 @@ public boolean read(final float[] f)
     boolean ok = false;                                                                
     if (! skipWhiteSpace())                                                   
         ok = false;                                                           
-    else if (curFile.binary) { //TODO                                               
-//        int n = M_SIZEOF(dglType);                                            
-//        int pad = ((n+3) & ~0003) - n;                                        
-//        dglType tnum;                                                         
-//        if (fromBuffer()) {                                                   
-//            if (eof())                                                        
-//                ok = false;                                                   
-//            else {                                                            
-//                ok = true;                                                    
-//                dglFunc(curFile.curBuf, (dglType *)&tnum);                   
-//                curFile.curBuf += M_SIZEOF(dglType) + pad;                   
-//            }                                                                 
-//        }                                                                     
-//        else {                                                                
+    else if (curFile.binary) {                                               
+        int n = Float.BYTES;//M_SIZEOF(dglType);                                            
+        int pad = ((n+3) & ~0003) - n;                                        
+        float tnum = 0;                                                         
+        if (fromBuffer()) {                                                   
+            if (eof())                                                        
+                ok = false;                                                   
+            else {                                                            
+                ok = true;                                                    
+                tnum = convertFloat(curFile.buffer, curFile.curBuf);                   
+                curFile.curBuf += Float.BYTES + pad;                   
+            }                                                                 
+        }                                                                     
+        else { //TODO                                                                
 //            if (backupBufUsed == true) {                                      
 //                num = (type)(*(type *)backupBuf);                             
 //                backupBufUsed = false;                                        
@@ -1113,8 +1139,8 @@ public boolean read(final float[] f)
 //            dglFunc((char *)tmpBuffer, (dglType *)&tnum);                     
 //            if (pad != 0)                                                     
 //                ok = fread((void *)padbuf, M_SIZEOF(char), pad, curFile.fp)!=0; 
-//        }                                                                     
-//        num = (type)tnum;       
+        }                                                                     
+        f[0] = (float)tnum;       
     }                                                                         
     else {                                                                    
         final double[] _tmp = new double[1];                                                        
@@ -1124,6 +1150,27 @@ public boolean read(final float[] f)
     }                                                                         
     return ok;
 }
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Converts float from network format and puts in buffer.
+//
+// Use: private
+
+private static float
+convertFloat(String buffer, int from)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	byte[] buf = new byte[Float.BYTES];
+	for(int i=0;i<Float.BYTES;i++) {
+		buf[Float.BYTES-i-1] = (byte)buffer.charAt(from+i);
+	}
+    return SoMachine.DGL_NTOH_FLOAT(buf);
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -1151,51 +1198,52 @@ public boolean read(final String[] s)
     if (! skipWhiteSpace())
         return false;
 
-    if (curFile.binary) { //TODO
-//        // If there is a string in the putback buffer, use it.
-//        if (backBufIndex >= 0) {
-//            s[0] = backBuf;
-//            backBuf = "";
-//            backBufIndex = -1;
-//            return true;
-//        }
-//
-//        //
-//        // Reading from the binary format consists of reading a word
-//        // representing the string length, followed by the string,
-//        // followed by the padding to the word boundary.  Put a NULL
-//        // character at the end of the string.
-//        //
-//        if (fromBuffer()) {
-//            if (eof())
-//                return false;
-//
-//            int n = * (int *) curFile.curBuf;
-//            DGL_NTOH_INT32(n, n);
-//
-//            // A marker was read.  Return without incrementing the buffer
-//            if (n < 0)
-//                return false;
-//
-//            char buffer[1024], *buf;
+    if (curFile.binary) {
+        // If there is a string in the putback buffer, use it.
+        if (backBufIndex >= 0) {
+            s[0] = backBuf;
+            backBuf = "";
+            backBufIndex = -1;
+            return true;
+        }
+
+        //
+        // Reading from the binary format consists of reading a word
+        // representing the string length, followed by the string,
+        // followed by the padding to the word boundary.  Put a NULL
+        // character at the end of the string.
+        //
+        if (fromBuffer()) {
+            if (eof())
+                return false;
+
+            int n = curFile.curBufAsInt();// * (int *) curFile.curBuf;
+            n = SoMachine.DGL_NTOH_INT32(n);
+
+            // A marker was read.  Return without incrementing the buffer
+            if (n < 0)
+                return false;
+
+            final byte[] buffer = new byte[n/*+1*/];
+            byte[] buf;
 //            if (n > 1023)
 //                buf = new char [n + 1];
 //            else
-//                buf = buffer;
-//            curFile.curBuf += 4;
-//            memcpy(buf, curFile.curBuf, n);
-//            buf[n] = '\0';
-//            curFile.curBuf += (n+3) & ~0003;
-//            s = buf;
+                buf = buffer;
+            curFile.curBuf += 4;
+            curFile.memcpy(buf, curFile.curBuf, n);
+            //buf[n] = '\0';
+            curFile.curBuf += (n+3) & ~0003;
+            s[0] = new String(buf, StandardCharsets.UTF_8);;
 //            if (n > 1023)
 //                delete [] buf;
-//            return true;
-//        }
-//        else {
-//            // Break out the case where an eof is hit.  This will only be
-//            // The case in SoFile nodes which don't know how many children
-//            // they have.  Reading keeps happening until eof is hit.
-//
+            return true;
+        }
+        else { //TODO
+            // Break out the case where an eof is hit.  This will only be
+            // The case in SoFile nodes which don't know how many children
+            // they have.  Reading keeps happening until eof is hit.
+
 //            int n;
 //            if (fread((void *) &n, sizeof(int), 1, curFile.fp) == 1) {
 //                DGL_NTOH_INT32(n, n);
@@ -1237,7 +1285,7 @@ public boolean read(final String[] s)
 //                s = "";
 //
 //            return true;
-//        }
+        }
     }
 
     else {
@@ -1944,6 +1992,65 @@ public boolean readBinaryArray(byte[] c, int length)
             return false;
     }
     return ok;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads an array of floats from current file/buffer.
+//
+// Use: public
+
+public boolean
+readBinaryArray(float[] array, int length)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    //READ_BIN_ARRAY(f, length, convertFloatArray, float);
+    boolean ok = true;                                                         
+    if (! skipWhiteSpace())                                                   
+        ok = false;                                                           
+    else if (fromBuffer()) {                                                  
+        if (eof())                                                            
+            ok = false;                                                       
+        else {                                                                
+        	convertFloatArray(curFile.buffer, curFile.curBuf, (float[])array, length);                  
+            curFile.curBuf += length * Float.BYTES;//M_SIZEOF(type);                       
+        }                                                                     
+    }                                                                         
+    else { //TODO                                                                    
+//        makeRoomInBuf(length * M_SIZEOF(type));                               
+//        int i = static_cast<int>(fread(tmpBuffer, M_SIZEOF(type), length, curFile->fp)); 
+//        if (i != length)                                                      
+//            return FALSE;                                                     
+//        dglFunc((char *)tmpBuffer, (type *)array, length);                    
+    }                                                                         
+    return ok;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Converts array of floats in read buffer from network format and
+//    puts in array.
+//
+// Use: private
+
+private static void convertFloatArray(String buf,  int from,
+                            float[] to,
+                            int len)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	int lenBytes = len*Float.BYTES;
+	byte[] in = new byte[lenBytes];
+	for(int i=0; i< lenBytes;i++) {
+		in[i] = (byte)buf.charAt(from+i);
+	}
+	ByteBuffer bb = ByteBuffer.wrap(in);
+	bb.asFloatBuffer().get(to);
 }
 
 }

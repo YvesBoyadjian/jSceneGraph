@@ -229,17 +229,17 @@ public void setMatrix(final SbMatrix mat)
     if (mNoCenter.factor(shearRotMat, sVec, rotMat, tVec, projMat)) {
         final SbRotation      rot = new SbRotation(rotMat);
 
-        if (translation.getValue() != tVec)
+        if (translation.getValue().operator_not_equal(tVec))
             translation.operator_assign(tVec);
 
-        if (rotation.getValue() != rot)
+        if (rotation.getValue().operator_not_equal(rot))
             rotation.operator_assign(rot);
 
-        if (scaleFactor.getValue() != sVec)
+        if (scaleFactor.getValue().operator_not_equal(sVec))
             scaleFactor.operator_assign(sVec);
         
         // Don't change the scale orientation if the scale is unity
-        if (sVec != new SbVec3f(1.0f, 1.0f, 1.0f)) {
+        if (sVec.operator_not_equal(new SbVec3f(1.0f, 1.0f, 1.0f))) {
             rot.copyFrom( new SbRotation(shearRotMat.transpose()));
 
             if (scaleOrientation.getValue() != rot)

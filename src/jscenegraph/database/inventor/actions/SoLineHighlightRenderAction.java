@@ -286,7 +286,7 @@ public void apply(SoNode node)
 
                 if ( pathTail.isOfType(SoBaseKit.getClassTypeId())) {
                     // Find the last nodekit on the path.
-                    SoNode kitTail = ((SoNodeKitPath )p).getTail();
+                    SoNode kitTail = (SoNodeKitPath.cast(p)).getTail();
 
                     // Extend the selectionPath until it reaches this last kit.
                     SoFullPath fp = SoFullPath.cast(p);

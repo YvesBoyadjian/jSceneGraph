@@ -58,6 +58,8 @@
 
 package jscenegraph.database.inventor;
 
+import java.util.Objects;
+
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.Mutable;
 
@@ -137,7 +139,7 @@ public SbPList(final SbPList pl)
 		  int i;
 		   
 		    for (i = 0; i < nPtrs; i++)
-		    if (ptrs[i] == ptr)
+		    if (Objects.equals(ptrs[i], ptr))
 		    return(i);
 		   
 		    return -1; // Not found		  

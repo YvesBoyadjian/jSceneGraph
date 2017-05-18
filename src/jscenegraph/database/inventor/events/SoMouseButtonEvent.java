@@ -98,6 +98,17 @@ public class SoMouseButtonEvent extends SoButtonEvent {
 	}
 	private	static SoType classTypeId; /* Type id */	
 	
+
+//! some convenience macros for determining if an event matches
+
+public static boolean SO_MOUSE_PRESS_EVENT(SoEvent EVENT, SoMouseButtonEvent.Button BUTTON) {
+    return (isButtonPressEvent(EVENT,BUTTON));
+}
+public static boolean SO_MOUSE_RELEASE_EVENT(SoEvent EVENT, SoMouseButtonEvent.Button BUTTON) {
+    return (isButtonReleaseEvent(EVENT,BUTTON));
+}
+	
+	
 	 ////////////////////////////////////////////////////////////////////////
 	   //
 	   // Class initialization
@@ -147,6 +158,39 @@ public class SoMouseButtonEvent extends SoButtonEvent {
 
     //! get if the button press is a double click; MEVIS Inventor only
     public boolean isDoubleClick() { return doubleClick; }
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Convenience routine - this returns TRUE if the event is a mouse button
+// press event matching the passed button.
+//
+// static public
+//
+public static boolean
+isButtonPressEvent(final SoEvent e,
+                                       SoMouseButtonEvent.Button whichButton)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    boolean isMatch = false;
+    
+    // is it a mouse button event?
+    if (e.isOfType(SoMouseButtonEvent.getClassTypeId())) {
+        final SoMouseButtonEvent me = ( SoMouseButtonEvent ) e;
+        
+        // is it a press event?
+        if (me.getState() == SoButtonEvent.State.DOWN) {
+        
+            // did the caller want any button press? or do they match?
+            if ((whichButton == SoMouseButtonEvent.Button.ANY) ||
+                (me.getButton() == whichButton))
+                isMatch = true;
+        }
+    }
+    
+    return isMatch;
+}
 
 	//
 	   // Convenience routine - this returns TRUE if the event is a mouse button
