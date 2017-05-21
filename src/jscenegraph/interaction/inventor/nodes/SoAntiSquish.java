@@ -346,7 +346,7 @@ final float TINY = .00001f;
     // Now find our answer, which does the following:
     // [answerM][squishMatrix] = [desiredM]
     // [answerM] = [desiredM][squishMatrixInverse]
-    SbMatrix answerM = desiredM;
+    SbMatrix answerM = new SbMatrix(desiredM);
     answerM.multRight( squishedMatrix.inverse() );
 
     inverseAnswer.copyFrom(answerM.inverse());
@@ -354,7 +354,7 @@ final float TINY = .00001f;
     savedAnswer.copyFrom(answerM);
     savedInverseAnswer.copyFrom(inverseAnswer);
 
-    return answerM;
+    return new SbMatrix(answerM);
 }
 
 public void

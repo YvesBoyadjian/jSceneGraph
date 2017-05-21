@@ -1274,7 +1274,7 @@ public void setTransform(final SbVec3f translation,
         ROTATE(rotation,m);
 
     if (scaleFactor.operator_not_equal(new SbVec3f(1,1,1))) {
-        SbRotation so = scaleOrientation;
+        final SbRotation so = new SbRotation(scaleOrientation);
         if (so.operator_not_equal(new SbRotation(0,0,0,1)))
             ROTATE(so,m);
         

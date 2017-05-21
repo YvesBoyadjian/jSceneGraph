@@ -240,6 +240,37 @@ public class SbTime implements Mutable {
 
 		return new SbTime(tm.getValue() * s);
 	}
+	
+
+public boolean
+operator_less(final SbTime tm)
+{
+    if ((t.getSeconds() < tm.t.getSeconds()) ||
+        (t.getSeconds() == tm.t.getSeconds() && t.getMicroSeconds() < tm.t.getMicroSeconds()))
+        return true;
+    else
+        return false;
+}	
+
+	public boolean
+operator_greater(final SbTime tm)
+{
+    if ((t.getSeconds() > tm.t.getSeconds()) ||
+        (t.getSeconds() == tm.t.getSeconds() && t.getMicroSeconds() > tm.t.getMicroSeconds()))
+        return true;
+    else
+        return false;
+}	
+	
+	    //! Destructive multiplication and division by scalar.
+    public SbTime operator_mul_equal(double s)
+        { this.copyFrom(this.operator_mul(s)); return this; }
+
+    //! Equality operators.
+    public boolean                           operator_equal_equal(final SbTime tm) 
+        { return (t.getSeconds() == tm.t.getSeconds()) && (t.getMicroSeconds() == tm.t.getMicroSeconds()); }
+
+	
 
 	@Override
 	public void copyFrom(Object other) {

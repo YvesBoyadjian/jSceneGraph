@@ -235,4 +235,9 @@ public void setWorkingSpace(final SbMatrix space)
  		
  		super.copyFrom(other);
  	}
+
+	public void destructor() {
+		// TODO Auto-generated method stub
+		
+	}
 }

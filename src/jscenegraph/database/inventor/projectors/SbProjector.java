@@ -185,5 +185,11 @@ public void setWorkingSpace(final SbMatrix space)
  	    worldToWorking.copyFrom(otherProjector.worldToWorking);
  	    workingToWorld.copyFrom(otherProjector.workingToWorld);
  	 	
- 	} 	
+ 	}
+
+
+	public void destructor() {
+		// TODO Auto-generated method stub
+		
+	} 	
 }

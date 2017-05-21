@@ -230,6 +230,7 @@ private interface PMTSS  {
 		renderFunc[0] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmOn(action);			
 		renderFunc[1] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmOnT(action);			
 		renderFunc[4] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmFn(action);			
+		renderFunc[6] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmVn(action);			
 	}
 
 ////////////////////////////////////////////////////////////////////////
@@ -901,6 +902,52 @@ public void OmFn (SoGLRenderAction action) {
 	++numVertsIndex;
     }
     gl2.glShadeModel(GL2.GL_SMOOTH);
+}
+
+
+public void
+OmVn
+    (SoGLRenderAction action ) {
+	
+	GL2 gl2 = action.getCacheContext();	
+
+    Buffer vertexPtr = vpCache.getVertices(startIndex.getValue());
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer normalPtr = vpCache.getNormals(startIndex.getValue());
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    final int numStrips = numVertices.getNum();
+    final int[] numVerts = numVertices.getValuesInt(0);
+
+    int v;
+    int numVertsIndex = 0; // java port
+	int vertexPtrIndex = 0;
+	int normalPtrIndex = 0;
+    for (int strip = 0; strip < numStrips; strip++) {
+	final int nv = numVerts[numVertsIndex];
+	gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+	for (v = 0; v < nv-1; v+=2) {
+		normalPtr.position(normalPtrIndex/Float.BYTES);
+	    (normalFunc).run(gl2,normalPtr/*+0*normalStride*/);
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr/*+0*vertexStride*/);
+		normalPtr.position((normalPtrIndex+normalStride)/Float.BYTES);
+	    (normalFunc).run(gl2,normalPtr/*+1*normalStride*/);
+	    normalPtrIndex += 2*normalStride;
+		vertexPtr.position((vertexPtrIndex+vertexStride)/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr/*+1*vertexStride*/);
+	    vertexPtrIndex += 2*vertexStride;
+	}
+	if (v < nv) { // Leftovers
+		normalPtr.position(normalPtrIndex/Float.BYTES);
+	    (normalFunc).run(gl2,normalPtr); normalPtrIndex += normalStride;
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+	}
+	gl2.glEnd();
+	++numVertsIndex;
+    }
 }
 
 

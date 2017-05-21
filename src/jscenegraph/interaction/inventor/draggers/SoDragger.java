@@ -883,6 +883,21 @@ setCameraInfo(SoAction action)
 }
 
 
+
+public void 
+transformMatrixToLocalSpace( final SbMatrix fromMatrix,
+            final SbMatrix toMatrix, final SbName fromSpacePartName)
+{
+    final SbMatrix fromToLocalM = new SbMatrix(), localToFromM = new SbMatrix();
+
+    getPartToLocalMatrix( fromSpacePartName, fromToLocalM, localToFromM);
+
+    toMatrix.copyFrom(fromMatrix);
+    toMatrix.multRight( fromToLocalM );
+    toMatrix.multLeft( localToFromM );
+}
+
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -2168,7 +2183,7 @@ appendRotation( final SbMatrix mtx,
 	       //SoCenterballDragger.initClass();
 	       //SoTabPlaneDragger.initClass();
 	       SoTabBoxDragger.initClass();
-	       //SoTrackballDragger.initClass();
+	       SoTrackballDragger.initClass();
 	       // composite transform draggers
 	       // init these after all the canonical draggers
 	       //SoPointLightDragger.initClass();

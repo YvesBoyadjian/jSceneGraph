@@ -54,8 +54,10 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import java.nio.Buffer;
 import java.nio.IntBuffer;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 
@@ -92,6 +94,7 @@ import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
@@ -224,12 +227,15 @@ public class SoIndexedLineSet extends SoIndexedShape {
     private final int AUTO_CACHE_ILS_MAX = SoGLCacheContextElement.OIV_AUTO_CACHE_DEFAULT_MAX;
 
     private interface PMILS {
-    	void run(SoGLRenderAction action);
+    	void run(SoIndexedLineSet set, SoGLRenderAction action);
     }
     
     //! Array of function pointers to render functions:
     private static PMILS[] renderFunc = new PMILS[32];
     
+    static {
+    	renderFunc[6] = (set, action) -> set.OmVn(action); 
+    }
     
     
 ////////////////////////////////////////////////////////////////////////
@@ -487,6 +493,12 @@ generatePrimitives(SoAction action)
     vertsInLine = 0;
   }
   state.pop();
+  
+  // java port
+  pvs[0].destructor(); pvs[1].destructor();
+  detail.destructor();
+  pd.destructor();
+  tcb.destructor();
 }
 
 
@@ -546,6 +558,7 @@ createLineSegmentDetail(SoRayPickAction action,
   detail.setLineIndex(d.getLineIndex());
   detail.setPartIndex(d.getPartIndex());
 
+  tcb.destructor();
   return detail;
 }
 
@@ -939,7 +952,7 @@ private void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway,
     endVertexArrayRendering(action, useVBO);
   } else {
     // Call the appropriate render loop:
-    (this.renderFunc[useTexCoordsAnyway | vpCache.getRenderCase(shapeStyle)]).run(action);
+    (this.renderFunc[useTexCoordsAnyway | vpCache.getRenderCase(shapeStyle)]).run(this,action);
 //#ifdef DEBUG
     if (SoDebug.GetEnv("IV_DEBUG_VBO_RENDERING") != null) {
       SoDebugError.postInfo("GLRenderInternal", getTypeId().getName().getString()+" Immediate Mode Rendering: "+numPolylines+" Polylines");
@@ -947,6 +960,55 @@ private void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway,
 //#endif
   }
 }
+
+
+public void
+
+OmVn
+    (SoGLRenderAction action ) {
+	
+	GL2 gl2 = action.getCacheContext();
+	
+    int np = numPolylines;
+    final int[] numverts = numVertices;
+    final int[] vertexIndex = coordIndex.getValuesInt(0);
+    boolean renderAsPoints = (SoDrawStyleElement.get(action.getState()) ==
+		      SoDrawStyleElement.Style.POINTS);
+    boolean sendAdj = sendAdjacency.getValue();
+
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer normalPtr = vpCache.getNormals(0);
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    Integer[] normalIndx = getNormalIndices();
+
+    int vtxCtr = 0;
+    int v;
+    int numvertsIndex = 0;
+    for (int polyline = 0; polyline < np; polyline++) {
+	final int nv = numverts[numvertsIndex];      
+	if(renderAsPoints){
+	    gl2.glBegin(GL2.GL_POINTS);
+	}
+	else {
+
+	    gl2.glBegin(sendAdj?GL3.GL_LINE_STRIP_ADJACENCY:GL2.GL_LINE_STRIP);      
+	}
+	for (v = 0; v < nv; v++) {                  
+		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+		(normalFunc).run(gl2,normalPtr);
+		vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
+		(vertexFunc).run(gl2,vertexPtr);
+		vtxCtr++;
+	}
+	gl2.glEnd();
+	vtxCtr++;  //skip over -1 at end of polyline
+	numvertsIndex++;
+    }
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////

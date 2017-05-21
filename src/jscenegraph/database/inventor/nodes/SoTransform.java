@@ -290,7 +290,7 @@ public void SoTransform_doAction(SoAction action)
         SoModelMatrixElement.scaleBy(state, this, scaleFactor.getValue());
 
         if (doScaleOrient) {
-            SbRotation r = scaleOrientation.getValue();
+            SbRotation r = new SbRotation(scaleOrientation.getValue());
             r.invert();
             SoModelMatrixElement.rotateBy(state, this, r);
         }

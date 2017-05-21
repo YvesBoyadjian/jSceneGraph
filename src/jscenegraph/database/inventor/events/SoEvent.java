@@ -160,6 +160,8 @@ public SoEvent()
  
     //! Set the time at which the event occurred.
     public  void                setTime(SbTime t)               { timestamp.copyFrom(t); }
+    //! Get the time at which the event occurred.
+    public SbTime              getTime()                  { return new SbTime(timestamp); }
       
      /**
      * Set the window pixel location of the cursor when the event occurred. 

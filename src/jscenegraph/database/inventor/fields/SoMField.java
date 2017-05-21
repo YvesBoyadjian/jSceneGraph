@@ -34,7 +34,6 @@
  *
  */
 
-
 /*
  * Copyright (C) 1990,91   Silicon Graphics, Inc.
  *
@@ -59,7 +58,6 @@ import java.util.Objects;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.port.Mutable;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Base class for all multiple-valued fields.
@@ -130,392 +128,386 @@ SoNode, SoEngine
  */
 public abstract class SoMField<T extends Object> extends SoField {
 
-	protected int num;            
-	protected int maxNum;         
-		    
-	protected Object[] values;
-		   	
-	/* (non-Javadoc)
-	 * @see com.openinventor.inventor.fields.SoField#copyFrom(com.openinventor.inventor.fields.SoField)
+	protected int num;
+	protected int maxNum;
+
+	protected T[] values;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.openinventor.inventor.fields.SoField#copyFrom(com.openinventor.
+	 * inventor.fields.SoField)
 	 */
 	@Override
 	public void copyFrom(SoField f) {
-		this.operator_equal((SoMField<T>)f);
+		this.operator_equal((SoMField<T>) f);
 	}
-	
-	public SoMField<T> operator_equal(final SoMField<T> f)                                     
-{                                                                             
-    if (f.getNum() < getNum())                                                
-        deleteAllValues();                                                    
-    setValues(0, /*f.getNum(),*/ f.getValues(0));                                 
-    return this;                                                             
-}
 
-	
+	public SoMField<T> operator_equal(final SoMField<T> f) {
+		if (f.getNum() < getNum())
+			deleteAllValues();
+		setValues(0, /* f.getNum(), */ f.getValues(0));
+		return this;
+	}
 
-	// Returns the number of values currently in the field. 
+	// Returns the number of values currently in the field.
 	public int getNum() {
-		 evaluate(); return num; 
+		evaluate();
+		return num;
 	}
-	
-	// Make sure there is room for newNum vals. 
+
+	// Make sure there is room for newNum vals.
 	//
-	  // Description:
-	  //    This makes sure there is enough memory allocated to hold
-	  //    "newNum" values. It reallocates the values if necessary.
-	  //
-	  // Use: protected
-	  	protected void makeRoom(int newNum) // New number of values 
-	  	{
-	  	     // Allocate room to hold all values if necessary
-	  		      if (newNum != num) {
-	  		          allocValues(newNum);
-	  		      }	  		 		
+	// Description:
+	// This makes sure there is enough memory allocated to hold
+	// "newNum" values. It reallocates the values if necessary.
+	//
+	// Use: protected
+	protected void makeRoom(int newNum) // New number of values
+	{
+		// Allocate room to hold all values if necessary
+		if (newNum != num) {
+			allocValues(newNum);
+		}
 	}
-	  	
-	  	
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Reads all field values from file. Works for ASCII and binary
-//    output. Binary values are read as a chunk.
-//
-// Use: private
 
-public boolean readValue(SoInput in)
-//
-////////////////////////////////////////////////////////////////////////
-{
-    if (in.isBinary()) {
-        final int[]     numToRead = new int[1];
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Description:
+	// Reads all field values from file. Works for ASCII and binary
+	// output. Binary values are read as a chunk.
+	//
+	// Use: private
 
-        // Read number of values
-        if (! in.read(numToRead)) {
-            SoReadError.post(in, "Couldn't read number of binary values "+
-                              "in multiple-value field");
-            return false;
-        }
+	public boolean readValue(SoInput in)
+	//
+	////////////////////////////////////////////////////////////////////////
+	{
+		if (in.isBinary()) {
+			final int[] numToRead = new int[1];
 
-        // Make space for values; also sets number of values
-        makeRoom(numToRead[0]);
+			// Read number of values
+			if (!in.read(numToRead)) {
+				SoReadError.post(in, "Couldn't read number of binary values " + "in multiple-value field");
+				return false;
+			}
 
-        // Read values
-        if (! readBinaryValues(in, numToRead[0]))
-            return false;
-    }
+			// Make space for values; also sets number of values
+			makeRoom(numToRead[0]);
 
-    else {
-        final char[]    c = new char[1];
-        int     curIndex = 0;
+			// Read values
+			if (!readBinaryValues(in, numToRead[0]))
+				return false;
+		}
 
-        // Check for multiple field values
-        if (in.read(c) && c[0] == OPEN_BRACE_CHAR) {
+		else {
+			final char[] c = new char[1];
+			int curIndex = 0;
 
-            // Check for no values: just an open and close brace
-            if (in.read(c) && c[0] == CLOSE_BRACE_CHAR)
-                ;                                       // Do nothing now
+			// Check for multiple field values
+			if (in.read(c) && c[0] == OPEN_BRACE_CHAR) {
 
-            else {
-                in.putBack(c[0]);
+				// Check for no values: just an open and close brace
+				if (in.read(c) && c[0] == CLOSE_BRACE_CHAR)
+					; // Do nothing now
 
-                while (true) {
+				else {
+					in.putBack(c[0]);
 
-                    // Make some room at end if necessary
-                    if (curIndex >= getNum())
-                        makeRoom(getNum() + VALUE_CHUNK_SIZE);
+					while (true) {
 
-                    if (! read1Value(in, curIndex++) || ! in.read(c)) {
-                        SoReadError.post(in,
-                                          "Couldn't read value "+curIndex+" of field");
-                        return false;
-                    }
+						// Make some room at end if necessary
+						if (curIndex >= getNum())
+							makeRoom(getNum() + VALUE_CHUNK_SIZE);
 
-                    if (c[0] == VALUE_SEPARATOR_CHAR) {
+						if (!read1Value(in, curIndex++) || !in.read(c)) {
+							SoReadError.post(in, "Couldn't read value " + curIndex + " of field");
+							return false;
+						}
 
-                        // See if this is a trailing separator (right before 
-                        // the closing brace). This is legal, but ignored.
+						if (c[0] == VALUE_SEPARATOR_CHAR) {
 
-                        if (in.read(c)) {
-                            if (c[0] == CLOSE_BRACE_CHAR)
-                                break;
-                            else
-                                in.putBack(c[0]);
-                        }
-                    }
+							// See if this is a trailing separator (right before
+							// the closing brace). This is legal, but ignored.
 
-                    else if (c[0] == CLOSE_BRACE_CHAR)
-                        break;
+							if (in.read(c)) {
+								if (c[0] == CLOSE_BRACE_CHAR)
+									break;
+								else
+									in.putBack(c[0]);
+							}
+						}
 
-                    else {
-                        SoReadError.post(in,
-                                          "Expected '"+VALUE_SEPARATOR_CHAR+"' or '"+CLOSE_BRACE_CHAR+"' but got "+
-                                          "'"+c+"' while reading value "+curIndex);
-                        return false;
-                    }
-                }
-            }
+						else if (c[0] == CLOSE_BRACE_CHAR)
+							break;
 
-            // If extra space left over, nuke it
-            if (curIndex < getNum())
-                makeRoom(curIndex);
-        }
+						else {
+							SoReadError.post(in, "Expected '" + VALUE_SEPARATOR_CHAR + "' or '" + CLOSE_BRACE_CHAR
+									+ "' but got " + "'" + c + "' while reading value " + curIndex);
+							return false;
+						}
+					}
+				}
 
-        else {
-            // Try reading 1 value
-            in.putBack(c[0]);
-            makeRoom(1);
-            if (! read1Value(in, 0))
-                return false;
-        }
-    }
+				// If extra space left over, nuke it
+				if (curIndex < getNum())
+					makeRoom(curIndex);
+			}
 
-    return true;
-}
+			else {
+				// Try reading 1 value
+				in.putBack(c[0]);
+				makeRoom(1);
+				if (!read1Value(in, 0))
+					return false;
+			}
+		}
 
-	  	
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Reads array of binary values from file as one chunk.
-//
-// Use: private
+		return true;
+	}
 
-protected boolean readBinaryValues(SoInput in,    // Reading specification
-                           int numToRead)  // Number of values to read
-//
-////////////////////////////////////////////////////////////////////////
-{
-    int i;
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Description:
+	// Reads array of binary values from file as one chunk.
+	//
+	// Use: private
 
-    for (i = 0; i < numToRead; i++)
-        if (! read1Value(in, i))
-            return false;
+	protected boolean readBinaryValues(SoInput in, // Reading specification
+			int numToRead) // Number of values to read
+	//
+	////////////////////////////////////////////////////////////////////////
+	{
+		int i;
 
-    return true;
-}
+		for (i = 0; i < numToRead; i++)
+			if (!read1Value(in, i))
+				return false;
 
-	  	    //! Reads one indexed value of field from file
-    public abstract boolean        read1Value(SoInput in, int index);
+		return true;
+	}
 
-	  	
-	  	
-	  	protected void                                                                          
-	     allocValues(int newNum)                                            
-	     {                                                                             
-	         if (values == null) {                                                     
-	             if (newNum > 0) {                                                       
-	                 values = new Object[newNum];
-		             for( int i=0; i<newNum;i++) {
-		            	 values[i] = constructor();
-		             }
-	             }
-	         }                                                                         
-	         else {                                                                    
-	             Object[]       oldValues = values;                                  
-	             int             i;                                                    
-	                                                                                   
-	             if (newNum > 0) {                                                     
-	                 values = new Object[newNum];                                   
-		             for( i=0; i<newNum;i++) {
-		            	 values[i] = constructor();
-		             }
-	                 for (i = 0; i < num && i < newNum; i++)                           
-	                     values[i] = oldValues[i];                                     
-	             }                                                                     
-	             else                                                                  
-	                 values = null;                                                    
-	             //delete [] oldValues; java port                                                  
-	         }                                                                         
-	                                                                                   
-	         num = maxNum = newNum;                                                    
-	     }
-	    	  	
-	    
-	    /* Set field to have one value */                                         
-	    public void setValue(T newValue) {
-	        makeRoom(1);                                           
-	        if(values[0] instanceof Mutable) {
-	        	Mutable dest = (Mutable)(values[0]);
-	        	Mutable src = (Mutable) newValue;
-	        	dest.copyFrom(src);
-	        }
-	        else {
-	        	values[0] = newValue;
-	        }
-            valueChanged();                                                           	         	    	
-	    }
-	    
-	    public void setValues(int start, T[] newValues) {
-	    	int localNum = newValues.length;
-	        int newNum = start + localNum, i;                                         
-	                                                                                       
-	             if (newNum > getNum())                                                    
-	                 makeRoom(newNum);                                                     
-	                                                                                       
-	             for (i = 0; i < localNum; i++) {
-	            	 if(values[start+i] instanceof Mutable) {
-	            		((Mutable)values[start+i]).copyFrom((Mutable)newValues[i]); 
-	            	 }
-	            	 else {
-	            		 values[start + i] = newValues[i];
-	            	 }
-	             }                                          
-	             valueChanged();                                                           
-	        	    	
-	    }
-	    
-    /* Set 1 value at given index */                                          
-    public void                        set1Value(int index, T newValue) {
-    if (index >= getNum())                                                    
-        makeRoom(index + 1);                                         
-    if(values[index] instanceof Mutable) {
-    	((Mutable)values[index]).copyFrom((Mutable)newValue);
-    }
-    else {
-    	values[index] = newValue;
-    }
-    valueChanged();                                                               	
-    }
-	    
-	    /* Get pointer into array of values */                                    
-	    public T[]           getValues(int start)                     
-	        { evaluate();
-	        
-	        int retLength = values.length - start;
-	        
-	        T[] retVal  = arrayConstructor(retLength);
-	        
-	        for(int i=0; i<retLength;i++) {
-	        	retVal[i] = (T)values[i+start];
-	        }
-	        return retVal; 
-	        } 
-	                                                                              
-	    
-	    
-	    @SuppressWarnings("unchecked")
-		public T operator_square_bracket(int i) {
-	    	evaluate();
-	    	return (T)values[i];
-	    }
-	    
-	    protected abstract T constructor();
-	    
-	    protected abstract T[] arrayConstructor(int length);
-	    
-	    //! Deletes all current values
-	    protected void deleteAllValues() {
-	    	allocValues(0);
-	    }
-	    
-	    //! Copies value indexed by "from" to value indexed by "to"
-	    protected void        copyValue(int to, int from) {
-	    	if(values[to] instanceof Mutable) {
-	    		((Mutable)(values[to])).copyFrom(values[from]);
-	    	}
-	    	else {
-	    		values[to] = values[from];
-	    	}
-	    }
-	    
+	// ! Reads one indexed value of field from file
+	public abstract boolean read1Value(SoInput in, int index);
 
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Deletes num values starting at index start. A num of -1 (the default)
-//    means delete all values after start, inclusive.
-//
-// Use: public
+	protected void allocValues(int newNum) {
+		if (values == null) {
+			if (newNum > 0) {
+				values = arrayConstructor(newNum);
+				for (int i = 0; i < newNum; i++) {
+					values[i] = constructor();
+				}
+			}
+		} else {
+			T[] oldValues = values;
+			int i;
 
-	    // java port
-	    public void deleteValues(int start) {
-	    	deleteValues( start, -1);
-	    }
-	    
-public void
-deleteValues(int start,       // Starting index
-                       int numToDelete) // Number of values to delete
-//
-////////////////////////////////////////////////////////////////////////
-{
-    int lastToCopy, i;
+			if (newNum > 0) {
+				values = arrayConstructor(newNum);
+				for (i = 0; i < newNum; i++) {
+					values[i] = constructor();
+				}
+				for (i = 0; i < num && i < newNum; i++)
+					values[i] = oldValues[i];
+			} else
+				values = null;
+			// delete [] oldValues; java port
+		}
 
-    if (numToDelete < 0)
-        numToDelete = getNum() - start;
+		num = maxNum = newNum;
+	}
 
-    // Special case of deleting all values
-    if (numToDelete == getNum())
-        deleteAllValues();
+	/* Set field to have one value */
+	public void setValue(T newValue) {
+		makeRoom(1);
+		if (values[0] instanceof Mutable) {
+			Mutable dest = (Mutable) (values[0]);
+			Mutable src = (Mutable) newValue;
+			dest.copyFrom(src);
+		} else {
+			values[0] = newValue;
+		}
+		valueChanged();
+	}
 
-    else {
-        // Copy from the end of the array to the middle
-        lastToCopy = (getNum() - 1) - numToDelete;
-        for (i = start; i <= lastToCopy; i++)
-            copyValue(i, i + numToDelete);
+	public void setValues(int start, T[] newValues) {
+		int localNum = newValues.length;
+		int newNum = start + localNum, i;
 
-        // Truncate the array
-        makeRoom(getNum() - numToDelete);
-    }
+		if (newNum > getNum())
+			makeRoom(newNum);
 
-    // The field value has changed...
-    valueChanged();
-}
+		for (i = 0; i < localNum; i++) {
+			if (values[start + i] instanceof Mutable) {
+				((Mutable) values[start + i]).copyFrom((Mutable) newValues[i]);
+			} else {
+				values[start + i] = newValues[i];
+			}
+		}
+		valueChanged();
 
-////////////////////////////////////////////////////////////////////////
-//
-//Description:
-//This is equivalent to the SoField::set() method, but operates on
-//only the value given by the index.
-//
-//Use: public
+	}
 
-public boolean set1(int index, String valueString)
-//
-////////////////////////////////////////////////////////////////////////
-{
-	//TODO
-	return false;
-}
+	/* Set 1 value at given index */
+	public void set1Value(int index, T newValue) {
+		if (index >= getNum())
+			makeRoom(index + 1);
+		if (values[index] instanceof Mutable) {
+			((Mutable) values[index]).copyFrom((Mutable) newValue);
+		} else {
+			values[index] = newValue;
+		}
+		valueChanged();
+	}
 
-////////////////////////////////////////////////////////////////////////
-//
-//Description:
-//This is equivalent to the SoField::get() method, but operates on
-//only the value given by the index.
-//
-//Use: public
+	/* Get pointer into array of values */
+	public T[] getValues(int start) {
+		evaluate();
+		
+		if(start == 0) {
+			return values;
+		}
 
-public String get1(int index) {
-	String valueString = "";
-	//TODO
-	return valueString;
-}
+		int retLength = values.length - start;
 
-                                                                              
-public boolean                                                                              
-operator_equal_equal(final SoMField<T> f)                               
-{                                                                             
-    int                 i, localNum = getNum();                               
-    T[]     myVals, itsVals;                                    
-                                                                              
-    if (localNum != f.getNum())                                               
-        return false;                                                         
-                                                                              
-    myVals  = getValues(0);                                                   
-    itsVals = f.getValues(0);                                                 
-                                                                              
-    for (i = 0; i < localNum; i++)                                                    
-        if (! Objects.equals(myVals[i] , itsVals[i]))                                      
-            return false;                                                     
-                                                                              
-    return true;                                                              
-}                                                                             
-                                                                              
+		T[] retVal = arrayConstructor(retLength);
 
-	    
-public boolean        isSame(final SoField f) {
-	return (getTypeId().operator_equal_equal(f.getTypeId()) &&
-			this.operator_equal_equal((SoMField)f));
-}
+		for (int i = 0; i < retLength; i++) {
+			retVal[i] = (T) values[i + start];
+		}
+		return retVal;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T operator_square_bracket(int i) {
+		evaluate();
+		return (T) values[i];
+	}
+
+	protected abstract T constructor();
+
+	protected abstract T[] arrayConstructor(int length);
+
+	// ! Deletes all current values
+	protected void deleteAllValues() {
+		allocValues(0);
+	}
+
+	// ! Copies value indexed by "from" to value indexed by "to"
+	protected void copyValue(int to, int from) {
+		if (values[to] instanceof Mutable) {
+			((Mutable) (values[to])).copyFrom(values[from]);
+		} else {
+			values[to] = values[from];
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Description:
+	// Deletes num values starting at index start. A num of -1 (the default)
+	// means delete all values after start, inclusive.
+	//
+	// Use: public
+
+	// java port
+	public void deleteValues(int start) {
+		deleteValues(start, -1);
+	}
+
+	public void deleteValues(int start, // Starting index
+			int numToDelete) // Number of values to delete
+	//
+	////////////////////////////////////////////////////////////////////////
+	{
+		int lastToCopy, i;
+
+		if (numToDelete < 0)
+			numToDelete = getNum() - start;
+
+		// Special case of deleting all values
+		if (numToDelete == getNum())
+			deleteAllValues();
+
+		else {
+			// Copy from the end of the array to the middle
+			lastToCopy = (getNum() - 1) - numToDelete;
+			for (i = start; i <= lastToCopy; i++)
+				copyValue(i, i + numToDelete);
+
+			// Truncate the array
+			makeRoom(getNum() - numToDelete);
+		}
+
+		// The field value has changed...
+		valueChanged();
+	}
+
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Description:
+	// This is equivalent to the SoField::set() method, but operates on
+	// only the value given by the index.
+	//
+	// Use: public
+
+	public boolean set1(int index, String valueString)
+	//
+	////////////////////////////////////////////////////////////////////////
+	{
+		final SoInput in = new SoInput();
+		try {
+			in.setBuffer(valueString, valueString.length());
+
+			if (read1Value(in, index)) {
+
+				// We have to do this here because read1Value() doesn't
+				// indicate that values have changed, since it's usually used
+				// in a larger reading context.
+				valueChanged();
+
+				return true;
+			}
+			return false;
+		} finally {
+			in.destructor();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Description:
+	// This is equivalent to the SoField::get() method, but operates on
+	// only the value given by the index.
+	//
+	// Use: public
+
+	public String get1(int index) {
+		String valueString = "";
+		// TODO
+		return valueString;
+	}
+
+	public boolean operator_equal_equal(final SoMField<T> f) {
+		int i, localNum = getNum();
+		T[] myVals, itsVals;
+
+		if (localNum != f.getNum())
+			return false;
+
+		myVals = getValues(0);
+		itsVals = f.getValues(0);
+
+		for (i = 0; i < localNum; i++)
+			if (!Objects.equals(myVals[i], itsVals[i]))
+				return false;
+
+		return true;
+	}
+
+	public boolean isSame(final SoField f) {
+		return (getTypeId().operator_equal_equal(f.getTypeId()) && this.operator_equal_equal((SoMField) f));
+	}
 
 }
