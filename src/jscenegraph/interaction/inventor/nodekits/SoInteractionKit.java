@@ -828,6 +828,11 @@ setAnyPartAsDefault(final SbName partName,
     SoNode newNode = super.getByName(newPartName);
     return( setAnyPartAsDefault( partName, newNode, anyPart, onlyIfAlready ));
 }
+public boolean // java port 
+setAnyPartAsDefault(final String partName, 
+                        SoNode newNode) {
+	return setAnyPartAsDefault(new SbName(partName),newNode,true,true);
+}
 public boolean 
 setAnyPartAsDefault(final SbName partName, 
                         SoNode newNode, boolean anyPart, boolean onlyIfAlready )

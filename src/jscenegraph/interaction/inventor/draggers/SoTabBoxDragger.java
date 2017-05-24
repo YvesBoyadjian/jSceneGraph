@@ -170,7 +170,7 @@ public class SoTabBoxDragger extends SoDragger {
                                     { return SoSubNode.getClassTypeId(SoTabBoxDragger.class); }                   
     public SoType      getTypeId()       /* Returns type id      */
     {
-		return kitHeader.getClassTypeId();		    	
+		return kitHeader == null ? super.getTypeId() : kitHeader.getClassTypeId();		    	
     }
   public                                                                  
     SoFieldData   getFieldData() {

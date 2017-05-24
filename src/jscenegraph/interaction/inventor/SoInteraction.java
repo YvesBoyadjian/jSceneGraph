@@ -8,6 +8,7 @@ import jscenegraph.database.inventor.actions.SoLineHighlightRenderAction;
 import jscenegraph.interaction.inventor.draggers.SoDragger;
 import jscenegraph.interaction.inventor.manips.SoHandleBoxManip;
 import jscenegraph.interaction.inventor.manips.SoTrackballManip;
+import jscenegraph.interaction.inventor.manips.SoTransformBoxManip;
 import jscenegraph.interaction.inventor.manips.SoTransformManip;
 import jscenegraph.interaction.inventor.nodekits.SoInteractionKit;
 import jscenegraph.interaction.inventor.nodes.SoAntiSquish;
@@ -65,7 +66,7 @@ public class SoInteraction {
 //		            SoJackManip.initClass();
 //		            SoTabBoxManip.initClass();
 		            SoTrackballManip.initClass();
-//		            SoTransformBoxManip.initClass();
+		            SoTransformBoxManip.initClass();
 //		            SoTransformerManip.initClass();
 		            // lightManips
 //		            SoPointLightManip.initClass();

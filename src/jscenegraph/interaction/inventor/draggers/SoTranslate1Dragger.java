@@ -161,7 +161,7 @@ public class SoTranslate1Dragger extends SoDragger {
                                     { return SoSubNode.getClassTypeId(SoTranslate1Dragger.class); }                   
     public SoType      getTypeId()       /* Returns type id      */
     {
-		return kitHeader.getClassTypeId();		    	
+		return kitHeader == null ? super.getTypeId() : kitHeader.getClassTypeId();		    	
     }
   public                                                                  
     SoFieldData   getFieldData() {

@@ -719,6 +719,56 @@ getPickPath()
     activeChildDragger = newChildDragger;
     	
     }
+    
+    
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//     This function is invoked by child draggers 
+//     when they change their value.
+//
+public void 
+transferMotion( SoDragger childDragger)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Get the motion matrix from the child
+        final SbMatrix childMotion = new SbMatrix(childDragger.getMotionMatrix());
+
+    // There's a lot we don't need to bother with if the childMotion is
+    // identity...
+        boolean childIdent = ( childMotion.operator_equal_equal(SbMatrix.identity()) );
+    
+    // Return if childMotion is identity and our motionMatrix already 
+    // matches our saved startMatrix.
+        if ( childIdent && (getMotionMatrix().operator_equal_equal( getStartMotionMatrix())))
+            return;
+
+        if ( !childIdent ) {
+            // First, set the childDragger matrix to identity.
+            childDragger.setMotionMatrix( SbMatrix.identity() );
+
+            // Convert the childMotion from child LOCAL space to  world space.
+            childDragger.transformMatrixLocalToWorld(childMotion,childMotion);
+
+            // Convert the childMotion from world space to our LOCAL space.
+            transformMatrixWorldToLocal(childMotion,childMotion);
+        }
+
+    // Append this transformed child motion to our saved start matrix.
+        final SbMatrix newMotion = new SbMatrix(getStartMotionMatrix());
+        if ( !childIdent )
+            newMotion.multLeft( childMotion );
+
+        setMotionMatrix( newMotion );
+
+    // Changing the parent matrix invalidates the matrix cache of the
+    // childDragger
+        childDragger.cachedPathToThisValid = false;
+}
+
+    
+    
     public SoDragger getActiveChildDragger() { return activeChildDragger; }
 
 ////////////////////////////////////////////////////////////////////////
@@ -941,6 +991,10 @@ public void addMotionCallback(SoDraggerCB f) {
 		 finishCallbacks.addCallback( (callbackData)-> f.invoke(userData, (SoDragger)callbackData), userData ); 
 	}
 	
+	public void removeFinishCallback( SoDraggerCB f, Object d )
+	{  finishCallbacks.removeCallback( (callbackData)-> f.invoke(d, (SoDragger)callbackData), d ); } //TODO
+	
+	
     //! Value-changed callbacks are made after a dragger changes any of its fields.
     //! This does not include changes to the \b isActive  field.
     //! See also enableValueChangedCallbacks.
@@ -971,6 +1025,207 @@ public void removeOtherEventCallback( SoDraggerCB f, Object d )
 {  otherEventCallbacks.removeCallback( (SoCallbackListCB )f, d ); }
 
     
+
+public void registerChildDragger(SoDragger child)
+{
+    // This calls transferMotion, followed by the callbacks for this node.
+    child.addValueChangedCallback( 
+                        SoDragger::childTransferMotionAndValueChangedCB, this );
+
+    child.addStartCallback(SoDragger::childStartCB, this);
+    child.addMotionCallback(SoDragger::childMotionCB, this);
+    child.addFinishCallback(SoDragger::childFinishCB, this);
+    child.addOtherEventCallback(SoDragger::childOtherEventCB, this);
+}
+
+public void unregisterChildDragger(SoDragger child)
+{
+    child.removeValueChangedCallback( 
+                        SoDragger::childTransferMotionAndValueChangedCB, this );
+
+    child.removeStartCallback(SoDragger::childStartCB, this);
+    child.removeMotionCallback(SoDragger::childMotionCB, this);
+    child.removeFinishCallback(SoDragger::childFinishCB, this);
+    child.removeOtherEventCallback(SoDragger::childOtherEventCB, this);
+}
+
+
+public static void childTransferMotionAndValueChangedCB(Object parentAsVoid, 
+                                                     SoDragger childDragger)
+{
+    SoDragger parent = (SoDragger ) parentAsVoid;
+
+    SoDragger savedChild = parent.getActiveChildDragger();
+    if (savedChild != null) savedChild.ref();
+    parent.setActiveChildDragger( childDragger );
+        // Save these variables to we can put 'em back when we're done.
+        SoHandleEventAction oldHa  = parent.getHandleEventAction();
+        SbViewVolume         oldVV  = new SbViewVolume(parent.getViewVolume());
+        SbViewportRegion     oldVPR = new SbViewportRegion(parent.getViewportRegion());
+
+        parent.setHandleEventAction(childDragger.getHandleEventAction());
+        parent.setViewVolume(childDragger.getViewVolume());
+        parent.setViewportRegion(childDragger.getViewportRegion());
+
+        SoPath pathToKid = childDragger.createPathToThis();
+        if (pathToKid != null) pathToKid.ref();
+        parent.setTempPathToThis( pathToKid );
+        if (pathToKid != null) pathToKid.unref();
+
+        // Before calling the other valueChanged callbacks, transfer the
+        // motion of the childDragger into our own motion matrix.
+            // We do not want to trigger any of our other valueChanged callbacks
+            // while this is being done...
+            boolean saveEnabled = parent.enableValueChangedCallbacks( false );
+            parent.transferMotion( childDragger );
+            parent.enableValueChangedCallbacks( saveEnabled );
+
+        parent.valueChanged();
+    parent.setActiveChildDragger( savedChild );
+
+        // Restore saved values of our variables
+        parent.setHandleEventAction(oldHa);
+        parent.setViewVolume(oldVV);
+        parent.setViewportRegion(oldVPR);
+
+    if (savedChild != null) savedChild.unref();
+}
+
+
+public static void childStartCB(Object parentAsVoid, SoDragger childDragger )
+{
+    SoDragger parent = (SoDragger ) parentAsVoid;
+
+    SoDragger savedChild = parent.getActiveChildDragger();
+    if (savedChild != null) savedChild.ref();
+    parent.setActiveChildDragger( childDragger );
+        parent.saveStartParameters();
+
+        // Save these variables to we can put 'em back when we're done.
+        SoHandleEventAction oldHa  = parent.getHandleEventAction();
+        SbViewVolume         oldVV  = new SbViewVolume(parent.getViewVolume());
+        SbViewportRegion     oldVPR = new SbViewportRegion(parent.getViewportRegion());
+
+        parent.setHandleEventAction(childDragger.getHandleEventAction());
+        parent.setViewVolume(childDragger.getViewVolume());
+        parent.setViewportRegion(childDragger.getViewportRegion());
+
+        SoPath pathToKid = childDragger.createPathToThis();
+        if (pathToKid != null) pathToKid.ref();
+        parent.setTempPathToThis( pathToKid );
+        if (pathToKid != null) pathToKid.unref();
+
+        parent.setStartingPoint( childDragger.getWorldStartingPoint() );
+
+        // While the child is manipulating, we should not bother caching here.
+        parent.renderCaching.setValue( SoInteractionKit.CacheEnabled.OFF);
+        parent.startCallbacks.invokeCallbacks(parent);
+    parent.setActiveChildDragger( savedChild );
+        // Restore saved values of our variables
+        parent.setHandleEventAction(oldHa);
+        parent.setViewVolume(oldVV);
+        parent.setViewportRegion(oldVPR);
+
+    if (savedChild != null) savedChild.unref();
+}
+
+public static void childMotionCB(Object parentAsVoid, SoDragger childDragger )
+{
+    SoDragger parent = (SoDragger ) parentAsVoid;
+
+    SoDragger savedChild = parent.getActiveChildDragger();
+    if (savedChild != null) savedChild.ref();
+    parent.setActiveChildDragger( childDragger );
+        // Save these variables to we can put 'em back when we're done.
+        SoHandleEventAction oldHa  = parent.getHandleEventAction();
+        SbViewVolume         oldVV  = new SbViewVolume(parent.getViewVolume());
+        SbViewportRegion     oldVPR = new SbViewportRegion(parent.getViewportRegion());
+
+        parent.setHandleEventAction(childDragger.getHandleEventAction());
+        parent.setViewVolume(childDragger.getViewVolume());
+        parent.setViewportRegion(childDragger.getViewportRegion());
+
+        SoPath pathToKid = childDragger.createPathToThis();
+        if (pathToKid != null) pathToKid.ref();
+        parent.setTempPathToThis( pathToKid );
+        if (pathToKid != null) pathToKid.unref();
+
+        parent.motionCallbacks.invokeCallbacks(parent);
+    parent.setActiveChildDragger( savedChild );
+        // Restore saved values of our variables
+        parent.setHandleEventAction(oldHa);
+        parent.setViewVolume(oldVV);
+        parent.setViewportRegion(oldVPR);
+
+    if (savedChild != null) savedChild.unref();
+}
+
+public static void childFinishCB(Object parentAsVoid, SoDragger childDragger )
+{
+    SoDragger parent = (SoDragger ) parentAsVoid;
+
+    SoDragger savedChild = parent.getActiveChildDragger();
+    if (savedChild != null) savedChild.ref();
+    parent.setActiveChildDragger( childDragger );
+        // Save these variables to we can put 'em back when we're done.
+        SoHandleEventAction oldHa  = parent.getHandleEventAction();
+        SbViewVolume         oldVV  = new SbViewVolume(parent.getViewVolume());
+        SbViewportRegion     oldVPR = new SbViewportRegion(parent.getViewportRegion());
+
+        parent.setHandleEventAction(childDragger.getHandleEventAction());
+        parent.setViewVolume(childDragger.getViewVolume());
+        parent.setViewportRegion(childDragger.getViewportRegion());
+
+        SoPath pathToKid = childDragger.createPathToThis();
+        if (pathToKid != null) pathToKid.ref();
+        parent.setTempPathToThis( pathToKid );
+        if (pathToKid != null) pathToKid.unref();
+
+        // When child is finished manipulating, we resume caching.
+        parent.renderCaching.setValue( SoInteractionKit.CacheEnabled.AUTO);
+        parent.finishCallbacks.invokeCallbacks(parent);
+    parent.setActiveChildDragger( savedChild );
+        // Restore saved values of our variables
+        parent.setHandleEventAction(oldHa);
+        parent.setViewVolume(oldVV);
+        parent.setViewportRegion(oldVPR);
+
+    if (savedChild != null) savedChild.unref();
+}
+
+public static void childOtherEventCB(Object parentAsVoid, SoDragger childDragger )
+{
+    SoDragger parent = (SoDragger ) parentAsVoid;
+
+    SoDragger savedChild = parent.getActiveChildDragger();
+    if (savedChild != null) savedChild.ref();
+    parent.setActiveChildDragger( childDragger );
+        // Save these variables to we can put 'em back when we're done.
+        SoHandleEventAction oldHa  = parent.getHandleEventAction();
+        SbViewVolume         oldVV  = new SbViewVolume(parent.getViewVolume());
+        SbViewportRegion     oldVPR = new SbViewportRegion(parent.getViewportRegion());
+
+        parent.setHandleEventAction(childDragger.getHandleEventAction());
+        parent.setViewVolume(childDragger.getViewVolume());
+        parent.setViewportRegion(childDragger.getViewportRegion());
+
+        SoPath pathToKid = childDragger.createPathToThis();
+        if (pathToKid != null) pathToKid.ref();
+        parent.setTempPathToThis( pathToKid );
+        if (pathToKid != null) pathToKid.unref();
+
+        parent.otherEventCallbacks.invokeCallbacks(parent);
+    parent.setActiveChildDragger( savedChild );
+        // Restore saved values of our variables
+        parent.setHandleEventAction(oldHa);
+        parent.setViewVolume(oldVV);
+        parent.setViewportRegion(oldVPR);
+
+    if (savedChild != null) savedChild.unref();
+}
+
+
+
     //! Get the motion matrix.  The motion matrix places the dragger
     //! relative to its parent space.  (Generally, it is better to look
     //! in a dragger's fields to find out about its state. For example, 
@@ -1603,6 +1858,45 @@ public SbMatrix getWorldToLocalMatrix()
 }
 
 
+////////////////////////////////////////////////////////////////////////
+//
+// Use: protected
+//
+public void
+transformMatrixLocalToWorld( final SbMatrix   fromMatrix, 
+                                          final SbMatrix         toMatrix)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    toMatrix.copyFrom( fromMatrix);
+
+    final SbMatrix forward = new SbMatrix(getLocalToWorldMatrix());
+    final SbMatrix backward = new SbMatrix(getWorldToLocalMatrix());
+
+    toMatrix.multRight( forward );
+    toMatrix.multLeft( backward );
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Use: protected
+//
+public void
+transformMatrixWorldToLocal( final SbMatrix   fromMatrix, 
+                                          final SbMatrix         toMatrix)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    toMatrix.copyFrom(fromMatrix);
+
+    final SbMatrix forward = new SbMatrix(getWorldToLocalMatrix());
+    final SbMatrix backward = new SbMatrix(getLocalToWorldMatrix());
+
+    toMatrix.multRight( forward );
+    toMatrix.multLeft( backward );
+}
+
+
 
 public SoPath 
 createPathToThis() 
@@ -1973,6 +2267,12 @@ public     static float getMinScale() { return minScale; }
     public SbMatrix getStartMotionMatrix() { return startMotionMatrix; }
     
 
+    final SbMatrix //java port
+    appendTranslation( final SbMatrix mtx, 
+                            final SbVec3f translation)
+    {
+    	return appendTranslation(mtx, translation, null);
+    }
 final SbMatrix
 appendTranslation( final SbMatrix mtx, 
                         final SbVec3f translation, 
@@ -2002,6 +2302,12 @@ appendTranslation( final SbMatrix mtx,
     return answer;
 }
 
+public SbMatrix // java port
+appendScale( final SbMatrix mtx, 
+                  final SbVec3f scale, final SbVec3f scaleCenter)
+{
+	return appendScale(mtx, scale, scaleCenter,null);
+}
 public SbMatrix 
 appendScale( final SbMatrix mtx, 
                   final SbVec3f scale, final SbVec3f scaleCenter,
@@ -2107,6 +2413,11 @@ appendScale( final SbMatrix mtx,
     return answer;
 }
 
+public SbMatrix //java port
+appendRotation( final SbMatrix mtx,
+                    final SbRotation rot, final SbVec3f rotCenter) {
+	return appendRotation(mtx, rot, rotCenter, null);
+}
 public SbMatrix
 appendRotation( final SbMatrix mtx,
                     final SbRotation rot, final SbVec3f rotCenter,
@@ -2167,13 +2478,13 @@ appendRotation( final SbMatrix mtx,
 	       //SoScale1Dragger.initClass();
 	       //SoScale2Dragger.initClass();
 	       //SoScale2UniformDragger.initClass();
-	       //SoScaleUniformDragger.initClass();
+	       SoScaleUniformDragger.initClass();
 	       // simple translate draggers
 	       SoTranslate1Dragger.initClass();
 	       SoTranslate2Dragger.initClass();
 	       // simple rotation draggers
 	       //SoRotateSphericalDragger.initClass();
-	       //SoRotateCylindricalDragger.initClass();
+	       SoRotateCylindricalDragger.initClass();
 	       //SoRotateDiscDragger.initClass();
 	       // coord draggers
 	       //SoDragPointDragger.initClass();
@@ -2187,7 +2498,7 @@ appendRotation( final SbMatrix mtx,
 	       // composite transform draggers
 	       // init these after all the canonical draggers
 	       //SoPointLightDragger.initClass();
-	       //SoTransformBoxDragger.initClass();
+	       SoTransformBoxDragger.initClass();
 	       //SoTransformerDragger.initClass();
 	       // lightDraggers
 	       //SoDirectionalLightDragger.initClass();

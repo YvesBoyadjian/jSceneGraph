@@ -1192,6 +1192,20 @@ public boolean setUpConnections( boolean onOff) {
 	        return null;
 		}
 		
+		public static SoNode SO_GET_ANY_PART( SoBaseKit kitContainingPart, String partName, Class< ? extends SoNode> partClassName ) {         
+        try {
+			return (/*(partClassName )*/ SoBaseKit.typeCheck( new SbName(partName),                    
+					(SoType)partClassName.getMethod("getClassTypeId").invoke(null),                              
+			        kitContainingPart.getAnyPart( new SbName(partName), true, false, false )));
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+				| SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return null;
+		}
+		
+		
 /////////////////////////////////////////////
 ///
 /// This must be called within the constructor of every class of nodekit.

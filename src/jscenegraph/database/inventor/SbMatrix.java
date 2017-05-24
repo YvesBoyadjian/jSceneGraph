@@ -1337,6 +1337,10 @@ public void getTransform(SbVec3f translation,
     rotation.copyFrom(rot);
 }
 
+public     void        getTransform(final SbVec3f t, final SbRotation r,
+                          final SbVec3f s, final SbRotation so)
+                { getTransform(t, r, s, so, new SbVec3f(0,0,0)); }
+
 
 
     //! Returns determinant of upper-left 3x3 submatrix
