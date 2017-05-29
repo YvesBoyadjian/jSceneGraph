@@ -1817,7 +1817,7 @@ public boolean readConnection(SoInput in)
 		// SoSFPlaned.initClass();
 		SoSFRotation.initClass(SoSFRotation.class);
 		SoSFRotationd.initClass(SoSFRotationd.class);
-		// SoSFShort.initClass();
+		SoSFShort.initClass(SoSFShort.class);
 		SoSFString.initClass(SoSFString.class);
 		SoSFTime.initClass(SoSFTime.class);
 		SoSFTrigger.initClass(SoSFTrigger.class);

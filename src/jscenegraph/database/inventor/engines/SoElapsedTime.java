@@ -145,6 +145,9 @@ public class SoElapsedTime extends SoEngine {
 
 	 // SO_ENGINE_ABSTRACT_HEADER
 	
+	  public static SoElapsedTime createInstance() {
+		  return new SoElapsedTime();
+	  }
 
     //! \name Inputs
     //@{
@@ -348,7 +351,7 @@ public static void initClass()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	classTypeId = SoSubEngine.SO__ENGINE_INIT_ABSTRACT_CLASS(SoElapsedTime.class, "ElapsedTime", SoEngine.class, parentInputData, parentOutputData);
+	classTypeId = SoSubEngine.SO__ENGINE_INIT_CLASS(SoElapsedTime.class, "ElapsedTime", SoEngine.class, parentInputData, parentOutputData);
 }
 
 }

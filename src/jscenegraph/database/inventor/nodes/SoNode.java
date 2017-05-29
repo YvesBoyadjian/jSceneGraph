@@ -448,7 +448,7 @@ getByName( SbName name, SoNodeList list)
 		        SoNonIndexedShape.initClass();
 		    
 //		        SoAnnotation.initClass();
-//		        SoArray.initClass();
+		        SoArray.initClass();
 //		        SoAsciiText.initClass();
 		        SoBaseColor.initClass();
 		        SoCallback.initClass();

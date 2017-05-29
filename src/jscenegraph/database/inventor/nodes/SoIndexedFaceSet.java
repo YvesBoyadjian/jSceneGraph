@@ -247,6 +247,7 @@ public class SoIndexedFaceSet extends SoIndexedShape {
     	TriRenderFunc[14] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriFmVn(action);
     	TriRenderFunc[22] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriFmVn(action);
     	TriRenderFunc[30] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriVmVn(action);
+    	QuadRenderFunc[6] = (soIndexedFaceSet, action) -> soIndexedFaceSet.QuadOmVn(action);
     	GenRenderFunc[6] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenOmVn(action);
     }
 
@@ -1115,6 +1116,54 @@ public void TriOmVn (SoGLRenderAction action) {
     }
     gl2.glEnd();
 }
+
+
+public void
+QuadOmVn
+    (SoGLRenderAction action ) {
+	
+	GL2 gl2 = action.getCacheContext();
+	
+    final int[] vertexIndex = coordIndex.getValuesInt(0);
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer normalPtr = vpCache.getNormals(0);
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    Integer[] normalIndx = getNormalIndices();
+
+    gl2.glBegin(GL2.GL_QUADS);
+    int vtxCtr = numTris*4;
+    for (int quad = 0; quad < numQuads; quad++) {
+
+//	(*normalFunc)(normalPtr+normalStride*normalIndx[vtxCtr]);
+//	(*vertexFunc)(vertexPtr+vertexStride*vertexIndex[vtxCtr]);
+//
+//	(*normalFunc)(normalPtr+normalStride*normalIndx[vtxCtr+1]);
+//	(*vertexFunc)(vertexPtr+vertexStride*vertexIndex[vtxCtr+1]);
+//
+//	(*normalFunc)(normalPtr+normalStride*normalIndx[vtxCtr+2]);
+//	(*vertexFunc)(vertexPtr+vertexStride*vertexIndex[vtxCtr+2]);
+//
+//	(*normalFunc)(normalPtr+normalStride*normalIndx[vtxCtr+3]);
+//	(*vertexFunc)(vertexPtr+vertexStride*vertexIndex[vtxCtr+3]);
+    	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
+
+    	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
+
+    	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
+
+    	normalPtr.position(normalStride*normalIndx[vtxCtr+3]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+3]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
+	vtxCtr += 5; // Skip past END_OF_FACE_INDEX
+    }
+    gl2.glEnd();
+}
+
 
 
 public void TriFmVn (SoGLRenderAction action) {

@@ -103,6 +103,11 @@ public class SoBuiltinFieldConverter extends SoFieldConverter {
 
 	// SO_ENGINE_ABSTRACT_HEADER
 
+	  public static SoBuiltinFieldConverter createInstance() {
+		  return new SoBuiltinFieldConverter();
+	  }
+	
+	
 	//
 	// Maximum number of multi-valued field types, and maximum total
 	// number of field types:

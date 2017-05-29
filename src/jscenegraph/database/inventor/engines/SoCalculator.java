@@ -240,6 +240,9 @@ public class SoCalculator extends SoEngine {
 
 	 // SO_ENGINE_ABSTRACT_HEADER
 	
+	  public static SoCalculator createInstance() {
+		  return new SoCalculator();
+	  }
 	
 	
 	public final SoMFFloat a = new SoMFFloat(),b = new SoMFFloat(),c = new SoMFFloat(),d = new SoMFFloat(),e = new SoMFFloat(),f = new SoMFFloat(),g = new SoMFFloat(),h = new SoMFFloat();
