@@ -449,7 +449,12 @@ protected boolean beginVertexArrayRendering( SoGLRenderAction action )
         gl2.glVertexAttribPointer(SoLazyElement.VertexAttribs.ATTRIB_NORMAL.getValue(), 3, GL_FLOAT,false, 0, dataPtr);
         gl2.glEnableVertexAttribArray(SoLazyElement.VertexAttribs.ATTRIB_NORMAL.getValue());
       } else {
-    	gl2.glNormalPointer(GL_FLOAT, 0, dataPtr);
+    	  if(dataPtr == null) {
+    		  gl2.glNormalPointer(GL_FLOAT, 0, 0); // java port
+    	  }
+    	  else {
+    		  gl2.glNormalPointer(GL_FLOAT, 0, dataPtr);
+    	  }
     	gl2.glEnableClientState(GL_NORMAL_ARRAY);
     }
   }

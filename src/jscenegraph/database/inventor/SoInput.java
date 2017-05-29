@@ -57,11 +57,14 @@
 
 package jscenegraph.database.inventor;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
@@ -112,11 +115,11 @@ public class SoInput {
     private String            backBuf;        //!< For strings that are put back
     private int                 backBufIndex;   //!< Index into backBuf (-1 if no buf)
 
-    private ByteBuffer                tmpBuffer;     //!< Buffer for binary read from file
+    private byte[]                tmpBuffer;     //!< Buffer for binary read from file
     private int                curTmpBuf;     //!< Current location in temporary buffer
-    private long              tmpBufSize;     //!< Size of temporary buffer
+    private int              tmpBufSize;     //!< Size of temporary buffer
 
-    private char[]                backupBuf = new char[8];   //!< Buffer for storing data that
+    private byte[]                backupBuf = new byte[8];   //!< Buffer for storing data that
                                         //! has been read but can't be put back.
     private boolean                backupBufUsed;  //!< True if backupBuf contains data
     
@@ -409,7 +412,7 @@ private void initFile(FILE newFP,          // New file pointer
     initFile(newFP, fileName, fullName[0], true);
 
     if (tmpBuffer == null) {
-        tmpBuffer = ByteBuffer.allocateDirect(64);
+        tmpBuffer = new byte[64];
         tmpBufSize = 64;
         curTmpBuf = 0;//(char *)tmpBuffer; java port
     }
@@ -854,7 +857,7 @@ private boolean checkHeader()
                 if (isBinary[0]) {
                     curFile.binary = true;
                     if (tmpBuffer == null) {
-                        tmpBuffer = ByteBuffer.allocateDirect(64);
+                        tmpBuffer = new byte[64];
                         tmpBufSize = 64;
                         curTmpBuf = 0;//(char *)tmpBuffer; java port
                     }
@@ -1058,18 +1061,18 @@ public boolean read(final int[] i)
                 curFile.curBuf += Integer.BYTES + pad;                   
             }                                                                 
         }                                                                     
-        else { //TODO                                                
-//            if (backupBufUsed == TRUE) {                                      
-//                num = (type)(*(type *)backupBuf);                             
-//                backupBufUsed = FALSE;                                        
-//                return TRUE;                                                  
-//            }                                                                 
-//            char padbuf[4];                                                   
-//            makeRoomInBuf(M_SIZEOF(dglType));                                 
-//            ok = fread(tmpBuffer, M_SIZEOF(dglType), 1, curFile->fp)!=0;      
-//            dglFunc((char *)tmpBuffer, (dglType *)&tnum);                     
-//            if (pad != 0)                                                     
-//                ok = fread((void *)padbuf, M_SIZEOF(char), pad, curFile->fp)!=0; 
+        else {                                                
+            if (backupBufUsed == true) {                                      
+                tnum = (backupBuf[0] << 24)+(backupBuf[1] << 16)+(backupBuf[2] << 8)+(backupBuf[3]);//(type)(*(type *)backupBuf);                             
+                backupBufUsed = false;                                        
+                return true;                                                  
+            }                                                                 
+            byte[] padbuf = new byte[4];                                                   
+            makeRoomInBuf(/*M_SIZEOF(int)*/Integer.BYTES);                                 
+            ok = FILE.fread(tmpBuffer, /*M_SIZEOF(int)*/Integer.BYTES, 1, curFile.fp)!=0;      
+            tnum = convertInt32(tmpBuffer);                     
+            if (pad != 0)                                                     
+                ok = FILE.fread(padbuf, /*M_SIZEOF(char)*/1, pad, curFile.fp)!=0; 
         }                                                                     
         i[0] = (int)tnum;                                                     
     }                                                                         
@@ -1081,6 +1084,124 @@ public boolean read(final int[] i)
     }                                                                         
     return ok;
 }
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Converts long from network format and puts in buffer.
+//
+// Use: private
+
+private int
+convertInt32(byte[] from)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	
+	int i = ByteBuffer.wrap(from).order(ByteOrder.LITTLE_ENDIAN).getInt();//(from[3]<<24)+(from[2]<<16)+(from[1]<<8)+(from[0]);
+    return SoMachine.DGL_NTOH_INT32( /*INT32(from)*/i );
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Converts float from network format and puts in buffer.
+//
+// Use: private
+
+private float
+convertFloat(byte[] from)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return SoMachine.DGL_NTOH_FLOAT( from );
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Converts array of floats in read buffer from network format and
+//    puts in array.
+//
+// Use: private
+
+private void
+convertFloatArray( byte[] from,
+                            float[] to,
+                            int len)
+//
+////////////////////////////////////////////////////////////////////////
+{
+//    float[] t = to;
+//    byte[]  b = from;
+	
+	int l = Float.BYTES;
+    
+    for( int i=0; i< len; i++) {
+    	byte[] buf = Arrays.copyOfRange(from, i*l, (i+1)*l);
+    	to[i] = convertFloat(buf);
+    }
+
+//    while (len > 4) {           // unroll the loop a bit
+//        DGL_NTOH_FLOAT( t[0], FLOAT(b));
+//        DGL_NTOH_FLOAT( t[1], FLOAT(b + M_SIZEOF(float)));
+//        DGL_NTOH_FLOAT( t[2], FLOAT(b + M_SIZEOF(float)*2));
+//        DGL_NTOH_FLOAT( t[3], FLOAT(b + M_SIZEOF(float)*3));
+//        t += 4;
+//        b += M_SIZEOF(float)*4;
+//        len -= 4;
+//    }
+//    while (len-- > 0) {
+//        DGL_NTOH_FLOAT( *t, FLOAT(b));
+//        t++;
+//        b += M_SIZEOF(float);
+//    }
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Converts array of int32_ts in read buffer from network format and
+//    puts in array.
+//
+// Use: private
+
+private void
+convertInt32Array( byte[] from,
+                           int[] to,
+                           int len)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	int l = Integer.BYTES;
+    for( int i=0; i< len; i++) {
+    	byte[] buf = Arrays.copyOfRange(from, i*l, (i+1)*l);
+    	to[i] = convertInt32(buf);
+    }
+
+//    register int32_t  *t = to;
+//    register char  *b = from;
+//
+//    while (len > 4) {           // unroll the loop a bit
+//        DGL_NTOH_INT32( t[0], INT32(b));
+//        DGL_NTOH_INT32( t[1], INT32(b + M_SIZEOF(int32_t)));
+//        DGL_NTOH_INT32( t[2], INT32(b + M_SIZEOF(int32_t)*2));
+//        DGL_NTOH_INT32( t[3], INT32(b + M_SIZEOF(int32_t)*3));
+//        t += 4;
+//        b += M_SIZEOF(int32_t)*4;
+//        len -= 4;
+//    }
+//    while (len-- > 0) {
+//        DGL_NTOH_INT32( *t, INT32(b));
+//        t++;
+//        b += M_SIZEOF(int32_t);
+//    }
+}
+
 
 
 public boolean read(final short[] s)
@@ -1104,25 +1225,25 @@ public boolean read(final short[] s)
             }                                                                 
         }                                                                     
         else { //TODO                                                                
-//            if (backupBufUsed == true) {                                      
-//                num = (type)(*(type *)backupBuf);                             
-//                backupBufUsed = false;                                        
-//                return true;                                                  
-//            }                                                                 
-//            char padbuf[4];                                                   
-//            makeRoomInBuf(M_SIZEOF(int32_t));                                 
-//            ok = fread(tmpBuffer, M_SIZEOF(int32_t), 1, curFile->fp)!=0;      
-//            convertInt32((char *)tmpBuffer, (int *)&tnum);                     
-//            if (pad != 0)                                                     
-//                ok = fread((void *)padbuf, M_SIZEOF(char), pad, curFile->fp)!=0; 
+            if (backupBufUsed == true) {                                      
+                tnum = (backupBuf[0] << 24)+(backupBuf[1] << 16)+(backupBuf[2] << 8)+(backupBuf[3]);//(type)(*(type *)backupBuf);                             
+                backupBufUsed = false;                                        
+                return true;                                                  
+            }                                                                 
+            byte[] padbuf = new byte[4];                                                   
+            makeRoomInBuf(/*M_SIZEOF(int32_t)*/Integer.BYTES);                                 
+            ok = FILE.fread(tmpBuffer, /*M_SIZEOF(int32_t)*/Integer.BYTES, 1, curFile.fp)!=0;      
+            tnum = convertInt32(tmpBuffer);                     
+            if (pad != 0)                                                     
+                ok = FILE.fread(padbuf, /*M_SIZEOF(char)*/1, pad, curFile.fp)!=0; 
         }                                                                     
         s[0] = (short)tnum;                                                     
 	}
 	else {
-		final short[] _tmp = new short[1];
-		ok = false; //TODO
+		final int[] _tmp = new int[1];
+		ok = readInteger(_tmp);
 		if(ok) {
-			s[0] = _tmp[0];
+			s[0] = (short)_tmp[0];
 		}
 	}
 	return ok;
@@ -1156,18 +1277,19 @@ public boolean read(final float[] f)
                 curFile.curBuf += Float.BYTES + pad;                   
             }                                                                 
         }                                                                     
-        else { //TODO                                                                
-//            if (backupBufUsed == true) {                                      
-//                num = (type)(*(type *)backupBuf);                             
-//                backupBufUsed = false;                                        
-//                return true;                                                  
-//            }                                                                 
-//            char padbuf[4];                                                   
-//            makeRoomInBuf(M_SIZEOF(dglType));                                 
-//            ok = fread(tmpBuffer, M_SIZEOF(dglType), 1, curFile.fp)!=0;      
-//            dglFunc((char *)tmpBuffer, (dglType *)&tnum);                     
-//            if (pad != 0)                                                     
-//                ok = fread((void *)padbuf, M_SIZEOF(char), pad, curFile.fp)!=0; 
+        else {                                                                
+            if (backupBufUsed == true) {
+            	
+                tnum = ByteBuffer.wrap(backupBuf).getFloat();//(float)(*(float *)backupBuf);                             
+                backupBufUsed = false;                                        
+                return true;                                                  
+            }                                                                 
+            byte[] padbuf = new byte[4];                                                   
+            makeRoomInBuf(/*M_SIZEOF(float)*/Float.BYTES);                                 
+            ok = FILE.fread(tmpBuffer, /*M_SIZEOF(float)*/Float.BYTES, 1, curFile.fp)!=0;      
+            tnum = convertFloat(tmpBuffer);                     
+            if (pad != 0)                                                     
+                ok = FILE.fread(padbuf, /*M_SIZEOF(char)*/1, pad, curFile.fp)!=0; 
         }                                                                     
         f[0] = (float)tnum;       
     }                                                                         
@@ -1195,7 +1317,7 @@ convertFloat(String buffer, int from)
 {
 	byte[] buf = new byte[Float.BYTES];
 	for(int i=0;i<Float.BYTES;i++) {
-		buf[Float.BYTES-i-1] = (byte)buffer.charAt(from+i);
+		buf[i] = (byte)buffer.charAt(from+i);
 	}
     return SoMachine.DGL_NTOH_FLOAT(buf);
 }
@@ -1268,52 +1390,62 @@ public boolean read(final String[] s)
 //                delete [] buf;
             return true;
         }
-        else { //TODO
+        else { 
             // Break out the case where an eof is hit.  This will only be
             // The case in SoFile nodes which don't know how many children
             // they have.  Reading keeps happening until eof is hit.
 
-//            int n;
-//            if (fread((void *) &n, sizeof(int), 1, curFile.fp) == 1) {
-//                DGL_NTOH_INT32(n, n);
-//
-//                if (n < 0) {
-//                    // A marker was read.  Put it in the backup buffer
-//                    // so the next read will read it.
-//                    int *tint = (int *) backupBuf;
-//                    *tint = n;
-//                    backupBufUsed = true;
-//                    return false;
-//                }
-//
-//                char buffer[1024], *buf;
-//                if (n > 1023)
-//                    buf = new char [n + 1];
-//                else
-//                    buf = buffer;
-//                bool ok =
-//                    (fread((void *) buf, sizeof(char), n, curFile.fp) == n);
-//                if (ok) {
-//                    int pad = ((n+3) & ~003) - n;
-//                    char padbuf[4];
-//                    ok = (fread((void *) padbuf, sizeof(char), pad,
-//                                curFile.fp) == pad);
-//
-//                    if (ok) {
-//                        buf[n] = '\0';
-//                        s = buf;
-//                    }
-//                }
-//                if (n > 1023)
+            final int[] n = new int[1];
+            if (FILE.fread( n, Integer.BYTES/* sizeof(int)*/, 1, curFile.fp) == 1) {
+                n[0] = SoMachine.DGL_NTOH_INT32(n[0]);
+
+                if (n[0] < 0) {
+                    // A marker was read.  Put it in the backup buffer
+                    // so the next read will read it.
+                    //int *tint = (int *) backupBuf;
+                    //*tint = n;
+                	backupBuf[0] = (byte) (n[0] >> 24); // java port
+                	backupBuf[1] = (byte) (n[0] >> 16);
+                	backupBuf[2] = (byte) (n[0] >> 8);
+                	backupBuf[3] = (byte) (n[0]);
+                    backupBufUsed = true;
+                    return false;
+                }
+
+                //byte[] buffer = new byte[1024];
+                byte[] buf;
+                //if (n[0] > 1023)
+                    buf = new byte [n[0] /*+ 1*/];
+                //else
+                //    buf = buffer;
+                boolean ok =
+                    (FILE.fread( buf, 1/*sizeof(char)*/, n[0], curFile.fp) == n[0]);
+                if (ok) {
+                    int pad = ((n[0]+3) & ~003) - n[0];
+                    byte[] padbuf = new byte[4];
+                    ok = (FILE.fread( padbuf, /*sizeof(char)*/1, pad,
+                                curFile.fp) == pad);
+
+                    if (ok) {
+                        //buf[n[0]] = '\0';
+                        try {
+							s[0] = new String(buf, "UTF-8");
+						} catch (UnsupportedEncodingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+                    }
+                }
+//                if (n > 1023) java port
 //                    delete [] buf;
-//
-//                if (! ok)
-//                    return false;
-//            }
-//            else
-//                s = "";
-//
-//            return true;
+
+                if (! ok)
+                    return false;
+            }
+            else
+                s[0] = "";
+
+            return true;
         }
     }
 
@@ -2296,12 +2428,47 @@ readBinaryArray(float[] array, int length)
             curFile.curBuf += length * Float.BYTES;//M_SIZEOF(type);                       
         }                                                                     
     }                                                                         
-    else { //TODO                                                                    
-//        makeRoomInBuf(length * M_SIZEOF(type));                               
-//        int i = static_cast<int>(fread(tmpBuffer, M_SIZEOF(type), length, curFile->fp)); 
-//        if (i != length)                                                      
-//            return FALSE;                                                     
-//        dglFunc((char *)tmpBuffer, (type *)array, length);                    
+    else {                                                             
+        makeRoomInBuf(length * /*M_SIZEOF(float)*/Float.BYTES);                               
+        int i = FILE.fread(tmpBuffer, /*M_SIZEOF(float)*/Float.BYTES, length, curFile.fp); 
+        if (i != length)                                                      
+            return false;                                                     
+        convertFloatArray(tmpBuffer, array, length);                    
+    }                                                                         
+    return ok;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads an array of int32_ts from current file/buffer.
+//
+// Use: public
+
+public boolean
+readBinaryArray(int[] array, int length)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    //READ_BIN_ARRAY(l, length, convertInt32Array, int32_t);
+    boolean ok = true;                                                         
+    if (! skipWhiteSpace())                                                   
+        ok = false;                                                           
+    else if (fromBuffer()) {                                                  
+        if (eof())                                                            
+            ok = false;                                                       
+        else {                                                                
+        	convertInt32Array(curFile.buffer, curFile.curBuf, (int[])array, length);                  
+            curFile.curBuf += length * Integer.BYTES;//M_SIZEOF(type);                       
+        }                                                                     
+    }                                                                         
+    else {                                                             
+        makeRoomInBuf(length * /*M_SIZEOF(int)*/Integer.BYTES);                               
+        int i = FILE.fread(tmpBuffer, /*M_SIZEOF(int)*/Integer.BYTES, length, curFile.fp); 
+        if (i != length)                                                      
+            return false;                                                     
+        convertInt32Array(tmpBuffer, array, length);                    
     }                                                                         
     return ok;
 }
@@ -2328,6 +2495,63 @@ private static void convertFloatArray(String buf,  int from,
 	}
 	ByteBuffer bb = ByteBuffer.wrap(in);
 	bb.asFloatBuffer().get(to);
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Converts array of floats in read buffer from network format and
+//puts in array.
+//
+//Use: private
+
+private static void convertInt32Array(String buf,  int from,
+int[] to,
+int len)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	int lenBytes = len*Integer.BYTES;
+	byte[] in = new byte[lenBytes];
+	for(int i=0; i< lenBytes;i++) {
+		in[i] = (byte)buf.charAt(from+i);
+	}
+	ByteBuffer bb = ByteBuffer.wrap(in);
+	bb.asIntBuffer().get(to);
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Makes sure temp buffer can contain nBytes more bytes. Returns
+//    FALSE if this is not possible.
+//
+// Use: private
+
+private boolean
+makeRoomInBuf(int nBytes)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // If already had problems with buffer, stop
+    if (tmpBuffer == null)
+        return false;
+
+    // If buffer not big enough, realloc a bigger one
+    if (nBytes >= tmpBufSize) {
+        // While not enough room, double size of buffer
+        while (nBytes >= tmpBufSize)
+            tmpBufSize *= 2;
+
+        tmpBuffer = new byte[tmpBufSize];//realloc(tmpBuffer, tmpBufSize);
+
+        // Test for bad reallocation
+        if (tmpBuffer == null)
+            return false;
+    }
+
+    return true;
 }
 
 }

@@ -52,6 +52,6 @@ public class SoMachine {
 	}
 
 	public static float DGL_NTOH_FLOAT(byte[] array) {
-		return ByteBuffer.wrap(array).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+		return ByteBuffer.wrap(array).order(ByteOrder.BIG_ENDIAN).getFloat();
 	}
 }

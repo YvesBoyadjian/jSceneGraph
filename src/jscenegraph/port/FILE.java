@@ -7,6 +7,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -102,11 +104,6 @@ public class FILE {
 		}
 	}
 
-	public static long fread(char[] c, int i, int j, FILE fp) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 	public static int fscanf(FILE fp, String string, double[] d) {
 		try {
 		switch(string) {
@@ -137,9 +134,58 @@ public class FILE {
 		return EOF;
 	}
 
-	public static int fread(byte[] c, int i, int length, FILE fp) {
+	public static long fread(char[] c, int i, int j, FILE fp) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public static int fread(byte[] c, int sizeof, int length, FILE fp) {
+
+		int i;
+		for(i=0;i<length*sizeof;i++) {
+			try {
+				int b1;
+				b1 = fp.in.read();
+				if(b1 == -1) break;
+				c[i] = (byte)b1;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return i/sizeof;
+	}
+
+	public static int fread(int[] c, int sizeof, int length, FILE fp) {
+		
+		if(sizeof != Integer.BYTES) {
+			throw new IllegalArgumentException();
+		}
+		
+		int i;
+		for(i=0; i<length;i++) {
+			try {
+				int b1;
+				b1 = fp.in.read();
+				if(b1 == -1) break;
+				int b2 = fp.in.read();
+				if(b2 == -1) break;
+				int b3 = fp.in.read();
+				if(b3 == -1) break;
+				int b4 = fp.in.read();
+				if(b4 == -1) break;
+				byte[] bytes = new byte[4];
+				bytes[0] = (byte)b1;
+				bytes[1] = (byte)b2;
+				bytes[2] = (byte)b3;
+				bytes[3] = (byte)b4;
+				ByteBuffer wrapped = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+				c[i] = wrapped.getInt();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return i;
 	}
 
 	public static int sscanf(String backBuf, String string, double[] d) {

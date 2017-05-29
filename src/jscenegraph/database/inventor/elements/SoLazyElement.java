@@ -1375,7 +1375,12 @@ public static void drawElements( SoState state, /*GLenum*/int mode, /*GLsizei*/i
     elt.ivState.drawElementsCallback.call(elt.ivState.drawElementsCallbackUserData, state, mode, count, type, indices);
   } else {
 	  GL2 gl2 = state.getGL2();
-    gl2.glDrawElements(mode, count, type, (Buffer)indices);
+	  if(indices == null) { // java port
+		  gl2.glDrawElements(mode, count, type, 0);
+	  }
+	  else {
+		  gl2.glDrawElements(mode, count, type, (Buffer)indices);
+	  }
   }
 }
 

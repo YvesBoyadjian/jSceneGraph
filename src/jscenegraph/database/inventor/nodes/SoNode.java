@@ -474,7 +474,7 @@ getByName( SbName name, SoNodeList list)
 //		       SoIndexedNurbsCurve.initClass();
 //		       SoIndexedNurbsSurface.initClass();
 		       SoIndexedTriangleStripSet.initClass();
-//		       SoInfo.initClass();
+		       SoInfo.initClass();
 //		       SoLabel.initClass();
 //		       SoLevelOfDetail.initClass();
 //		       SoLOD.initClass();

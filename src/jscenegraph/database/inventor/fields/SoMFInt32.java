@@ -156,4 +156,26 @@ public boolean read1Value(SoInput in, int index)
     return false;
 }
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads array of binary values from file as one chunk.
+//
+// Use: private
+
+protected boolean
+readBinaryValues(SoInput in,    // Reading specification
+                          int numToRead)   // Number of values to read
+//
+////////////////////////////////////////////////////////////////////////
+{
+	int[] valuesI = new int[numToRead];
+	boolean retVal = (in.readBinaryArray(valuesI, numToRead));
+	if(retVal) {
+		for(int i=0;i<numToRead;i++) values[i] = valuesI[i];
+	}
+	return retVal;
+}
+
 }
