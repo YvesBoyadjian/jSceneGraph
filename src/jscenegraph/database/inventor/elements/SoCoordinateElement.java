@@ -311,5 +311,35 @@ set3(SoState state, SoNode node,
 }
 
 
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Sets the 4-D coordinates in element accessed from state.
+//
+// Use: public
+
+public static void
+set4(SoState state, SoNode node,
+                          int numCoords, final SbVec4f[] coords)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // if someone sets this directly, remove any color VBO
+    SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.VERTEX_VBO);
+
+    SoCoordinateElement elt;
+
+    // Get an instance we can change (pushing if necessary)
+    elt = (SoCoordinateElement ) getElement(state, getClassStackIndex(SoCoordinateElement.class), node);
+
+    if (elt != null) {
+        elt.numCoords   = numCoords;
+        elt.coords4     = coords;
+        elt.coordsAre3D = false;
+    }
+}
+
+
+
 
   }

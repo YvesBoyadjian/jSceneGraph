@@ -130,8 +130,8 @@ makePart( int partNum )
     if ( partNum == SoNodekitCatalog.SO_CATALOG_THIS_PART_NUM )
         return true;
 //#ifdef DEBUG
-//    if ( !partFoundCheck( partNum ) )
-//        return false;
+    if ( !partFoundCheck( partNum ) )
+        return false;
 //#endif
 
     // if the part is already in the Node list, just return true
@@ -142,12 +142,11 @@ makePart( int partNum )
     SoNode inst = (SoNode ) 
                 catalog.getDefaultType( partNum ).createInstance();
 //#ifdef DEBUG
-//    if ( inst == null ) {
-//        SoDebugError::post("SoNodekitParts::makePart",
-//    "Can't make part %s. It belongs to an abstract class. Bad parts catalog",
-//                            catalog.getName(partNum).getString());
-//        return false;
-//    }
+    if ( inst == null ) {
+        SoDebugError.post("SoNodekitParts::makePart",
+    "Can't make part "+catalog.getName(partNum).getString()+". It belongs to an abstract class. Bad parts catalog");
+        return false;
+    }
 //#endif
 
     // If it's a list part, set the containerType and childTypes...
@@ -249,18 +248,18 @@ replacePart( int partNum, SoNode newPartNode )
 ////////////////////////////////////////////////////////////////////////
 {
 //#ifdef DEBUG
-//    if ( partNum == SO_CATALOG_THIS_PART_NUM )
-//        return false;
-//    if ( !partFoundCheck( partNum ) )
-//        return false;
+    if ( partNum == SoNodekitCatalog.SO_CATALOG_THIS_PART_NUM )
+        return false;
+    if ( !partFoundCheck( partNum ) )
+        return false;
 //#endif
 
     // make sure the node given is of the proper type
     if ( newPartNode != null
          && !newPartNode.isOfType( catalog.getType( partNum ) ) ) {
 //#ifdef DEBUG
-//        SoDebugError::post( "SoNodekitParts::replacePart",
-//                            "the given part is not of the correct type");
+        SoDebugError.post( "SoNodekitParts::replacePart",
+                            "the given part is not of the correct type");
 //#endif
         return false;
     }
@@ -321,9 +320,9 @@ replacePart( int partNum, SoNode newPartNode )
         rootPointer.enableNotify(wasEn);
         if ( ! madeOk ) {
 //#ifdef DEBUG
-//            SoDebugError::post( "SoNodekitParts::replacePart",
-//                                "can't make parent for part named %s", 
-//                                catalog.getName(partNum).getString() );
+            SoDebugError.post( "SoNodekitParts::replacePart",
+                                "can't make parent for part named "+ 
+                                catalog.getName(partNum).getString() );
 //#endif
             return false;
         }
@@ -1341,11 +1340,11 @@ setPartFromThisCatalog( final int partNum,
 ////////////////////////////////////////////////////////////////////////
 {
 //#ifdef DEBUG
-//    if ( partNum == SO_CATALOG_THIS_PART_NUM ) {
-//        SoDebugError::post("SoNodekitParts::setPartFromThisCatalog",
-//               "You can not never set the part \"this\" after construction");
-//        return FALSE;
-//    }
+    if ( partNum == SoNodekitCatalog.SO_CATALOG_THIS_PART_NUM ) {
+        SoDebugError.post("SoNodekitParts::setPartFromThisCatalog",
+               "You can not never set the part \"this\" after construction");
+        return false;
+    }
 //#endif
 
     if ( !partFoundCheck( partNum ) )

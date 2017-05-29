@@ -142,4 +142,9 @@ public class FILE {
 		return 0;
 	}
 
+	public static int sscanf(String backBuf, String string, double[] d) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

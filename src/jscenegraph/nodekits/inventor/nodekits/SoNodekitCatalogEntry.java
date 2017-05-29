@@ -110,7 +110,7 @@ public class SoNodekitCatalogEntry {
 	   
 	       int i;
 	       for( i = 0; i < subCat.getNumEntries(); i++ ) {
-	           if ( subCat.getName( i ) == nameToFind ) 
+	           if ( subCat.getName( i ).operator_equal_equal(nameToFind) ) 
 	                   return true;
 	       }
 	       // at these point, we've checked all the names in this class, so 

@@ -588,7 +588,7 @@ shouldCopy()
 		    
 		       // miscellaneous engines
 //		       SoBoolOperation.initClass();
-		       //SoCalculator.initClass();
+		       SoCalculator.initClass();
 //		       SoComputeBoundingBox.initClass();
 //		       SoConcatenate.initClass();
 //		       SoCounter.initClass();
@@ -652,4 +652,7 @@ shouldCopy()
 		return null;
 	}
 
+	public int  clamp(int i, int n) {
+		return (i < n) ? i : n-1; 
+	}
 }

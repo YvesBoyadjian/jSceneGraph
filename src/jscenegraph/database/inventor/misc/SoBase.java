@@ -117,6 +117,8 @@ public abstract class SoBase implements Destroyable {
     		return value;
     	}
     };
+    
+    private static boolean traceRefs = false;
 
 	private static SoType classTypeId;
 	
@@ -362,7 +364,9 @@ protected SoBase()
 	
 	// Adds/removes an auditor to/from list. 
 	public void removeAuditor(Object auditor, SoNotRec.Type type) {
-	     int audIndex = auditors.find(auditor, type);
+	    // find auditor from the end, since it may be in the list
+	    // many times and removing from the back is much more efficient.
+	     int audIndex = auditors.findLast(auditor, type);
 	      
 	      //#ifdef DEBUG
 	          if (audIndex < 0) {
@@ -416,6 +420,16 @@ protected SoBase()
 	}
 	
 	public void unref() {
+//#ifdef DEBUG
+    if (refCount <= 0)
+        SoDebugError.postWarning("SoBase::unref",
+                                  "instance has reference count <= 0 already");
+
+    if (traceRefs)
+        SoDebugError.postInfo("SoBase::unref",
+                               "refCount for "+this+" - => "+(refCount - 1));
+//#endif /* DEBUG */
+
 		refCount--;
 		if(refCount == 0) {
 			destroy();

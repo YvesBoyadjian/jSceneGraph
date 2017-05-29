@@ -70,6 +70,8 @@
 
 package jscenegraph.database.inventor;
 
+import java.util.function.DoubleConsumer;
+
 import jscenegraph.port.Mutable;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -235,5 +237,19 @@ dot(final SbVec4f v)
 public void copyFrom(Object other) {
 	copyFrom((SbVec4f)other);
 }
+
+/**
+ * java port
+ * @return
+ */
+	public DoubleConsumer[] getRef() {
+		DoubleConsumer[] ref = new DoubleConsumer[4];
+		ref[0] = value -> vec[0] = (float)value;
+		ref[1] = value -> vec[1] = (float)value;
+		ref[2] = value -> vec[2] = (float)value;
+		ref[3] = value -> vec[3] = (float)value;
+		return ref;
+	}
+
 
  }

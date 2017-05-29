@@ -377,7 +377,22 @@ public SoBaseKit()
     setUpConnections( true, true );
 }
 
-	
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Destructor (necessary since inline destructor is too complex)
+//
+// Use: public
+
+public void destructor() {
+    if (fieldDataForWriting != null)
+        fieldDataForWriting.destructor();
+    if ( nodekitPartsList != null )
+        nodekitPartsList.destructor();
+    children.destructor();
+	super.destructor();
+}
 	
 	 ////////////////////////////////////////////////////////////////////////
 	   //
@@ -412,7 +427,171 @@ public SoBaseKit()
 	 * @return
 	 */
 	public String getPartString(SoBase part) {
-		return ""; // TODO
+    final SoNodekitParts   partsList = getNodekitPartsList();
+    final SoNodekitCatalog cat = getNodekitCatalog();
+
+    if ( part == null)
+        return "";
+
+    if ( part.isOfType( SoNode.getClassTypeId() )) {
+        // trivial case
+        if ( part == this )
+            return "this";
+
+        // Look through the parts list and see if you can find a match.
+        // Remember to skip entry 0, which is 'this'.
+        for ( int i = 1; i < partsList.numEntries; i++ ) {
+
+            SoNode iPart = partsList.fieldList[i].getValue();
+            if (iPart != null) {
+
+                // Simple match
+                if ( iPart == part )
+                    return cat.getName(i).getString();
+
+                if (iPart.isOfType( SoBaseKit.getClassTypeId())) {
+
+                    // Try to look inside the nodekit part.
+                    SoBaseKit kit = (SoBaseKit ) iPart;
+                    String subString = kit.getPartString(part);
+                    if (subString != "") {
+                        String answer =  cat.getName(i).getString() ;
+                        answer += ".";
+                        answer += subString/*.getString()*/;
+                        return answer;
+                    }
+                }
+                else if ( cat.isList(i) ) {
+
+                    // Within a leaf that's a list part. Try to look inside.
+                    SoNodeKitListPart lst = (SoNodeKitListPart ) iPart;
+
+                    for (int indx = 0; 
+                         indx < lst.getNumChildren(); indx++ ) {
+                        SoNode kid = lst.getChild(indx);
+                        if (kid == part) {
+                            //char indxString[30];
+                            String indxString = "["+indx+"]";
+                            String answer = ( cat.getName(i).getString() );
+                            answer += indxString;
+                            return answer;
+                        }
+                        else if (kid.isOfType(SoBaseKit.getClassTypeId())) {
+                            // Try to look inside the nodekit part.
+                            String subString 
+                                = ((SoBaseKit )kid).getPartString(part);
+                            if (subString != "") {
+                                //char indxString[30];
+                                String indxString = "["+indx+"]";
+                                String answer = ( cat.getName(i).getString() );
+                                answer += indxString;
+                                answer += ".";
+                                answer += subString/*.getString()*/;
+                                return answer;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (part.isOfType( SoPath.getClassTypeId() )) {
+        SoFullPath fullP = SoFullPath.cast((SoPath)part);
+        int pathIndex;
+
+        // First, find 'this' on the path. 
+        for (pathIndex = 0; pathIndex < fullP.getLength(); pathIndex++ ) {
+            if ( fullP.getNode(pathIndex) == this ) 
+                break;
+        }
+
+        // If 'this' is not on path...
+        if ( pathIndex >= fullP.getLength() )
+            return "";
+
+        // If 'this' is at end of path...
+        if ( pathIndex == fullP.getLength() - 1 )
+            return "this";
+
+        pathIndex++;
+
+
+        // This node appears on the path, but is not the tail.
+        // See if the tail is named within this node. Remember to skip
+        // entry 0, which is 'this'.
+        for ( int i = 1; i < partsList.numEntries; i++ ) {
+
+            SoNode iPart = partsList.fieldList[i].getValue();
+
+            // If this part lies on the path, then we have work to do...
+            if (iPart == fullP.getNode(pathIndex)) {
+
+                // Is this part at the end of the path?
+                if ( pathIndex == fullP.getLength() - 1 )
+                    return cat.getName(i).getString();
+
+
+                // Is this part a leaf in the catalog?
+                if ( cat.isLeaf(i) ) {
+                    if (iPart.isOfType( SoBaseKit.getClassTypeId())) {
+
+                        // Try to look inside the nodekit part.
+                        SoBaseKit kit = (SoBaseKit ) iPart;
+                        String subString = kit.getPartString(part);
+                        if (subString != "") {
+                            String answer = ( cat.getName(i).getString() );
+                            answer += ".";
+                            answer += subString/*.getString()*/;
+                            return answer;
+                        }
+                    }
+                    else if ( cat.isList(i) ) {
+
+                        SoNodeKitListPart lst = (SoNodeKitListPart ) iPart;
+
+                        for (int indx = 0; 
+                             indx < lst.getNumChildren(); indx++ ) {
+                            SoNode kid = lst.getChild(indx);
+                            if (kid == fullP.getTail()) {
+                                //char indxString[30];
+                                String indxString = "["+indx+"]";
+                                String answer = ( cat.getName(i).getString() );
+                                answer += indxString;
+                                return answer;
+                            }
+                            else if (kid.isOfType(SoBaseKit.getClassTypeId())) {
+                                // Try to look inside the nodekit part.
+                                String subString 
+                                    = ((SoBaseKit )kid).getPartString(part);
+                                if (subString != "") {
+                                    //char indxString[30];
+                                    String indxString = "["+indx+"]";
+                                    String answer = ( cat.getName(i).getString() );
+                                    answer += indxString;
+                                    answer += ".";
+                                    answer += subString/*.getString()*/;
+                                    return answer;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Otherwise, increment the pathIndex and.
+                // Keep on looking through the catalog...
+                // We can keep using the same loop, since
+                // successive entries in a path should always proceed to 
+                // increasing indices in the parts list. This is because 
+                // when classes define catalogs, entries must be added as 
+                // children of pre-existing parts. 
+                pathIndex++;
+            }
+
+        }
+    }
+
+    // we didn't find a match...
+    return "";
 	}
 	
 	/**
@@ -421,7 +600,7 @@ public SoBaseKit()
 	 * This method adds any extra nodes needed to fit the part into the nodekit's catalog. 
 	 * For example, if you call:
 	 * 
-	 * mySepKit->setPart("childList[0]", myNewChild);
+	 * mySepKit.setPart("childList[0]", myNewChild);
 	 * 
 	 * the kit may need to create the part childList before it can install myNewChild. 
 	 * Run-time type checking verifies that the node type of newPart matches the type called for by partName. 
@@ -484,6 +663,129 @@ public SoBaseKit()
 	    	       return answer;
 	    	  
 	}
+	
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Sets field values in the desired parts of the nodeKit...
+//    The argument string contains a list of  desiredNodeName/fieldData
+//    string pairs.  The string is parsed, and subsequent calls are made
+//    to:     theNode = getPart( desiredNodeName);
+//    and:    theNode.set( fieldData );
+//
+// Use: public
+
+public boolean 
+set(String nameValuePairListString) 
+                            // the string to use in setting the values
+//
+////////////////////////////////////////////////////////////////////////
+{
+    String string = nameValuePairListString;
+    int stringP = 0;//string; java port
+    String c; //java port
+    boolean        success = true;
+    SoNode     node;
+
+    while(star(string)) {
+        string = skipWhiteSpace(string);
+
+        if(!star(string))
+            break;
+
+        // look for the node name
+        c = string;
+        while(star(c) && !SbName.isspace(c.charAt(0)) && c.charAt(0) != '{')
+            c = c.substring(1);
+
+        if(!star(c))                 // no more data, return
+            break;
+
+        int length = -(c.length() - string.length()) + 1;
+//        char *desiredNodeName = new char [length];
+//        strncpy(desiredNodeName, string, c - string);
+//        desiredNodeName[c - string] = 0;
+        String desiredNodeName = string.substring(0, length-1);
+        string = c;
+
+        // find that node
+        node = getPart(desiredNodeName, true);
+
+        //delete [ /*length*/ ] desiredNodeName; // java port
+
+        if (node == null)      // no node found, return
+            break;
+
+        // get the field data
+        string = skipWhiteSpace(string);
+        if(string.charAt(0) != '{') {
+//#ifdef DEBUG
+            SoDebugError.post("SoBaseKit::set",
+                "Found char '"+string.charAt(0)+"' in string \""+nameValuePairListString+"\", expected '{'");
+//#endif
+            success = false;
+            break;
+        }
+
+        string = string.substring(1);
+        c = string;
+        while(star(c) && c.charAt(0) != '}')
+            c = c.substring(1);
+
+        length = -(c.length() - string.length()) + 1;
+//        char *fielddata = new char [length];
+//        strncpy(fielddata, string, c - string);
+//        fielddata[c - string] = 0;
+        String fielddata = string.substring(0, length-1);
+        string = c.substring(1);
+
+        // call the SoNode::set method to set the fields
+        success &= node.set(fielddata);
+
+        //delete [ /*length*/ ] fielddata;
+    }
+    //free(stringP);
+    return success;
+}
+
+//java port
+private boolean star(String str) {
+	return !str.isEmpty() && str.charAt(0)!=0;
+}
+
+public static final char __SO_COMMENT_CHAR       ='#';
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Sets field values in the desired parts of the nodeKit...
+//    The partNameString contains the name of a part to set values for.
+//    It may be of the form 'part1.part2.part3', so that the kit will
+//    search within it's template for the node.
+//    Next, calls the node's set, using parameterString as the input... 
+//
+// Use: public
+
+public boolean
+set(String partNameString,     // name of the part
+               String parameterString )   // values for the part
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoNode node = getPart(partNameString, true);
+
+    // call the SoNode::set method to set the fields
+    if ( node == null )
+        return false;
+
+    if ( node.set(parameterString) )
+        return true;
+    else
+        return false;
+}
+
+	
 
 	//
 	  // Description:
@@ -579,7 +881,7 @@ createPathToAnyPart(final SbName partName,
     while ( longPath.getTail() != this )
         longPath.pop();
 
-    // Finally, append 'thePath' after 'longPath'.  Leave out thePath->head(), 
+    // Finally, append 'thePath' after 'longPath'.  Leave out thePath.head(), 
     // since it's already at the tail of longPath...
     for( int i = 1; i < thePath.getLength(); i++ )
         longPath.append( thePath.getIndex( i ) );
@@ -1007,6 +1309,36 @@ protected void createDefaultParts()
     }
 }
 
+    //! Return the node's partsList
+public SoNodekitParts getNodekitPartsList() 
+                            { return nodekitPartsList; };
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Skips white space in strings, used by the set method.
+//
+// Use: private
+
+String
+skipWhiteSpace(String string)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Keep going while space and comments appear
+    // Skip over space characters
+    while ((!string.isEmpty() && string.charAt(0)!=0) && SbName.isspace(string.charAt(0)))
+        string = string.substring(1);
+
+    // If next character is comment character, flush until end of line
+    if (string.charAt(0) == __SO_COMMENT_CHAR) {
+        while ((!string.isEmpty() && string.charAt(0)!=0))
+         string = string.substring(1);
+    }
+    return string; // java port
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -1028,7 +1360,7 @@ protected void createDefaultParts()
 // Or all three of the following:
 //      [NonLeaf Test]:    part is not a leaf part          AND
 //      [Group Test]:      node is non-NULL of type SoGroup AND
-//      [FieldValue Test]: (node->isNodeFieldValuesImportant() == FALSE)
+//      [FieldValue Test]: (node.isNodeFieldValuesImportant() == FALSE)
 //
 /////////////////////////////////////////////////////////////////////////
 
@@ -1095,7 +1427,7 @@ public void setDefaultOnNonWritingFields()
             (   ! node.isOfType(SoGroup.getClassTypeId()))) 
             continue;
 
-        // [FieldValue Test]: (node->isNodeFieldValuesImportant() == FALSE)
+        // [FieldValue Test]: (node.isNodeFieldValuesImportant() == FALSE)
         if ( isNodeFieldValuesImportant( node ))
             continue;
 

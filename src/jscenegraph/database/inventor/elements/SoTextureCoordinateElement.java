@@ -377,7 +377,7 @@ init(SoState state)
 //
 // Use: public
 
-public void
+public static void
 setDefault(SoState state, SoNode node)
 //
 ////////////////////////////////////////////////////////////////////////

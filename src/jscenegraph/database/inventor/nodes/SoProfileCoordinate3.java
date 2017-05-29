@@ -36,7 +36,7 @@
 
 
 /*
- * Copyright (C) 1990,91   Silicon Graphics, Inc.
+ * Copyright (C) 1990,91,92  Silicon Graphics, Inc.
  *
  _______________________________________________________________________
  ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
@@ -44,9 +44,9 @@
  |   $Revision: 1.1.1.1 $
  |
  |   Description:
- |      This file defines the SoCoordinate3 node class.
+ |      This file defines the SoProfileCoordinate3 node class.
  |
- |   Author(s)          : Paul S. Strauss
+ |   Author(s)          : Thad Beier, Dave Immel, Paul S. Strauss
  |
  ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
  _______________________________________________________________________
@@ -54,64 +54,60 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
-import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
-import jscenegraph.database.inventor.elements.SoCoordinateElement;
-import jscenegraph.database.inventor.elements.SoGLCoordinateElement;
+import jscenegraph.database.inventor.elements.SoProfileCoordinateElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
-import jscenegraph.database.inventor.misc.SoState;
-import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
-import jscenegraph.mevis.inventor.misc.SoVBO;
 
 /**
  * @author Yves Boyadjian
  *
  */
 
+
 ////////////////////////////////////////////////////////////////////////////////
-//! Coordinate point node.
+//! Rational profile coordinate node.
 /*!
-\class SoCoordinate3
+\class SoProfileCoordinate3
 \ingroup Nodes
-This node defines a set of 3D coordinates to be used by subsequent
-vertex-based shape nodes (those derived from SoVertexShape) or
-shape nodes that use them as control points (such as NURBS curves and
-surfaces). This node does not produce a visible result during
-rendering; it simply replaces the current coordinates in the rendering
-state for subsequent nodes to use.
+This node defines a set of rational 3D coordinates to be used by
+subsequent SoProfile nodes. (These coordinates may be used for any
+type of profile; they may be useful in some cases for specifying
+control points for SoNurbsProfile nodes.) This node does not
+produce a visible result during rendering; it simply replaces the
+current profile coordinates in the traversal state for subsequent
+nodes to use.
 
 \par File Format/Default
 \par
 \code
-Coordinate3 {
-  point 0 0 0
+ProfileCoordinate3 {
+  point 0 0 1
 }
 \endcode
 
 \par Action Behavior
 \par
 SoGLRenderAction, SoCallbackAction, SoGetBoundingBoxAction, SoRayPickAction
-<BR> Sets coordinates in current traversal state. 
+<BR> Sets profile coordinates in current traversal state. 
 
 \par See Also
 \par
-SoCoordinate4, SoVertexShape
+SoProfile, SoProfileCoordinate2
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-public class SoCoordinate3 extends SoNode {
+public class SoProfileCoordinate3 extends SoNode {
 
-	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoCoordinate3.class,this);
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoProfileCoordinate3.class,this);
 	   
 	   public                                                                     
 	    static SoType       getClassTypeId()        /* Returns class type id */   
-	                                    { return SoSubNode.getClassTypeId(SoCoordinate3.class);  }                   
+	                                    { return SoSubNode.getClassTypeId(SoProfileCoordinate3.class);  }                   
 	  public  SoType      getTypeId()      /* Returns type id      */
 	  {
 		  return nodeHeader.getClassTypeId();
@@ -121,16 +117,15 @@ public class SoCoordinate3 extends SoNode {
 		  return nodeHeader.getFieldData();
 	  }
 	  public  static SoFieldData[] getFieldDataPtr()                              
-	        { return SoSubNode.getFieldDataPtr(SoCoordinate3.class); }    	  	
+	        { return SoSubNode.getFieldDataPtr(SoProfileCoordinate3.class); }    	  	
 	
-	  public
-		    //! \name Fields
-		    //@{
+    //! \name Fields
+    //@{
 
-		    //! Coordinate point(s).
-		    final SoMFVec3f           point = new SoMFVec3f();          
+    //! Rational 3D profile coordinate points.
+    public final SoMFVec3f           point = new SoMFVec3f();          
 
-	    protected final SoVBO[] _vbo = new SoVBO[1];
+    //@}
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -140,15 +135,13 @@ public class SoCoordinate3 extends SoNode {
 //
 // Use: public
 
-public SoCoordinate3()
+public SoProfileCoordinate3()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    nodeHeader.SO_NODE_CONSTRUCTOR(/*SoCoordinate3.class*/);
-    nodeHeader.SO_NODE_ADD_MFIELD(point,"point", (SoCoordinateElement.getDefault3()));
+    nodeHeader.SO_NODE_CONSTRUCTOR(/*SoProfileCoordinate3.class*/);
+    nodeHeader.SO_NODE_ADD_MFIELD(point,"point", (SoProfileCoordinateElement.getDefault3()));
     isBuiltIn = true;
-
-    _vbo[0] = null;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -162,33 +155,24 @@ public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-  if(_vbo[0]!=null) {
-	  _vbo[0].destructor();
-  }
-  super.destructor();
+	super.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    Handles any action derived from SoAction.
+//    Handles actions (just changes the state)
 //
 // Use: extender
 
 public void
-SoCoordinate3_doAction(SoAction action)
+SoProfileCoordinate3_doAction(SoAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    if (! point.isIgnored() && point.getNum() > 0) {
-      SoState state = action.getState();
-      SoCoordinateElement.set3(state, this,
-        point.getNum(), point.getValues(0));
-      if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
-        SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.VERTEX_VBO, _vbo,
-          point.getNum()*(SbVec3f.sizeof()), point.getValuesBytes(0), getNodeId());
-      }
-    }
+    if (! point.isIgnored() && point.getNum() > 0)
+        SoProfileCoordinateElement.set3(action.getState(), this,
+                                         point.getNum(), point.getValues(0));
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -198,25 +182,12 @@ SoCoordinate3_doAction(SoAction action)
 //
 // Use: extender
 
-public void GLRender(SoGLRenderAction action)
+public void
+GLRender(SoGLRenderAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoCoordinate3_doAction(action);
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Handles get bounding box action.
-//
-// Use: extender
-
-public void getBoundingBox(SoGetBoundingBoxAction action)
-//
-////////////////////////////////////////////////////////////////////////
-{
-    SoCoordinate3_doAction(action);
+    SoProfileCoordinate3_doAction(action);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -226,11 +197,12 @@ public void getBoundingBox(SoGetBoundingBoxAction action)
 //
 // Use: extender
 
-public void callback(SoCallbackAction action)
+public void
+callback(SoCallbackAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoCoordinate3_doAction(action);
+    SoProfileCoordinate3_doAction(action);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -240,32 +212,28 @@ public void callback(SoCallbackAction action)
 //
 // Use: extender
 
-public void pick(SoPickAction action)
+public void
+pick(SoPickAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoCoordinate3_doAction(action);
+    SoProfileCoordinate3_doAction(action);
 }
-	    
+    
 
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    This initializes the SoCoordinate3 class.
+//    This initializes the SoProfileCoordinate3 class.
 //
 // Use: internal
 
-public static void initClass()
+public static void
+initClass()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SO__NODE_INIT_CLASS(SoCoordinate3.class, "Coordinate3", SoNode.class);
-
-    SO_ENABLE(SoCallbackAction.class,         SoCoordinateElement.class);
-    SO_ENABLE(SoGLRenderAction.class,         SoGLCoordinateElement.class);
-    SO_ENABLE(SoGLRenderAction.class,         SoGLVBOElement.class);
-    SO_ENABLE(SoGetBoundingBoxAction.class,   SoCoordinateElement.class);
-    SO_ENABLE(SoPickAction.class,             SoCoordinateElement.class);
+    SO__NODE_INIT_CLASS(SoProfileCoordinate3.class, "ProfileCoordinate3", SoNode.class);
 }
 
 }

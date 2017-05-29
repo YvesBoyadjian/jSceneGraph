@@ -296,7 +296,6 @@ private        int                 depth;
 	   	  
 	// Initialize ALL Inventor element classes. 
 	public static void initElements() {
-		//TODO
 		
 	     // Initialize base classes first
 		        SoElement.initClass(SoElement.class);
@@ -341,7 +340,7 @@ private        int                 depth;
 		       SoTextureMatrixElement.initClass(SoTextureMatrixElement.class);
 		       SoTextureQualityElement.initClass(SoTextureQualityElement.class);
 		       SoTextureOverrideElement.initClass(SoTextureOverrideElement.class);
-//		       SoUnitsElement.initClass();
+		       SoUnitsElement.initClass(SoUnitsElement.class);
 		       SoViewVolumeElement.initClass(SoViewVolumeElement.class);
 		       SoViewingMatrixElement.initClass(SoViewingMatrixElement.class);
 		       SoViewportRegionElement.initClass(SoViewportRegionElement.class);

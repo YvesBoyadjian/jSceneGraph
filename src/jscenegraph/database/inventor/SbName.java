@@ -235,7 +235,7 @@ public static boolean isIdentStartChar(char c)
 	 }
 	 
 	 // java port
-	 private static boolean isspace(char c) {
+	 public static boolean isspace(char c) {
 		 return Character.isWhitespace(c);
 	 }
 	 

@@ -161,7 +161,7 @@ public static void set2(SoState state, SoNode node,
 //
 // Use: public
 
-public void set3(SoState state, SoNode node,
+public static void set3(SoState state, SoNode node,
                           int numCoords, final SbVec3f[] coords)
 //
 ////////////////////////////////////////////////////////////////////////

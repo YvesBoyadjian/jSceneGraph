@@ -101,7 +101,52 @@ public class SoSFNode extends SoSField<SoNode> {
 		return null;
 	}
 
+	public SoSFNode() {
+		super();
+	}
+	
+	public void destructor() {
+	    if (value != null) {
+	        value.removeAuditor(this, SoNotRec.Type.FIELD);
+	        value.unref();
+	    }		
+		super.destructor();
+	}
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Sets value to given node pointer.
+//
+// Use: public
+
+public void
+setValue(SoNode newValue)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    setVal(newValue);
+    valueChanged();
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Equality test. (Standard definition.)
+//
+// Use: public
+
+public boolean
+operator_equal_equal(final SoSFNode f)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    return getValue() == f.getValue();
+}
+
+	
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -169,6 +214,45 @@ private void setVal(SoNode newValue)
 
     if (newValue != null)
         newValue.unref();
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Update a copied field to use the copy of the node if there is
+//    one.
+//
+// Use: internal
+
+public void
+fixCopy(boolean copyConnections)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    if (value != null) {
+        SoNode nodeCopy = (SoNode )
+            SoFieldContainer.findCopy(value, copyConnections);
+        if (nodeCopy != null)
+            setVal(nodeCopy);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Override this to also check the stored node.
+//
+// Use: internal, virtual
+
+public boolean
+referencesCopy() 
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Do the normal test, and also see if the stored node is a copy
+    return (super.referencesCopy() ||
+            (value != null && SoFieldContainer.checkCopy(value) != null));
 }
 
 }

@@ -117,6 +117,12 @@ public class SoNotRec {
 		 base = b; 
 	}
 	
+	public void destructor() {
+		base = null;
+		previous = null;
+		type = null;
+	}
+	
 	// Sets notification type. 
 	public void setType(SoNotRec.Type t) {
 		type = t;

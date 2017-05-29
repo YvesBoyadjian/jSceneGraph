@@ -367,7 +367,7 @@ public abstract class SoFieldContainer extends SoBase {
 //
 // Use: internal, static
 
-public SoFieldContainer 
+public static SoFieldContainer 
 findCopy( SoFieldContainer orig,
                            boolean copyConnections)
 //
@@ -534,6 +534,55 @@ public int getFields(SoFieldList list)
     // Not found...
     return null;    	
     }
+
+	
+    //! Sets one or more fields in this object to the values specified in the
+    //! given string, which should be a string in the Inventor file format.
+    //! TRUE is returned if the string was valid Inventor file format.  For
+    //! example, you could set the fields of an SoCube by doing:
+    //! \code
+    //! SoCube *cube = ....
+    //! cube->set("width 1.0 height 2.0 depth 3.2");
+    //! \endcode
+    public boolean                set(String fieldDataString)
+        { return set(fieldDataString, null); }
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Sets fields in object from info in passed string. The format of
+//    the string is the same as the ASCII file format, i.e., the stuff
+//    that could appear between the '{' and '}' for the object in a file.
+//
+//    The SoInput parameter is NULL in the public method and may be
+//    non-NULL in the internal one. If it is non-NULL, it specifies
+//    the SoInput from which to get the reference dictionary to use
+//    when reading from the string.
+//
+// Use: public/internal
+
+public boolean
+set(String fieldDataString, SoInput dictIn)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final SoFieldData   fieldData = getFieldData();
+
+    if (fieldData != null) {
+        final SoInput in = new SoInput(dictIn);
+    	try {
+        in.setBuffer( fieldDataString, fieldDataString.length());
+        final boolean[] isBuiltIn = new boolean[1]; // Not used
+        return fieldData.read(in, this, false, isBuiltIn);
+    	}
+    	finally {
+    		in.destructor();
+    	}
+    }
+    else
+        return false;
+}
 
 	
 }

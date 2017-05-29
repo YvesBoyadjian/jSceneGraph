@@ -102,6 +102,8 @@ public class SoInput {
 	private static final char COMMENT_CHAR ='#';
 	private static final int READ_STRINGBUFFER_SIZE = 64;
 
+	private int SB_MAX(int a, int b) { return ((a) > (b)) ? (a) : (b);}
+
 	
 	
     private static SbStringList directories;   //!< Directory search path.
@@ -228,6 +230,33 @@ public SoInput()
 
     backupBufUsed = false;
 }
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Constructor that gets reference dictionary from another SoInput.
+//
+// Use: internal
+
+public SoInput(SoInput dictIn)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Create new file and push on stack
+    curFile = new SoInputFile();
+    files.append( curFile);
+
+    // Make it read from stdin and use the passed dictionary
+    initFile(new FILE(System.in), "<stdin>", null, false,
+             (dictIn == null ? null : dictIn.curFile.refDict));
+
+    backBufIndex = -1;  // No buffer
+
+    tmpBuffer = null;
+    tmpBufSize = 0;
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -1892,7 +1921,7 @@ public void addReference(final SbName name,       // Reference name
     }
 }
 
-    public boolean readReal(final double[] d) {
+    public boolean readReal_old(final double[] d) {
         int         n;
         boolean        ret;
         
@@ -1903,6 +1932,254 @@ public void addReference(final SbName name,       // Reference name
         
         return ret;
     }
+    
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads a double floating-point real number. Returns FALSE on EOF
+//    or if no valid real was read. This is used by all real-reading
+//    methods.
+//
+// Use: private
+
+public boolean
+readReal(final double[] d)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    int         n;
+    final char[]        str = new char[READ_STRINGBUFFER_SIZE];    // Number can't be longer than this
+    /*char        **/ int s = /*str*/0; //java port
+    boolean        ret;
+
+    // Read from backBuf if it is not empty
+    if (backBufIndex >= 0) {
+        n = FILE.sscanf(backBuf/*.getString()*/, "%lf", d);
+
+        // Clear the back buffer.
+        backBuf = "";//.makeEmpty(); java port
+        backBufIndex = -1;
+
+        ret = (n == 0 || n == FILE.EOF) ? false : true;
+    }
+
+    else if (fromBuffer()) {
+        boolean    gotNum = false;
+        boolean    isTruncated = false;
+
+        ////////////////////////////////////////////
+        //
+        // Leading sign
+    
+        n = readChar(str, s, '-');
+        if (n == 0)
+            n = readChar(str, s, '+');
+        s += n;
+    
+        ////////////////////////////////////////////
+        //
+        // Integer before decimal point
+    
+        // 2005-04-19 Felix: Check for buffer overflow
+        if ((n = readDigits(str, s, SB_MAX(READ_STRINGBUFFER_SIZE-1 - (s/* - str*/), 0))) > 0) {
+            gotNum = true;
+            s += n;
+        }
+    
+        ////////////////////////////////////////////
+        //
+        // Decimal point
+    
+        // 2005-04-19 Felix: Check for buffer overflow
+        if (s/* - str*/ < READ_STRINGBUFFER_SIZE-1) {
+
+            if (readChar(str, s, '.') > 0) {
+                s++;
+
+                ////////////////////////////////////////////
+                //
+                // Integer after decimal point (no sign)
+
+                // 2005-04-19 Felix: Check for buffer overflow
+                if ((n = readDigits(str, s, SB_MAX(READ_STRINGBUFFER_SIZE-1 - (s /*- str*/), 0))) > 0) {
+                    gotNum = true;
+                    s += n;
+                }
+            }
+    
+            // If no number before or after decimal point, there's a problem
+            if (! gotNum)
+                return false;
+
+            ////////////////////////////////////////////
+            //
+            // 'e' or 'E' for exponent
+
+            // 2005-04-19 Felix: Check for buffer overflow
+            if (s /*- str*/ < READ_STRINGBUFFER_SIZE-1) {
+
+                n = readChar(str, s, 'e');
+                if (n == 0)
+                    n = readChar(str, s, 'E');
+
+                if (n > 0) {
+                    s += n;
+
+                    ////////////////////////////////////////////
+                    //
+                    // Sign for exponent
+
+                    // 2005-04-19 Felix: Check for buffer overflow
+                    if (s /*- str*/ < READ_STRINGBUFFER_SIZE-1) {
+
+                        n = readChar(str,s, '-');
+                        if (n == 0)
+                            n = readChar(str,s, '+');
+                        s += n;
+
+                        ////////////////////////////////////////////
+                        //
+                        // Exponent integer
+
+                        // 2005-04-19 Felix: Check for buffer overflow
+                        if ((n = readDigits(str, s, SB_MAX(READ_STRINGBUFFER_SIZE-1 - (s /*- str*/), 0))) > 0)
+                            s += n;
+
+                        else
+                            return false;       // Invalid exponent
+                    }
+                    else {
+                        isTruncated = true;
+                    }
+                }
+            }
+            else {
+                isTruncated = true;
+            }
+        }
+        else {
+            isTruncated = true;
+        }
+
+        if (isTruncated) {
+            SoDebugError.post("SoInput::readReal",
+                               "Double floating-point value to big for internal representation, value truncated to "+(READ_STRINGBUFFER_SIZE-1)+" characters");
+        }
+
+        // Terminator
+        str[s] = '\0';
+
+        d[0] = Float.parseFloat(String.valueOf(str));
+
+        ret = true;
+    }
+    else {
+        n = FILE.fscanf(curFile.fp, "%lf", d);
+        ret =  (n == 0 || n == FILE.EOF) ? false : true;
+    }
+
+    return ret;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads a series of decimal digits into string. Returns number of
+//    bytes read.
+//
+// Use: private
+
+private int
+readDigits(char[] string, int index, int maxDigits)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final char[] c = new char[1];
+    int s = index; // java port
+
+    if (fromBuffer()) {
+        while (getASCIIBuffer(c)) {
+
+            // 2005-04-19 Felix: Check for buffer overflow
+            if (Character.isDigit(c[0]) && (s - index/*string*/ < maxDigits)) {
+                string[s] = c[0]; s++;
+            }
+
+            else {
+                putBack(c[0]);
+                break;
+            }
+        }
+    }
+    else {
+        while (getASCIIFile(c)) {
+
+            if (Character.isDigit(c[0]) && (s - index/*string*/ < maxDigits)) {
+                string[s] = c[0]; s++;
+            }
+
+            else {
+                putBack(c[0]);
+                break;
+            }
+        }
+    }
+
+    return s - index/*string*/;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads the given character. Returns the number of bytes read (0 or 1).
+//
+// Use: private
+
+public int
+readChar(char[] string, int index, char charToRead)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final char[]        c = new char[1];
+    int         ret;
+
+    if (fromBuffer()) {
+        if (! getASCIIBuffer(c))
+            ret = 0;
+
+        else if (c[0] == charToRead) {
+            string[index] = c[0];
+            ret = 1;
+        }
+
+        else {
+            putBack(c[0]);
+            ret = 0;
+        }
+    }
+    else {
+        if (! getASCIIFile(c))
+            ret = 0;
+
+        else if (c[0] == charToRead) {
+            string[index] = c[0];
+            ret = 1;
+        }
+
+        else {
+            putBack(c[0]);
+            ret = 0;
+        }
+    }
+
+    return ret;
+}
+
+    
 
 /**
  * java port

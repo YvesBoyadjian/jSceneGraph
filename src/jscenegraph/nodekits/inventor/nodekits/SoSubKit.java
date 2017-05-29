@@ -147,6 +147,57 @@ public void SO_KIT_ADD_CATALOG_ENTRY(SoSFNode part, String partName, Class partC
 }
 
 
+
+/////////////////////////////////////////////
+///
+/// This adds the info for a new part to the SoNodekitCatalog.
+/// 'partName' may be of an abstract node type.
+///
+/// The parameters are as follows:
+///
+///      partName:      same as SO_KIT_ADD_CATALOG_ENTRY
+///      partClassName: same as SO_KIT_ADD_CATALOG_ENTRY, except that
+///                     abstract node classes are acceptable.
+///
+///      defaultPartClassName:   If the nodekit is asked to construct this part,
+///                          using getPart, then the 'defaultPartClassName' will
+///                          specify what type of node to build.
+///                          This may NOT be an abstract class.
+///                          This MUST be a subclass of 'partClassName'
+///
+///      nullByDefault: same as SO_KIT_ADD_CATALOG_ENTRY
+///      parentName:    same as SO_KIT_ADD_CATALOG_ENTRY
+///      rightName:     same as SO_KIT_ADD_CATALOG_ENTRY
+///      isPublicPart:  same as SO_KIT_ADD_CATALOG_ENTRY
+///
+/// For example,
+///
+/// SO_KIT_ADD_CATALOG_ABSTRACT_ENTRY(light,SoLight, SoDirectionalLight, 
+///                                      TRUE, this,, TRUE);
+///
+///       makes a part node refered to as "light".
+///       When calling setPart, any node that is a subclass of light can be 
+///       used (e.g., SoDirectionalLight, SoSpotLight, SoPointLight )
+///       However, if the user asks for the node and it has not been created yet,
+///          (this happens, for example, in the case where there is currently 
+///           no 'light' and the user calls
+///           SO_GET_PART( myKit, "light", SoLight ), 
+///       then an SoDirectionalLight will be created and returned.
+/// 
+
+public void SO_KIT_ADD_CATALOG_ABSTRACT_ENTRY(SoSFNode part, String partName, Class partClassName,            
+                  Class defaultPartClassName, boolean nullByDefault, String parentName,            
+                  String rightName, boolean isPublicPart ) {                                   
+   SO_KIT_ADD_FIELD(part, partName,(null));                                         
+   if (firstInstance() && !nodekitCatalog.get(thisClass)[0].addEntry(new SbName(partName),        
+                    SoType.fromName(new SbName(partClassName.getSimpleName())),               
+                    SoType.fromName(new SbName(defaultPartClassName.getSimpleName())), nullByDefault,
+                    new SbName(parentName), new SbName(rightName), false,       
+                    SoType.badType(), SoType.badType(), isPublicPart  ))    
+	   ((SoBaseKit)thisParent).catalogError();
+}
+
+
 /////////////////////////////////////////////
 ///
 /// This adds the info for a new part to the SoNodekitCatalog.

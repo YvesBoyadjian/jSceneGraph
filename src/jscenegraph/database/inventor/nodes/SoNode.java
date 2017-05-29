@@ -457,7 +457,7 @@ getByName( SbName name, SoNodeList list)
 		        SoComplexity.initClass();
 		        SoCone.initClass();
 		        SoCoordinate3.initClass();
-//		        SoCoordinate4.initClass();
+		        SoCoordinate4.initClass();
 		        SoCube.initClass();
 		       SoCylinder.initClass();
 		       SoDirectionalLight.initClass();
@@ -499,7 +499,7 @@ getByName( SbName name, SoNodeList list)
 		       SoPointLight.initClass();
 		       SoPointSet.initClass();
 		       SoProfileCoordinate2.initClass();
-//		       SoProfileCoordinate3.initClass();
+		       SoProfileCoordinate3.initClass();
 //		       SoQuadMesh.initClass();
 		       SoResetTransform.initClass();
 		       SoRotation.initClass();
@@ -514,7 +514,7 @@ getByName( SbName name, SoNodeList list)
 		       SoTextureCoordinate2.initClass();
 		       SoTextureCoordinateBinding.initClass();
 		       SoTextureCoordinateFunction.initClass();
-//		       SoTextureCoordinateDefault.initClass();
+		       SoTextureCoordinateDefault.initClass();
 		       SoTextureCoordinateEnvironment.initClass();
 		       SoTextureCoordinatePlane.initClass();
 		       SoTexture2.initClass();
@@ -523,7 +523,7 @@ getByName( SbName name, SoNodeList list)
 		       SoTransformSeparator.initClass();
 		       SoTranslation.initClass();
 		       SoTriangleStripSet.initClass();
-//		       SoUnits.initClass();
+		       SoUnits.initClass();
 //		       SoUnknownNode.initClass();
 		       SoVertexProperty.initClass();
 //		       SoWWWAnchor.initClass();

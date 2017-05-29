@@ -136,6 +136,20 @@ set(int index, Object auditor, SoNotRec.Type type)
 		  
 		  }
 	
+	
+public int
+findLast(Object auditor, SoNotRec.Type type)
+{
+  for (int i = super.getLength() - 2; i >= 0; i -= 2) {
+    if (this.operator_square_bracket(i) == auditor && this.operator_square_bracket(i + 1) == type) {
+      return i / 2;
+    }
+  }
+  return -1;
+}
+
+	
+	
 	// Returns object or type for given index.	
 	public Object getObject(int index) {
 		return this.operator_square_bracket(index * 2);

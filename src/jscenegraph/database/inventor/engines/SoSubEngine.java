@@ -102,6 +102,7 @@ import jscenegraph.database.inventor.SoType.CreateMethod;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
+import jscenegraph.database.inventor.fields.SoMField;
 import jscenegraph.database.inventor.fields.SoSField;
 
 /**
@@ -230,6 +231,17 @@ protected void SO__ENGINE_CHECK_INIT(Class<? extends SoEngine> className) {
     } while (_value_false);                                                   
 	}
 
+	public void SO_ENGINE_ADD_MINPUT(SoMField input, String inputName, Object ... defaultValue) {
+	    boolean _value_false= false;                                                      
+	    do {                                                                      
+	        //SO__ENGINE_CHECK_CONSTRUCT(__FILE__);                                 
+	        if (firstInstance)                                                    
+	            inputData[0].addField(soEngine, inputName, input);                            
+	        input.setValue(defaultValue[0]);                                    
+	        input.setContainer(soEngine);                                   
+	    } while (_value_false);                                                   
+		}
+
 /////////////////////////////////////////////
 ///
 /// This adds the info for an output to the SoEngineOutputData.
@@ -248,6 +260,18 @@ protected void SO__ENGINE_CHECK_INIT(Class<? extends SoEngine> className) {
 ///
 
 	public void SO_ENGINE_ADD_OUTPUT(SoEngineOutput output, String outputName, Class<? extends SoSField> type) {
+	    boolean _value_false= false;                                                      
+	    do {                                                                      
+	        //SO__ENGINE_CHECK_CONSTRUCT(__FILE__);                                 
+	        if (firstInstance)                                                    
+	            outputData[0].addOutput(soEngine, outputName,                
+	                                  output,                          
+	                                  SoField.getClassTypeId(type));                    
+	        output.setContainer(soEngine);                                  
+	    } while (_value_false);                                                   
+	}
+
+	public void SO_ENGINE_ADD_MOUTPUT(SoEngineOutput output, String outputName, Class<? extends SoMField> type) {
 	    boolean _value_false= false;                                                      
 	    do {                                                                      
 	        //SO__ENGINE_CHECK_CONSTRUCT(__FILE__);                                 

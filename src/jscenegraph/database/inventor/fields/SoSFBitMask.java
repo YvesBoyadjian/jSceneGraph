@@ -54,6 +54,9 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.database.inventor.SbName;
+import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.errors.SoReadError;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Single-value field containing a set of bit flags.
@@ -98,5 +101,152 @@ SoField, SoSField, SoMFBitMask
  *
  */
 public class SoSFBitMask extends SoSFEnum {
+
+// Special characters when reading or writing value in ASCII
+private static final char OPEN_PAREN      ='(';
+private static final char CLOSE_PAREN     =')';
+private static final char BITWISE_OR      ='|';
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads value from file. Returns FALSE on error. See the comments
+//    in writeValue for file format details.
+//
+// Use: private
+
+public boolean
+readValue(SoInput in)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final char[]        c = new char[1];
+    final SbName      n = new SbName();
+    final int[]         v = new int[1];
+
+    value = 0;
+
+    if (in.isBinary()) {
+
+        // Read all non-empty strings
+        while (in.read(n, true) && ! ( n.operator_not()) ) {
+            if (findEnumValue(n, v))
+                value |= v[0];
+
+            else {
+                SoReadError.post(in,
+                                  "Unknown SoSFBitMask bit mask value \""+n.getString()+"\"");
+                return false;
+            }
+        }
+    }
+
+    else {
+        // Read first character
+        if (! in.read(c))
+            return false;
+
+        // Check for parenthesized list of bitwise-or'ed flags
+        if (c[0] == OPEN_PAREN) {
+
+            // Read names separated by BITWISE_OR
+            while (true) {
+                if (in.read(n, true) && ! ( n.operator_not()) ) {
+
+                    if (findEnumValue(n, v))
+                        value |= v[0];
+
+                    else {
+                        SoReadError.post(in, "Unknown SoSFBitMask bit "+
+                                          "mask value \""+n.getString()+"\"" );
+                        return false;
+                    }
+                }
+
+                if (! in.read(c)) {
+                    SoReadError.post(in, "EOF reached before '"+CLOSE_PAREN+"' "+
+                                      "in SoSFBitMask value" );
+                    return false;
+                }
+
+                if (c[0] == CLOSE_PAREN)
+                    break;
+
+                else if (c[0] != BITWISE_OR) {
+                    SoReadError.post(in, "Expected '"+BITWISE_OR+"' or '"+CLOSE_PAREN+"', got '"+c+"' "+
+                                      "in SoSFBitMask value");
+                    return false;
+                }
+            }
+        }
+
+        else {
+            in.putBack(c[0]);
+
+            // Read mnemonic value as a character string identifier
+            if (! in.read(n, true))
+                return false;
+
+            if (! findEnumValue(n, /*value*/v)) { // java port
+                SoReadError.post(in, "Unknown SoSFBitMask bit "+
+                                  "mask value \""+n.getString()+"\"" );
+                return false;
+            }
+            value = v[0]; //java port
+        }
+    }
+
+    return true;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Looks up enum name, returns value. Returns FALSE if not found.
+//    SFEnum method not used because need to allocate unknown enum
+//    bits uniquely.
+//
+// Use: protected virtual
+
+protected boolean
+findEnumValue(final SbName name, final int[] val)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    int i;
+
+    // Look through names table for one that matches
+    for (i = 0; i < numEnums; i++) {
+        if (name.operator_equal_equal(enumNames[i])) {
+            val[0] = enumValues[i];
+            return true;
+        }
+    }
+
+    if (!legalValuesSet) {
+        // Must be part of an unknown node, add name, value:
+        int[] oldValues = enumValues;
+        SbName[] oldNames = enumNames;
+        enumValues = new int[numEnums+1];
+        enumNames = new SbName[numEnums+1];
+        if (numEnums != 0) {
+            for (i = 0; i < numEnums; i++) {
+                enumValues[i] = oldValues[i];
+                enumNames[i] = oldNames[i];
+            }
+            //delete[] oldValues;
+            //delete[] oldNames;
+        }
+        val[0] = 1<<numEnums;
+        enumValues[numEnums] = 1<<numEnums;
+        enumNames[numEnums] = name;
+        ++numEnums;
+        return true;
+    }
+
+    return false;
+}
 
 }

@@ -34,7 +34,6 @@
  *
  */
 
-
 /*
  * Copyright (C) 1990,91   Silicon Graphics, Inc.
  *
@@ -60,7 +59,6 @@ import java.util.function.DoubleConsumer;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Util;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Multiple-value field containing any number of three-dimensional vectors.
@@ -90,172 +88,164 @@ example:
  *
  */
 public class SoMFVec3f extends SoMField<SbVec3f> {
-	
-    /**
-     * Sets the field to contain the given value and 
-     * only the given value (if the array had multiple values before, 
-     * they are deleted). 
-     * 
-     * @param xyz
-     */
-    ////////////////////////////////////////////////////////////////////////
-     //
-     // Description:
-     //    Sets to one vector value from array of 3 floats. (Convenience function)
-     //
-     // Use: public
-     
-        public void setValue(final float[] xyz) {
-    	  setValue(new SbVec3f(xyz));
-    }
-  
-    /* Get pointer into array of values */                                    
-         public SbVec3f[]           getValues(int start)                    
-             { 
-        	 evaluate();
-        	 
-        	 SbVec3f[] shiftedValues = new SbVec3f[values.length-start];
-        	 for(int i=start;i<values.length;i++) {
-        		 shiftedValues[i-start] = (SbVec3f)values[i];
-        	 }        	 
-             return shiftedValues; 
-             }
-         
-         public ByteBuffer getValuesBytes(int start) {
-        	 SbVec3f[] values = getValues(start);
-        	 return Util.toByteBuffer(values);
-         }
 
-         // java port
-         public float[] getValuesFloat(int start)
-             { 
-        	 evaluate();
-        	 
-        	 float[] shiftedValues = new float[(values.length-start)*3];
-        	 int index = 0;
-        	 for(int i=start;i<values.length;i++) {
-        		 shiftedValues[index] = ((SbVec3f)values[i]).getValue()[0];
-        		 index++;
-        		 shiftedValues[index] = ((SbVec3f)values[i]).getValue()[1];
-        		 index++;
-        		 shiftedValues[index] = ((SbVec3f)values[i]).getValue()[2];
-        		 index++;
-        	 }        	 
-             return shiftedValues; 
-             }
-         
-         // Set values from array of arrays of 3 floats.
-         
-         //
-          // Description:
-          //    Sets values from array of arrays of 3 floats. This can be useful
-          //    in some applications that have vectors stored in this manner and
-          //    want to keep them that way for efficiency.
-          //
-          // Use: public
-          
-          public void
-          setValues(int start,                 // Starting index
-                               float xyz[][])      // Array of vector values
-          //
-          {
-        	  int num = xyz.length;                   // Number of values to set
-              int newNum = start + num;
-              int i;
-          
-              if (newNum > getNum())
-                  makeRoom(newNum);
-          
-              for (i = 0; i < num; i++)
-                  ((SbVec3f)values[start + i]).setValue(xyz[i]);
-          
-              valueChanged();
-          }
-          
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Sets values from array of arrays of 3 floats. This can be useful
-//    in some applications that have vectors stored in this manner and
-//    want to keep them that way for efficiency.
-//
-// Use: public
+	/**
+	 * Sets the field to contain the given value and only the given value (if
+	 * the array had multiple values before, they are deleted).
+	 * 
+	 * @param xyz
+	 */
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Description:
+	// Sets to one vector value from array of 3 floats. (Convenience function)
+	//
+	// Use: public
 
-public void setValues(int start,                 // Starting index
-                     int num,                   // Number of values to set
-                     final float xyz[][/*3*/])      // Array of vector values
-//
-////////////////////////////////////////////////////////////////////////
-{
-    int newNum = start + num;
-    int i;
-
-    if (newNum > getNum())
-        makeRoom(newNum);
-
-    for (i = 0; i < num; i++)
-    	((SbVec3f)values[start + i]).setValue(xyz[i]);
-
-    valueChanged();
-}
-
-/**
- * java port
- * @param start
- * @param num
- * @param skyBoxVertices
- */
-public void setValues(int start, int num, float[][][] xyz3d) {
-	int xyzLength = 0;
-	int xyz3dLength = xyz3d.length;
-	for(int i=0;i<xyz3dLength;i++) {
-		if(xyz3d[i] != null) {
-			xyzLength += xyz3d[i].length;
-		}
+	public void setValue(final float[] xyz) {
+		setValue(new SbVec3f(xyz));
 	}
-	float[][] xyz = new float[xyzLength][];
-	int j=0;
-	for(int i=0;i<xyz3dLength;i++) {
-		if(xyz3d[i] != null) {
-			float[][] iArray = xyz3d[i];
-			int iLength = iArray.length;
-			for(int k=0;k<iLength;k++) {
-				xyz[j] = xyz3d[i][k];
-				j++;
+
+	/* Get pointer into array of values */
+	public SbVec3f[] getValues(int start) {
+		evaluate();
+
+		SbVec3f[] shiftedValues = new SbVec3f[values.length - start];
+		for (int i = start; i < values.length; i++) {
+			shiftedValues[i - start] = (SbVec3f) values[i];
+		}
+		return shiftedValues;
+	}
+
+	public ByteBuffer getValuesBytes(int start) {
+		SbVec3f[] values = getValues(start);
+		return Util.toByteBuffer(values);
+	}
+
+	// java port
+	public float[] getValuesFloat(int start) {
+		evaluate();
+
+		float[] shiftedValues = new float[(values.length - start) * 3];
+		int index = 0;
+		for (int i = start; i < values.length; i++) {
+			shiftedValues[index] = ((SbVec3f) values[i]).getValue()[0];
+			index++;
+			shiftedValues[index] = ((SbVec3f) values[i]).getValue()[1];
+			index++;
+			shiftedValues[index] = ((SbVec3f) values[i]).getValue()[2];
+			index++;
+		}
+		return shiftedValues;
+	}
+
+	// Set values from array of arrays of 3 floats.
+
+	//
+	// Description:
+	// Sets values from array of arrays of 3 floats. This can be useful
+	// in some applications that have vectors stored in this manner and
+	// want to keep them that way for efficiency.
+	//
+	// Use: public
+
+	public void setValues(int start, // Starting index
+			float xyz[][]) // Array of vector values
+	//
+	{
+		int num = xyz.length; // Number of values to set
+		int newNum = start + num;
+		int i;
+
+		if (newNum > getNum())
+			makeRoom(newNum);
+
+		for (i = 0; i < num; i++)
+			((SbVec3f) values[start + i]).setValue(xyz[i]);
+
+		valueChanged();
+	}
+
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Description:
+	// Sets values from array of arrays of 3 floats. This can be useful
+	// in some applications that have vectors stored in this manner and
+	// want to keep them that way for efficiency.
+	//
+	// Use: public
+
+	public void setValues(int start, // Starting index
+			int num, // Number of values to set
+			final float xyz[][/* 3 */]) // Array of vector values
+	//
+	////////////////////////////////////////////////////////////////////////
+	{
+		int newNum = start + num;
+		int i;
+
+		if (newNum > getNum())
+			makeRoom(newNum);
+
+		for (i = 0; i < num; i++)
+			((SbVec3f) values[start + i]).setValue(xyz[i]);
+
+		valueChanged();
+	}
+
+	/**
+	 * java port
+	 * 
+	 * @param start
+	 * @param num
+	 * @param skyBoxVertices
+	 */
+	public void setValues(int start, int num, float[][][] xyz3d) {
+		int xyzLength = 0;
+		int xyz3dLength = xyz3d.length;
+		for (int i = 0; i < xyz3dLength; i++) {
+			if (xyz3d[i] != null) {
+				xyzLength += xyz3d[i].length;
 			}
 		}
+		float[][] xyz = new float[xyzLength][];
+		int j = 0;
+		for (int i = 0; i < xyz3dLength; i++) {
+			if (xyz3d[i] != null) {
+				float[][] iArray = xyz3d[i];
+				int iLength = iArray.length;
+				for (int k = 0; k < iLength; k++) {
+					xyz[j] = xyz3d[i][k];
+					j++;
+				}
+			}
+		}
+		setValues(start, num, xyz);
 	}
-	setValues(start,num,xyz);
-}                            
-          
 
-		@Override
-		protected SbVec3f constructor() {
-			return new SbVec3f();
-		}
+	@Override
+	protected SbVec3f constructor() {
+		return new SbVec3f();
+	}
 
-		@Override
-		protected SbVec3f[] arrayConstructor(int length) {
-			return new SbVec3f[length];
-		}
-		
+	@Override
+	protected SbVec3f[] arrayConstructor(int length) {
+		return new SbVec3f[length];
+	}
 
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Reads one (indexed) value from file. Returns FALSE on error.
-//
-// Use: private
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Description:
+	// Reads one (indexed) value from file. Returns FALSE on error.
+	//
+	// Use: private
 
-public boolean read1Value(SoInput in, int index)
-//
-////////////////////////////////////////////////////////////////////////
-{
-	DoubleConsumer[] ref = getValues(0)[index].getRef();
-    return (in.read(ref[0]) &&
-            in.read(ref[1]) &&
-            in.read(ref[2]));
-}
+	public boolean read1Value(SoInput in, int index)
+	//
+	////////////////////////////////////////////////////////////////////////
+	{
+		DoubleConsumer[] ref = getValues(0)[index].getRef();
+		return (in.read(ref[0]) && in.read(ref[1]) && in.read(ref[2]));
+	}
 
-		
 }

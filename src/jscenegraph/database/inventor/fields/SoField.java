@@ -1049,6 +1049,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 					final SoNotList listCopy = new SoNotList(list);
 					cont.notify(list);
 					auditorInfo.auditors.notify(listCopy);
+					listCopy.destructor();
 				}
 			} else {
 				// if container notification is disabled, we only notify
@@ -1060,6 +1061,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 			if (profilingEntered && SoProfiling.getLeaveScopeCB() != null) {
 				SoProfiling.getLeaveScopeCB().run();
 			}
+			rec.destructor();
 		}
 
 	}
@@ -1147,6 +1149,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 		notify(list);
 
 		SoDB.endNotify();
+		list.destructor();
 	}
 
 	// Adds/removes an auditor to/from list.
@@ -1853,7 +1856,7 @@ public boolean readConnection(SoInput in)
 		// SoMFVec2d.initClass();
 		SoMFVec3f.initClass(SoMFVec3f.class);
 		// SoMFVec3d.initClass();
-		// SoMFVec4f.initClass();
+		SoMFVec4f.initClass(SoMFVec4f.class);
 		// SoMFVec4d.initClass();
 
 	}

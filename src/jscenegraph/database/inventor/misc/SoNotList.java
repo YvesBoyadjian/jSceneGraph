@@ -103,6 +103,11 @@ public class SoNotList implements Mutable {
 		 timeStamp = copyFrom.timeStamp;
 	 }
 	 
+	 public void destructor() {
+		 first = last = firstAtNode = null;
+		 lastField = null;
+	 }
+	 
 	 // Appends given non-field record to end of list. 
 	 public void append(SoNotRec rec) {
 		 

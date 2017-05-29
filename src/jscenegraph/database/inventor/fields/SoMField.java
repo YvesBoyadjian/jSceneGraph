@@ -150,6 +150,22 @@ public abstract class SoMField<T extends Object> extends SoField {
 		setValues(0, /* f.getNum(), */ f.getValues(0));
 		return this;
 	}
+	
+    //! Forces this field to have exactly num values, inserting or deleting
+    //! values as necessary.
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Inserts or deletes values to adjust to the given size
+//
+//Use: public
+
+    public void                setNum(int n) {
+	    if (n > num)
+	        insertSpace(num, n-num);
+	    else if (n < num)
+	        deleteValues(n);
+    }
 
 	// Returns the number of values currently in the field.
 	public int getNum() {
@@ -443,6 +459,34 @@ public abstract class SoMField<T extends Object> extends SoField {
 		// The field value has changed...
 		valueChanged();
 	}
+	
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Inserts space for num values starting at start.  The initial
+//    values in the new space are undefined.
+//
+// Use: public
+
+public void
+insertSpace(int start,        // Starting index
+                      int numToInsert)          // Number of spaces to insert
+//
+////////////////////////////////////////////////////////////////////////
+{
+    // Expand the array
+    makeRoom(getNum() + numToInsert);
+
+    // Copy stuff out of the inserted area to later in the array
+    for (int i = num - 1; i >= start + numToInsert; --i)
+        copyValue(i, i - numToInsert);
+
+    // The field value has changed...
+    valueChanged();
+}
+
+	
 
 	////////////////////////////////////////////////////////////////////////
 	//
