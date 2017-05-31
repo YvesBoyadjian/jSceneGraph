@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.nodes;
 
 import java.nio.Buffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
@@ -249,6 +250,7 @@ public class SoIndexedFaceSet extends SoIndexedShape {
     	TriRenderFunc[30] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriVmVn(action);
     	QuadRenderFunc[6] = (soIndexedFaceSet, action) -> soIndexedFaceSet.QuadOmVn(action);
     	GenRenderFunc[6] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenOmVn(action);
+    	GenRenderFunc[24] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenVmOn(action);
     }
 
  // Constants for influencing auto-caching algorithm:
@@ -1262,6 +1264,42 @@ public void GenOmVn(SoGLRenderAction action)
 	    (normalFunc).run(gl2, normalPtr);
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
 	    (vertexFunc).run(gl2, vertexPtr);
+	    vtxCtr++;
+	}
+	vtxCtr++; // Skip over END_FACE_INDEX
+	gl2.glEnd();
+    }
+}
+
+
+public void
+GenVmOn
+    (SoGLRenderAction action )
+{
+	
+	GL2 gl2 = action.getCacheContext();
+	
+    final int[] vertexIndex = coordIndex.getValuesInt(0);
+    final int numVI = coordIndex.getNum();
+    // Send one normal, if there are any normals in vpCache:
+    if (vpCache.getNumNormals() > 0)
+	vpCache.sendNormal(gl2,(FloatBuffer)vpCache.getNormals(0));
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer colorPtr = vpCache.getColors(0);
+    final int colorStride = vpCache.getColorStride();
+    SoVPCacheFunc colorFunc = vpCache.colorFunc;
+    Integer[] colorIndx = getColorIndices();
+    int vtxCtr = numQuads*5 + numTris*4;
+    while (vtxCtr < numVI) {
+	gl2.glBegin(GL2.GL_POLYGON);
+	while (vtxCtr < numVI &&
+	       (vertexIndex[vtxCtr] != SO_END_FACE_INDEX)) {
+		colorPtr.position(colorStride*colorIndx[vtxCtr]/Integer.BYTES);
+	    (colorFunc).run(gl2,colorPtr/*+colorStride*colorIndx[vtxCtr]*/);
+	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 	    vtxCtr++;
 	}
 	vtxCtr++; // Skip over END_FACE_INDEX

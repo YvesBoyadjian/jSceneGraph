@@ -734,10 +734,10 @@ sendVPPacked(SoState state, IntBuffer pcolor)
     gl2.glColor4ubv((byte[])_pcolor,0);
     if (!(glState.GLColorMaterial!=0 || (glState.GLLightModel == LightModel.BASE_COLOR.getValue()))) {
         float[] col4 = new float[4];
-        col4[3] = (_pcolor[3]) * 1.0f/255;
-        col4[2] = (_pcolor[2]) * 1.0f/255;
-        col4[1] = (_pcolor[1]) * 1.0f/255;
-        col4[0] = (_pcolor[0]) * 1.0f/255;
+        col4[3] = SoMachine.toUByte(_pcolor[3]) * 1.0f/255;
+        col4[2] = SoMachine.toUByte(_pcolor[2]) * 1.0f/255;
+        col4[1] = SoMachine.toUByte(_pcolor[1]) * 1.0f/255;
+        col4[0] = SoMachine.toUByte(_pcolor[0]) * 1.0f/255;
         gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, col4,0);
     }
     
@@ -749,7 +749,7 @@ sendVPPacked(SoState state, IntBuffer pcolor)
     // If Stipple is not being used, nothing to be done for transparency.
     if (ivState.transpType == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()){
     
-        int trans = _pcolor[3];
+        int trans = SoMachine.toUByte(_pcolor[3]);
     
         // If transparency was off and is still off, can quit here    
         if (glState.GLStippleNum != 0 || trans != 0xff) {

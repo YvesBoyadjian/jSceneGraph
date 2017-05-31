@@ -470,7 +470,7 @@ protected boolean beginVertexArrayRendering( SoGLRenderAction action )
       if (vpCache.colorIsInVtxProp()) {
         if (vertexProperty.getValue().getNodeId() != vbo.getDataId()) {
           // take colors from vertex property
-          vbo.setData(vpCache.getNumColors() * Integer.SIZE /Byte.SIZE, (ByteBuffer)vpCache.getColors(0), vertexProperty.getValue().getNodeId(), state);
+          vbo.setData(vpCache.getNumColors() * Integer.SIZE /Byte.SIZE, vpCache.getColors(0), vertexProperty.getValue().getNodeId(), state);
         }
       } else {
         // take colors from state      
@@ -506,7 +506,12 @@ protected boolean beginVertexArrayRendering( SoGLRenderAction action )
         gl2.glVertexAttribPointer(SoLazyElement.VertexAttribs.ATTRIB_COLOR.getValue(), 4, GL_UNSIGNED_BYTE,true, 0, dataPtr);
         gl2.glEnableVertexAttribArray(SoLazyElement.VertexAttribs.ATTRIB_COLOR.getValue());
       } else {
-    	gl2.glColorPointer(4, GL_UNSIGNED_BYTE, 0, dataPtr);
+    	  if(dataPtr == null) { // java port
+    		  gl2.glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);    		  
+    	  }
+    	  else {
+    		  gl2.glColorPointer(4, GL_UNSIGNED_BYTE, 0, dataPtr);
+    	  }
     	gl2.glEnableClientState(GL_COLOR_ARRAY);
     }
   } else {

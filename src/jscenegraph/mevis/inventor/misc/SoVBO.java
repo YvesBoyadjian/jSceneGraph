@@ -41,6 +41,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
@@ -64,7 +65,7 @@ public class SoVBO implements Destroyable {
 
 private	  int _type;
 
-private		  ByteBuffer _data;
+private		  Buffer _data;
 private		  int      _numBytes;
 private		  int _nodeId;
 
@@ -119,7 +120,7 @@ public void destructor()
   freeGL();
 }
 
-public void setData(int numBytes, final ByteBuffer data, int nodeId, SoState state)
+public void setData(int numBytes, final Buffer data, int nodeId, SoState state)
 {
   // free previous data if it was owned
   if (_ownsData && (_data != null)) {
@@ -144,7 +145,7 @@ public void allocateData( int numBytes, int nodeId , SoState state)
   freeGL(state);
 
   _numBytes = numBytes;
-  _data = ByteBuffer.allocate(numBytes);//new int[numBytes/Integer.SIZE];//malloc(numBytes); TODO JOGL
+  _data = Buffers.newDirectIntBuffer(numBytes/Integer.BYTES);//ByteBuffer.allocate(numBytes);//new int[numBytes/Integer.SIZE];//malloc(numBytes); TODO JOGL
   _nodeId = nodeId;
   _ownsData = true;
   _hasSwappedRGBAData = false;
@@ -167,7 +168,7 @@ public void copyAndSwapPackedRGBA( int numValues, final IntBuffer values, int no
 
   _hasSwappedRGBAData = true;
 
-  IntBuffer dest = _data.asIntBuffer();
+  IntBuffer dest = (IntBuffer)_data/*.asIntBuffer()*/;
   dest.clear();
   for (int i = 0; i < numValues; i++) {
     int value = values.get(i);
@@ -178,11 +179,12 @@ public void copyAndSwapPackedRGBA( int numValues, final IntBuffer values, int no
       ((value & 0xff0000) >>> 8) |
       (value >>> 24));
   }
+  dest.rewind();
 }
 
 public void copyAndSwapPackedRGBA( SoState state )
 {
-  copyAndSwapPackedRGBA(_numBytes/4, _data.asIntBuffer(), _nodeId, state);
+  copyAndSwapPackedRGBA(_numBytes/4, (IntBuffer)_data/*.asIntBuffer()*/, _nodeId, state);
 }
 
 public void freeGL() {

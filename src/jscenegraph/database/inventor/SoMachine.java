@@ -54,4 +54,17 @@ public class SoMachine {
 	public static float DGL_NTOH_FLOAT(byte[] array) {
 		return ByteBuffer.wrap(array).order(ByteOrder.BIG_ENDIAN).getFloat();
 	}
+	
+	/**
+	 * Helper method java port
+	 * @param b
+	 * @return
+	 */
+	public static short toUByte(byte b) {
+		short retVal = b;
+		if(retVal <0) {
+			retVal += 256;
+		}
+		return retVal;
+	}
 }
