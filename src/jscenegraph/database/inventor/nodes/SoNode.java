@@ -500,7 +500,7 @@ getByName( SbName name, SoNodeList list)
 		       SoPointSet.initClass();
 		       SoProfileCoordinate2.initClass();
 		       SoProfileCoordinate3.initClass();
-//		       SoQuadMesh.initClass();
+		       SoQuadMesh.initClass();
 		       SoResetTransform.initClass();
 		       SoRotation.initClass();
 		       SoRotationXYZ.initClass();

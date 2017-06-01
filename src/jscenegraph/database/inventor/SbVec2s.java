@@ -198,7 +198,7 @@ operator_minus(final SbVec2s v2)
 		IntConsumer[] ref = new IntConsumer[2];
 		ref[0] = value -> vec[0] = (short) value;
 		ref[1] = value -> vec[1] = (short) value;
-		return null;
+		return ref;
 	}
 }
 
