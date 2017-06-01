@@ -113,9 +113,9 @@ public class SoNodeKit {
 		           SoSeparatorKit.initClass();
 //		           SoWrapperKit.initClass();
 		           SoShapeKit.initClass();
-//		           SoLightKit.initClass();
-//		           SoCameraKit.initClass();
-//		           SoSceneKit.initClass();
+		           SoLightKit.initClass();
+		           SoCameraKit.initClass();
+		           SoSceneKit.initClass();
 		   
 		           // The detail class -- Not a node class, but a detail used by them.
 		           SoNodeKitDetail.initClass();

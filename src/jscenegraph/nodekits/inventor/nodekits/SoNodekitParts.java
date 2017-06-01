@@ -469,7 +469,7 @@ setAnyPart( final SbName nameOfPart, SoNode newPartNode,
 
     // break string into two parts
     firstName = strtok( nameCopy, ".");   // everything before the first '.'
-    remainderString = strtok( null, "");  // everything else
+    remainderString = nameCopy.substring(nameCopy.indexOf('.')+1);//strtok( null, "");  // everything else
 
     // Get firstNode:
     // [1] Only need to create it if (newPartNode != null)
@@ -571,7 +571,7 @@ protected SoNode
  
      // break string into two parts
      firstName = strtok( nameCopy, ".");   // everything before the first '.'
-     remainderString = strtok( null, "");  // everything else
+     remainderString = nameCopy.substring(nameCopy.indexOf('.')+1);//strtok( null, "");  // everything else
  
      // get node for first part
      // intermediate names have to be leaves, so arg3 (leafCheck) is true
@@ -666,7 +666,7 @@ createPathToAnyPart( final SbName nameOfPart,
 
     // break string into two parts
     firstName = strtok( nameCopy, ".");   // everything before the first '.'
-    remainderString = strtok( null, "");  // everything else
+    remainderString = nameCopy.substring(nameCopy.indexOf('.')+1);//strtok( null, "");  // everything else
 
     // get node for first part
     // intermediate names have to be leaves, so arg3 (leafCheck) is true
@@ -865,7 +865,7 @@ getSingleNamePathToPart(final  SbName nameOfPart,
     // IS THERE A BRACKET, WHICH SIGNIFIES INDEXING INTO A LIST?
     if ( strrchr( nameOfPart.getString(), '[') != null ) {
 
-        String listNameCopy = strdup( nameOfPart.getString());
+        final String[] listNameCopy = new String[1]; listNameCopy[0] = strdup( nameOfPart.getString());
         int[]  arrayIndex = new int[1];
 
         if (!parseListItem( listNameCopy, arrayIndex)){
@@ -875,7 +875,7 @@ getSingleNamePathToPart(final  SbName nameOfPart,
 
         // get the list given by 'listNameCopy'
         boolean[] listExistedBefore = new boolean[1];
-        answerPath = getSingleNamePathToPart( new SbName(listNameCopy), makeIfNeeded, 
+        answerPath = getSingleNamePathToPart( new SbName(listNameCopy[0]), makeIfNeeded, 
                                       true, publicCheck, listExistedBefore );
         if (answerPath == null){
             //free(listNameCopy); java port
@@ -893,7 +893,7 @@ getSingleNamePathToPart(final  SbName nameOfPart,
                 answerPath.unref();
                 if ( listExistedBefore[0] == false ) {
                     // if we just created the list, we'd better get rid of it...
-                    setSingleNamePart( new SbName(listNameCopy), null, true );
+                    setSingleNamePart( new SbName(listNameCopy[0]), null, true );
                 }
                 //free(listNameCopy); java port
                 return null;
@@ -969,7 +969,7 @@ getSingleNamePathToPart(final  SbName nameOfPart,
             answerPath.unref();
             if ( listExistedBefore[0] == false ) {
                 // if we just created the list, we'd better get rid of it...
-                setSingleNamePart( new SbName(listNameCopy), null, true );
+                setSingleNamePart( new SbName(listNameCopy[0]), null, true );
             }
             //free(listNameCopy); java port
             return null;
@@ -1123,7 +1123,7 @@ private boolean setSingleNamePart(SbName nameOfPart, SoNode newPartNode, boolean
 {
     // IS THERE A BRACKET, WHICH SIGNIFIES INDEXING INTO A LIST?
     if ( strrchr( nameOfPart.getString(), '[') != null ) {
-        String listNameCopy = strdup( nameOfPart.getString());
+        final String[] listNameCopy = new String[1]; listNameCopy[0] = strdup( nameOfPart.getString());
         int[]  arrayIndex = new int[1];
 
         if (!parseListItem( listNameCopy, arrayIndex )){
@@ -1137,7 +1137,7 @@ private boolean setSingleNamePart(SbName nameOfPart, SoNode newPartNode, boolean
         // list containing it need not exist either.
         boolean needToMake = ( newPartNode != null);
         final boolean[] listExistedBefore = new boolean[1];
-        SoNode n = getSingleNamePart( new SbName(listNameCopy), needToMake, true, 
+        SoNode n = getSingleNamePart( new SbName(listNameCopy[0]), needToMake, true, 
                                        !anyPart, listExistedBefore );
         if ( n == null && needToMake == false ) {
             //free(listNameCopy); java port
@@ -1155,7 +1155,7 @@ private boolean setSingleNamePart(SbName nameOfPart, SoNode newPartNode, boolean
 //#endif
             if ( listExistedBefore[0] == false ) {
                 // if we just created the list, we'd better get rid of it...
-                setSingleNamePart( new SbName(listNameCopy), null, true );
+                setSingleNamePart( new SbName(listNameCopy[0]), null, true );
             }
             //free(listNameCopy); java port
             return false;
@@ -1170,7 +1170,7 @@ private boolean setSingleNamePart(SbName nameOfPart, SoNode newPartNode, boolean
                  listGroup.removeChild( arrayIndex[0] );
             else if ( listExistedBefore[0] == false ) {
                 // if we just created the list, we'd better get rid of it...
-                setSingleNamePart( new SbName(listNameCopy), null, true );
+                setSingleNamePart( new SbName(listNameCopy[0]), null, true );
             }
             //free(listNameCopy); java port
             return true;
@@ -1215,7 +1215,7 @@ private boolean setSingleNamePart(SbName nameOfPart, SoNode newPartNode, boolean
 //#endif
         if ( listExistedBefore[0] == false ) {
             // if we just created the list, we'd better get rid of it...
-            setSingleNamePart( new SbName(listNameCopy), null, true );
+            setSingleNamePart( new SbName(listNameCopy[0]), null, true );
         }
         //free(listNameCopy); java port
         return false;
@@ -1383,7 +1383,7 @@ getSingleNamePart( final SbName nameOfPart,
     // IS THERE A BRACKET, WHICH SIGNIFIES INDEXING INTO A LIST?
     if ( strrchr( nameOfPart.getString(), '[') != null ) {
 
-        String listNameCopy = strdup( nameOfPart.getString());
+        final String[] listNameCopy = new String[1]; listNameCopy[0] = strdup( nameOfPart.getString());
         int[]  arrayIndex = new int[1];
 
         if ( !parseListItem( listNameCopy, arrayIndex)) {
@@ -1393,7 +1393,7 @@ getSingleNamePart( final SbName nameOfPart,
 
         // get the list given by 'listNameCopy'
         boolean[] listExistedBefore = new boolean[1];
-        SoNode n = getSingleNamePart( new SbName(listNameCopy), makeIfNeeded, true, 
+        SoNode n = getSingleNamePart( new SbName(listNameCopy[0]), makeIfNeeded, true, 
                                         publicCheck, listExistedBefore );
         if ( n == null ) {
             //free ( listNameCopy ); java port
@@ -1407,7 +1407,7 @@ getSingleNamePart( final SbName nameOfPart,
 //#endif
             if ( listExistedBefore[0] == false ) {
                 // if we just created the list, we'd better get rid of it...
-                setSingleNamePart( new SbName(listNameCopy), null, true );
+                setSingleNamePart( new SbName(listNameCopy[0]), null, true );
             }
             //free( listNameCopy); java port
             return null;
@@ -1473,7 +1473,7 @@ getSingleNamePart( final SbName nameOfPart,
             }
             if ( listExistedBefore[0] == false ) {
                 // if we just created the list, we'd better get rid of it...
-                setSingleNamePart( new SbName(listNameCopy), null, true );
+                setSingleNamePart( new SbName(listNameCopy[0]), null, true );
             }
             //free( listNameCopy); java port
             return null;
@@ -1702,12 +1702,12 @@ addPaths( final SoFullPath pathA,
 // Use: private
 
 private boolean
-parseListItem( String parseString, int[] index ) 
+parseListItem( final String[] parseString, int[] index ) 
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    int indexStart = parseString.indexOf('[');
-    int indexStop = parseString.indexOf(']');
+    int indexStart = parseString[0].indexOf('[');
+    int indexStop = parseString[0].indexOf(']');
     
     if ( indexStart == -1 || indexStop == -1 || indexStart>indexStop ) {
 //#ifdef DEBUG
@@ -1718,8 +1718,9 @@ parseListItem( String parseString, int[] index )
     }
     int beginIndex = indexStart + 1;
     int endIndex = indexStop;
-    String elementNum = parseString.substring(beginIndex, endIndex);
+    String elementNum = parseString[0].substring(beginIndex, endIndex);
     index[0] = Integer.parseInt(elementNum);    // read index from string
+    parseString[0] = parseString[0].substring(0, indexStart); // java port
     return true;
 }
 

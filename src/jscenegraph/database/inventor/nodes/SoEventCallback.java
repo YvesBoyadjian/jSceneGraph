@@ -314,6 +314,25 @@ setPath(SoPath path)
 	        eventAction = null;
 	    }	   
 	   
+    ///////////////////////
+
+    //! Tells the node the event was handled. The callback function is
+    //! responsible for setting whether the event was handled or not.
+    //! If there is more than one callback function registered
+    //! with an SoEventCallback node, all of them will be
+    //! invoked, regardless of whether one has handled
+    //! the event or not.
+    //! This should be called only from callback functions.
+    public void                setHandled()
+        { if (eventAction != null) eventAction.setHandled(); }
+
+    //! Returns whether the event has been handled.
+    //! This should be called only from callback functions.
+    public boolean                isHandled() 
+        { return (eventAction != null) ? eventAction.isHandled() : false; }
+
+	   
+	   
 	 ////////////////////////////////////////////////////////////////////////
 	   //
 	   // Description:

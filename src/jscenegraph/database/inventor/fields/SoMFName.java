@@ -90,8 +90,6 @@ example:
  */
 public class SoMFName extends SoMField<SbName> {
 	
-	protected SbName[] values;
-
 	public void set1Value(int index, SbName newValue)                            
 	   {                                                                             
 	       if (index >= getNum())                                                    

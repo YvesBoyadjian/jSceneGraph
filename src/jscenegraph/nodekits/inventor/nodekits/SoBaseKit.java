@@ -629,6 +629,29 @@ public void destructor() {
 		 return ( setAnyPart( partName, from, false ) );
 	}
 	
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//     Returns the containerNode within the SoNodeKitListPart given
+//     by listName.
+//
+// Use: protected
+	public SoGroup getContainerNode(String listName) { // java port
+		return getContainerNode(new SbName(listName),true);
+	}
+public SoGroup 
+getContainerNode( final SbName listName, boolean makeIfNeeded )
+{
+    SoNodeKitListPart l 
+        = (SoNodeKitListPart ) getAnyPart( listName, makeIfNeeded );
+    if ( l == null )
+        return null;
+    return ( l.getContainerNode() );
+}
+
+	
+	
 	/**
 	 * like their public versions, but are allowed access to non-leaf and private parts. 
 	 * These are virtual so subclasses may do extra things when certain parts are requested. 
@@ -639,6 +662,9 @@ public void destructor() {
 	 * @param publicCheck
 	 * @return
 	 */
+	protected SoNode getAnyPart(SbName partName, boolean makeIfNeeded) {
+		return getAnyPart(partName,makeIfNeeded,false,false);
+	}
 	protected SoNode getAnyPart(SbName partName, boolean makeIfNeeded, boolean leafCheck, boolean publicCheck) {
 	     return (nodekitPartsList.getAnyPart( partName, makeIfNeeded, leafCheck, publicCheck ));		
 	}
@@ -1332,7 +1358,7 @@ skipWhiteSpace(String string)
         string = string.substring(1);
 
     // If next character is comment character, flush until end of line
-    if (string.charAt(0) == __SO_COMMENT_CHAR) {
+    if (!string.isEmpty() && (string.charAt(0) == __SO_COMMENT_CHAR)) {
         while ((!string.isEmpty() && string.charAt(0)!=0))
          string = string.substring(1);
     }
@@ -1516,6 +1542,19 @@ public boolean setUpConnections( boolean onOff) {
 				return (/*(partClassName )*/ SoBaseKit.typeCheck( new SbName(partName),                    
 				                       (SoType)partClassName.getMethod("getClassTypeId").invoke(null),               
 				                       kitContainingPart.getPart( partName, false )));
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+					| SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        return null;
+		}
+		
+		public static SoNode SO_GET_PART( SoBaseKit kitContainingPart, String partName, Class< ? extends SoNode> partClassName ) {            
+	        try {
+				return (/*(partClassName )*/ SoBaseKit.typeCheck( new SbName(partName),                    
+				                       (SoType)partClassName.getMethod("getClassTypeId").invoke(null),               
+				                       kitContainingPart.getPart( partName, true )));
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
 					| SecurityException e) {
 				// TODO Auto-generated catch block
