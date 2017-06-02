@@ -86,6 +86,7 @@ import jscenegraph.database.inventor.elements.SoNormalBindingElement;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.elements.SoTextureCoordinateBindingElement;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFInt32;
 import jscenegraph.database.inventor.fields.SoSFBool;
@@ -891,66 +892,62 @@ GLRender(SoGLRenderAction action)
     else lazyElt.send(state, SoLazyElement.masks.ALL_MASK.getValue());
 
 //#ifdef DEBUG
-//    // Check for enough vertices:
-//    if (vpCache.numVerts < totalNumVertices + startIndex.getValue()){
-//      SoDebugError::post("SoFaceSet::GLRender",
-//        "Too few vertices specified;"
-//        " need %d, have %d", totalNumVertices + startIndex.getValue(),
-//        vpCache.numVerts);
-//    }
-//    // Check for enough colors, normals, texcoords:
-//    int numNormalsNeeded = 0;
-//    if (shapeStyle.needNormals()) switch (vpCache.getNormalBinding()) {
-//    case SoNormalBindingElement::OVERALL:
-//      numNormalsNeeded = 1;
-//      break;
-//    case SoNormalBindingElement::PER_VERTEX:
-//    case SoNormalBindingElement::PER_VERTEX_INDEXED:
-//      numNormalsNeeded = totalNumVertices + startIndex.getValue();
-//      break;
-//    case SoNormalBindingElement::PER_FACE:
-//    case SoNormalBindingElement::PER_FACE_INDEXED:
-//    case SoNormalBindingElement::PER_PART:
-//    case SoNormalBindingElement::PER_PART_INDEXED:
-//      numNormalsNeeded = numTris + numQuads + numFaces;              
-//      break;
-//    }
-//    if (vpCache.getNumNormals() < numNormalsNeeded)
-//      SoDebugError::post("SoFaceSet::GLRender",
-//      "Too few normals specified;"
-//      " need %d, have %d", numNormalsNeeded,
-//      vpCache.getNumNormals());
-//
-//    if ((shapeStyle.needTexCoords() || useTexCoordsAnyway) && 
-//      !vpCache.shouldGenerateTexCoords(shapeStyle)) {
-//
-//        if (vpCache.getNumTexCoords() < 
-//          totalNumVertices+startIndex.getValue())
-//          SoDebugError::post("SoFaceSet::GLRender",
-//          "Too few texture coordinates specified;"
-//          " need %d, have %d", totalNumVertices+startIndex.getValue(),
-//          vpCache.getNumTexCoords());
-//    }
-//    int numColorsNeeded = 0;
-//    switch (vpCache.getMaterialBinding()) {
-//    case SoMaterialBindingElement::OVERALL:
-//      break;
-//    case SoMaterialBindingElement::PER_VERTEX:
-//    case SoMaterialBindingElement::PER_VERTEX_INDEXED:
-//      numColorsNeeded = totalNumVertices + startIndex.getValue();
-//      break;
-//    case SoMaterialBindingElement::PER_FACE:
-//    case SoMaterialBindingElement::PER_FACE_INDEXED:
-//    case SoMaterialBindingElement::PER_PART:
-//    case SoMaterialBindingElement::PER_PART_INDEXED:
-//      numColorsNeeded = numTris + numQuads + numFaces;
-//      break;
-//    }
-//    if (vpCache.getNumColors() < numColorsNeeded)
-//      SoDebugError::post("SoFaceSet::GLRender",
-//      "Too few diffuse colors specified;"
-//      " need %d, have %d", numColorsNeeded,
-//      vpCache.getNumColors());
+    // Check for enough vertices:
+    if (vpCache.numVerts < totalNumVertices + startIndex.getValue()){
+      SoDebugError.post("SoFaceSet::GLRender",
+        "Too few vertices specified;"+
+        " need "+(totalNumVertices + startIndex.getValue())+", have "+ vpCache.numVerts);
+    }
+    // Check for enough colors, normals, texcoords:
+    int numNormalsNeeded = 0;
+    if (shapeStyle.needNormals()) switch (vpCache.getNormalBinding()) {
+    case OVERALL:
+      numNormalsNeeded = 1;
+      break;
+    case PER_VERTEX:
+    case PER_VERTEX_INDEXED:
+      numNormalsNeeded = totalNumVertices + startIndex.getValue();
+      break;
+    case PER_FACE:
+    case PER_FACE_INDEXED:
+    case PER_PART:
+    case PER_PART_INDEXED:
+      numNormalsNeeded = numTris + numQuads + numFaces;              
+      break;
+    }
+    if (vpCache.getNumNormals() < numNormalsNeeded)
+      SoDebugError.post("SoFaceSet::GLRender",
+      "Too few normals specified;"+
+      " need "+numNormalsNeeded+", have "+ vpCache.getNumNormals());
+
+    if ((shapeStyle.needTexCoords() || useTexCoordsAnyway != 0) && 
+      !vpCache.shouldGenerateTexCoords(shapeStyle)) {
+
+        if (vpCache.getNumTexCoords() < 
+          totalNumVertices+startIndex.getValue())
+          SoDebugError.post("SoFaceSet::GLRender",
+          "Too few texture coordinates specified;"+
+          " need "+(totalNumVertices+startIndex.getValue())+", have "+ vpCache.getNumTexCoords());
+    }
+    int numColorsNeeded = 0;
+    switch (vpCache.getMaterialBinding()) {
+    case OVERALL:
+      break;
+    case PER_VERTEX:
+    case PER_VERTEX_INDEXED:
+      numColorsNeeded = totalNumVertices + startIndex.getValue();
+      break;
+    case PER_FACE:
+    case PER_FACE_INDEXED:
+    case PER_PART:
+    case PER_PART_INDEXED:
+      numColorsNeeded = numTris + numQuads + numFaces;
+      break;
+    }
+    if (vpCache.getNumColors() < numColorsNeeded)
+      SoDebugError.post("SoFaceSet::GLRender",
+      "Too few diffuse colors specified;"+
+      " need "+numColorsNeeded+", have "+ vpCache.getNumColors());
 //#endif
 
     GLRenderInternal(action, useTexCoordsAnyway, shapeStyle);
