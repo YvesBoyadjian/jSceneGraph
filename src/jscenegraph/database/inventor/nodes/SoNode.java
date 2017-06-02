@@ -453,7 +453,7 @@ getByName( SbName name, SoNodeList list)
 		        SoBaseColor.initClass();
 		        SoCallback.initClass();
 		        SoClipPlane.initClass();
-//		        SoColorIndex.initClass();
+//		        SoColorIndex.initClass(); doesnt exist anymore
 		        SoComplexity.initClass();
 		        SoCone.initClass();
 		        SoCoordinate3.initClass();
@@ -469,7 +469,7 @@ getByName( SbName name, SoNodeList list)
 		       SoFont.initClass();
 		       SoFontStyle.initClass();
 		       SoIndexedFaceSet.initClass();
-//		       SoIndexedTriangleSet.initClass();
+		       SoIndexedTriangleSet.initClass();
 		       SoIndexedLineSet.initClass();
 //		       SoIndexedNurbsCurve.initClass();
 //		       SoIndexedNurbsSurface.initClass();
