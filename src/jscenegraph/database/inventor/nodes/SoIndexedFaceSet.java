@@ -249,7 +249,11 @@ public class SoIndexedFaceSet extends SoIndexedShape {
     	TriRenderFunc[22] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriFmVn(action);
     	TriRenderFunc[30] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriVmVn(action);
     	QuadRenderFunc[6] = (soIndexedFaceSet, action) -> soIndexedFaceSet.QuadOmVn(action);
+    	QuadRenderFunc[14] = (soIndexedFaceSet, action) -> soIndexedFaceSet.QuadFmVn(action);
+    	QuadRenderFunc[22] = (soIndexedFaceSet, action) -> soIndexedFaceSet.QuadFmVn(action);
     	GenRenderFunc[6] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenOmVn(action);
+    	GenRenderFunc[14] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenFmVn(action);
+    	GenRenderFunc[22] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenFmVn(action);
     	GenRenderFunc[24] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenVmOn(action);
     }
 
@@ -1204,6 +1208,60 @@ public void TriFmVn (SoGLRenderAction action) {
 }
 
 
+public void
+
+QuadFmVn
+    (SoGLRenderAction action) {
+	
+	GL2 gl2 = action.getCacheContext();
+	
+    final int[] vertexIndex = coordIndex.getValuesInt(0);
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer colorPtr = vpCache.getColors(0);
+    final int colorStride = vpCache.getColorStride();
+    SoVPCacheFunc colorFunc = vpCache.colorFunc;
+    Integer[] colorIndx = getColorIndices();
+    Buffer normalPtr = vpCache.getNormals(0);
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    Integer[] normalIndx = getNormalIndices();
+
+    gl2.glBegin(GL2.GL_QUADS);
+    int vtxCtr = numTris*4;
+    int faceCtr = numTris;
+    for (int quad = 0; quad < numQuads; quad++) {
+    	colorPtr.position(colorStride*colorIndx[faceCtr]/Integer.BYTES);
+	(colorFunc).run(gl2,colorPtr/*+colorStride*colorIndx[faceCtr]*/);
+	++faceCtr;
+
+	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+	(normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr]*/);
+	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
+
+	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES);
+	(normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr+1]*/);
+	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
+
+	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES);
+	(normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr+2]*/);
+	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
+
+	normalPtr.position(normalStride*normalIndx[vtxCtr+3]/Float.BYTES);
+	(normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr+3]*/);
+	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+3]/Float.BYTES);
+	(vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+3]*/);
+	vtxCtr += 5; // Skip past END_OF_FACE_INDEX
+    }
+    gl2.glEnd();
+}
+
+
+
 public void TriVmVn (SoGLRenderAction action ) {
 	
 	GL2 gl2 = action.getCacheContext();
@@ -1306,6 +1364,49 @@ GenVmOn
 	gl2.glEnd();
     }
 }
+
+
+public void
+
+GenFmVn
+    (SoGLRenderAction action)
+{
+	
+	GL2 gl2 = action.getCacheContext();
+	
+    final int[] vertexIndex = coordIndex.getValuesInt(0);
+    final int numVI = coordIndex.getNum();
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer colorPtr = vpCache.getColors(0);
+    final int colorStride = vpCache.getColorStride();
+    SoVPCacheFunc colorFunc = vpCache.colorFunc;
+    Integer[] colorIndx = getColorIndices();
+    Buffer normalPtr = vpCache.getNormals(0);
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    final Integer[] normalIndx = getNormalIndices();
+    int vtxCtr = numQuads*5 + numTris*4;
+    int faceCtr = numQuads + numTris;
+    while (vtxCtr < numVI) {
+    	colorPtr.position(colorStride*colorIndx[faceCtr]/Integer.BYTES);
+	(colorFunc).run(gl2,colorPtr/*+colorStride*colorIndx[faceCtr]*/);
+	++faceCtr;
+	gl2.glBegin(GL2.GL_POLYGON);
+	while (vtxCtr < numVI &&
+	       (vertexIndex[vtxCtr] != SO_END_FACE_INDEX)) {
+		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+	    (normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr]*/);
+	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
+	    vtxCtr++;
+	}
+	vtxCtr++; // Skip over END_FACE_INDEX
+	gl2.glEnd();
+    }
+}
+
 
 
 
