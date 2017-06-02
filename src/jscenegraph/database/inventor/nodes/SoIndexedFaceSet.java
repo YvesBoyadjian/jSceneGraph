@@ -251,6 +251,8 @@ public class SoIndexedFaceSet extends SoIndexedShape {
     	QuadRenderFunc[6] = (soIndexedFaceSet, action) -> soIndexedFaceSet.QuadOmVn(action);
     	QuadRenderFunc[14] = (soIndexedFaceSet, action) -> soIndexedFaceSet.QuadFmVn(action);
     	QuadRenderFunc[22] = (soIndexedFaceSet, action) -> soIndexedFaceSet.QuadFmVn(action);
+    	GenRenderFunc[2] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenOmFn(action);
+    	GenRenderFunc[4] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenOmFn(action);
     	GenRenderFunc[6] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenOmVn(action);
     	GenRenderFunc[14] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenFmVn(action);
     	GenRenderFunc[22] =  (soIndexedFaceSet, action) -> soIndexedFaceSet.GenFmVn(action);
@@ -1399,6 +1401,42 @@ GenFmVn
 		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
 	    (normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr]*/);
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
+	    vtxCtr++;
+	}
+	vtxCtr++; // Skip over END_FACE_INDEX
+	gl2.glEnd();
+    }
+}
+
+
+public void
+
+GenOmFn
+    (SoGLRenderAction action)
+{
+	
+	GL2 gl2 = action.getCacheContext();
+	
+    final int[] vertexIndex = coordIndex.getValuesInt(0);
+    final int numVI = coordIndex.getNum();
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer normalPtr = vpCache.getNormals(0);
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    final Integer[] normalIndx = getNormalIndices();
+    int vtxCtr = numQuads*5 + numTris*4;
+    int faceCtr = numQuads + numTris;
+    while (vtxCtr < numVI) {
+    	normalPtr.position(+normalStride*normalIndx[faceCtr]/Float.BYTES);
+	(normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[faceCtr]*/);
+	++faceCtr;
+	gl2.glBegin(GL2.GL_POLYGON);
+	while (vtxCtr < numVI &&
+	       (vertexIndex[vtxCtr] != SO_END_FACE_INDEX)) {
+		vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
 	    (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 	    vtxCtr++;
 	}

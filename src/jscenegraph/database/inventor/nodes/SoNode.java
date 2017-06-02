@@ -475,7 +475,7 @@ getByName( SbName name, SoNodeList list)
 //		       SoIndexedNurbsSurface.initClass();
 		       SoIndexedTriangleStripSet.initClass();
 		       SoInfo.initClass();
-//		       SoLabel.initClass();
+		       SoLabel.initClass();
 //		       SoLevelOfDetail.initClass();
 //		       SoLOD.initClass();
 		       SoLocateHighlight.initClass();
@@ -507,7 +507,7 @@ getByName( SbName name, SoNodeList list)
 		       SoScale.initClass();
 		       SoShapeHints.initClass();
 		       SoSphere.initClass();
-//		       SoSpotLight.initClass();
+		       SoSpotLight.initClass();
 		       SoSwitch.initClass();
 		       SoText2.initClass();
 		       SoText3.initClass();

@@ -241,6 +241,8 @@ private static final int AUTO_CACHE_FS_MAX = SoGLCacheContextElement.OIV_AUTO_CA
     	QuadRenderFunc[0] = (set, action)-> set.QuadOmOn(action);
     	QuadRenderFunc[1] = (set, action)-> set.QuadOmOnT(action);
     	QuadRenderFunc[7] = (set, action)-> set.QuadOmVnT(action);
+    	QuadRenderFunc[8] = (set, action)-> set.QuadFmOn(action);
+    	QuadRenderFunc[16] = (set, action)-> set.QuadFmOn(action);
     }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1184,6 +1186,48 @@ private void QuadOmVnT (SoGLRenderAction action) {
 	(texCoordFunc).run(gl2, texCoordPtr); texCoordPtrIndex += texCoordStride;
 	vertexPtr.position(vertexPtrIndex/Float.BYTES);
 	(vertexFunc).run(gl2, vertexPtr); vertexPtrIndex += vertexStride;
+
+    }
+    gl2.glEnd();
+}
+
+
+public void
+
+QuadFmOn
+    (SoGLRenderAction action) {
+
+
+    GL2 gl2 = action.getCacheContext();
+    
+    // Send one normal, if there are any normals in vpCache:
+    if (vpCache.getNumNormals() > 0)
+	vpCache.sendNormal(gl2,(FloatBuffer)vpCache.getNormals(0));
+    Buffer vertexPtr = vpCache.getVertices(startIndex.getValue()+3*numTris);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer colorPtr = vpCache.getColors(numTris);
+    final int colorStride = vpCache.getColorStride();
+    SoVPCacheFunc colorFunc = vpCache.colorFunc;
+
+    gl2.glBegin(GL2.GL_QUADS);
+
+    int colorPtrIndex = 0; // java port
+    int vertexPtrIndex = 0; // java port
+    for (int quad = 0; quad < numQuads; quad++) {
+    	colorPtr.position(colorPtrIndex/Integer.BYTES);
+	(colorFunc).run(gl2,colorPtr); colorPtrIndex += colorStride;
+	vertexPtr.position(vertexPtrIndex/Integer.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+	vertexPtr.position(vertexPtrIndex/Integer.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+	vertexPtr.position(vertexPtrIndex/Integer.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+
+	vertexPtr.position(vertexPtrIndex/Integer.BYTES);
+	(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
 
     }
     gl2.glEnd();

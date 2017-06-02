@@ -109,7 +109,7 @@ public static void post(final SoInput in, String formatString)
     str += "\n";
 
     in.getLocationString(locstr);
-    str += locstr;
+    str += locstr[0];
 
     error.setDebugString(str/*.getString()*/);
     error.handleError();
