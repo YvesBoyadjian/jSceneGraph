@@ -170,14 +170,14 @@ public abstract class SoShape extends SoNode {
   SoState state = action.getState();
   enableVertexAttributes(state);
 
-  if (shape._preVertexArrayRenderingCB != null) {
-    (shape._preVertexArrayRenderingCB).run(shape, action, true, numVertices);
+  if (/*shape.*/_preVertexArrayRenderingCB != null) {
+    (/*shape.*/_preVertexArrayRenderingCB).run(shape, action, true, numVertices);
   }
 
   SoLazyElement.drawArrays(state, primitiveType, 0, numVertices);
 
-  if (shape._postVertexArrayRenderingCB != null) {
-    (shape._postVertexArrayRenderingCB).run(shape, action, true, numVertices);
+  if (/*shape.*/_postVertexArrayRenderingCB != null) {
+    (/*shape.*/_postVertexArrayRenderingCB).run(shape, action, true, numVertices);
   }
 
   disableVertexAttributes(state);
@@ -998,7 +998,7 @@ endShape()
         // Concave polygons need to be tesselated; we'll use the
         // GLU routines to do this:
         if (tobj == null) {
-            tobj = glu.gluNewTess();
+            tobj = GLU.gluNewTess();
             
             GLUtessellatorCallback beginGLUCB = new GLUtessellatorCallbackAdapter() {
             	public void begin(int type) {
@@ -1006,7 +1006,7 @@ endShape()
             	}
             };
             
-            glu.gluTessCallback(tobj, (int)GLU.GLU_BEGIN,
+            GLU.gluTessCallback(tobj, (int)GLU.GLU_BEGIN,
                             beginGLUCB);
             
             GLUtessellatorCallback endGLUCB = new GLUtessellatorCallbackAdapter() {
@@ -1015,7 +1015,7 @@ endShape()
             	}
             };
                                     
-            glu.gluTessCallback(tobj, (int)GLU.GLU_END, 
+            GLU.gluTessCallback(tobj, (int)GLU.GLU_END, 
                             endGLUCB);
             
             GLUtessellatorCallback vtxGLUCB = new GLUtessellatorCallbackAdapter() {
@@ -1024,21 +1024,21 @@ endShape()
             	}
             };            
             
-            glu.gluTessCallback(tobj, (int)GLU.GLU_VERTEX, 
+            GLU.gluTessCallback(tobj, (int)GLU.GLU_VERTEX, 
                             vtxGLUCB);
             
             GLUtessellatorCallback errorGLUCB = new GLUtessellatorCallbackAdapter() {
             	public void error(int errnum) {
-            		SoShape.this.errorCB(errnum,glu);
+            		/*SoShape.this.*/errorCB(errnum,glu);
             	}
             };                        
             
-            glu.gluTessCallback(tobj, (int)GLU.GLU_ERROR,
+            GLU.gluTessCallback(tobj, (int)GLU.GLU_ERROR,
                             errorGLUCB);
         }
 //#ifdef GLU_VERSION_1_2
-        glu.gluTessBeginPolygon(tobj, null);
-        glu.gluTessBeginContour(tobj);
+        GLU.gluTessBeginPolygon(tobj, null);
+        GLU.gluTessBeginContour(tobj);
 //#else
 //        glu.gluBeginPolygon(tobj);
 //#endif
@@ -1048,11 +1048,11 @@ endShape()
 
             double[] dv = new double[3];  // glu requires double...
             dv[0] = t.getValue()[0]; dv[1] = t.getValue()[1]; dv[2] = t.getValue()[2];
-            glu.gluTessVertex(tobj, dv, 0,(Object)polyVerts[i]);
+            GLU.gluTessVertex(tobj, dv, 0,(Object)polyVerts[i]);
         }
 //#ifdef GLU_VERSION_1_2
-        glu.gluTessEndContour(tobj);
-        glu.gluTessEndPolygon(tobj);
+        GLU.gluTessEndContour(tobj);
+        GLU.gluTessEndPolygon(tobj);
 //#else
 //        glu.gluEndPolygon(tobj);
 //#endif
@@ -1538,13 +1538,13 @@ beginCB(int primType)
 {
     switch(primType) {
       case GL2.GL_TRIANGLE_STRIP:
-        primShape.beginShape(primShape.primAction, TriangleShape.TRIANGLE_STRIP);
+        primShape.beginShape(/*primShape.*/primAction, TriangleShape.TRIANGLE_STRIP);
         break;
       case GL2.GL_TRIANGLE_FAN:
-        primShape.beginShape(primShape.primAction, TriangleShape.TRIANGLE_FAN);
+        primShape.beginShape(/*primShape.*/primAction, TriangleShape.TRIANGLE_FAN);
         break;
       case GL2.GL_TRIANGLES:
-        primShape.beginShape(primShape.primAction, TriangleShape.TRIANGLES);
+        primShape.beginShape(/*primShape.*/primAction, TriangleShape.TRIANGLES);
         break;
     }
 }

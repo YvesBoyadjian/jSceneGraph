@@ -63,13 +63,13 @@ import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_TEXTURE_COORD_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 
 import java.nio.Buffer;
-import java.nio.ByteBuffer;
 
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SoDebug;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.bundles.SoNormalBundle;
@@ -83,6 +83,7 @@ import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFNode;
@@ -548,12 +549,12 @@ protected boolean beginVertexArrayRendering( SoGLRenderAction action )
   }
 
 //#ifdef DEBUG
-//  if (SoDebug.GetEnv("IV_DEBUG_VBO_RENDERING")) {
-//    SoDebugError.postInfo("beginVertexArrayRendering", "%s Vertex Array used: Vertices: %d %s Color: %s %s Normals: %s %s TexCoord: %s %s", getTypeId().getName().getString(),
-//      vpCache.getNumVertices(), vertexVBOUsed?"VBO":"VA", perVertexColors?"PerVertex":"Overall", perVertexColors?(colorVBOUsed?"VBO":"VA"):"",
-//      perVertexNormals?"PerVertex":"Overall", perVertexNormals?(normalVBOUsed?"VBO":"VA"):"",
-//      perVertexTexCoords?"PerVertex":"NONE",  perVertexTexCoords?(texCoordVBOUsed?"VBO":"VA"):"");
-//  }
+  if (SoDebug.GetEnv("IV_DEBUG_VBO_RENDERING") != null) {
+    SoDebugError.postInfo("beginVertexArrayRendering", getTypeId().getName().getString()+" Vertex Array used: Vertices: "+vpCache.getNumVertices()+
+    		" "+(vertexVBOUsed?"VBO":"VA")+" Color: "+(perVertexColors?"PerVertex":"Overall")+" "+(perVertexColors?(colorVBOUsed?"VBO":"VA"):"")+
+    		" Normals: "+(perVertexNormals?"PerVertex":"Overall")+" "+(perVertexNormals?(normalVBOUsed?"VBO":"VA"):"")+
+    		" TexCoord: "+(perVertexTexCoords?"PerVertex":"NONE")+" "+(perVertexTexCoords?(texCoordVBOUsed?"VBO":"VA"):""));
+  }
 //#endif
 
   if (_preVertexArrayRenderingCB != null) {
