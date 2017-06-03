@@ -75,6 +75,7 @@ import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
@@ -204,6 +205,11 @@ public class SoIndexedTriangleStripSet extends SoIndexedShape {
     private static PMTSS[] renderFunc = new PMTSS[32];
     
 	static {
+    	for(int i = 0 ; i<32;i++) {
+    		final int ii = i;
+    		renderFunc[i] = (ifs,a) -> SoError.post("SoIndexedTriangleStripSet RenderFunc number "+ii+" not yet implemented");
+    	}
+    	
 		renderFunc[0] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmOn(action);
 		renderFunc[1] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmOnT(action);
 		renderFunc[4] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmFn(action);

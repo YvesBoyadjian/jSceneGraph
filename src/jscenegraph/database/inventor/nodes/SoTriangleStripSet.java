@@ -84,6 +84,7 @@ import jscenegraph.database.inventor.elements.SoNormalBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFInt32;
 import jscenegraph.database.inventor.misc.SoNotList;
@@ -227,6 +228,11 @@ private interface PMTSS  {
 	private static PMTSS[] renderFunc = new PMTSS[32];
 
 	static {
+    	for(int i = 0 ; i<32;i++) {
+    		final int ii = i;
+    		renderFunc[i] = (ifs,a) -> SoError.post("SoTriangleStripSet RenderFunc number "+ii+" not yet implemented");
+    	}
+    	
 		renderFunc[0] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmOn(action);			
 		renderFunc[1] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmOnT(action);			
 		renderFunc[4] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmFn(action);			

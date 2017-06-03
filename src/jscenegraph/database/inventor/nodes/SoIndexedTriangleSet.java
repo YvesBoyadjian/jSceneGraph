@@ -200,7 +200,7 @@ public class SoIndexedTriangleSet extends SoIndexedShape {
  //
     //! Array of function pointers to render functions:
     private static PMFS[] TriRenderFunc = {
-    	    (its,ra)-> its.TriOmOn(ra)    , (its,ra)-> its.TriOmOnT(ra),
+    	    (its,ra)-> its.TriOmOn(ra), (its,ra)-> its.TriOmOnT(ra),
     	    (its,ra)-> its.TriOmFn(ra), (its,ra)-> its.TriOmFnT(ra),
     	    (its,ra)-> its.TriOmFn(ra), (its,ra)-> its.TriOmFnT(ra),
     	    (its,ra)-> its.TriOmVn(ra), (its,ra)-> its.TriOmVnT(ra),

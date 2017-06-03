@@ -86,6 +86,7 @@ import jscenegraph.database.inventor.elements.SoShapeHintsElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.elements.SoTextureCoordinateBindingElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFInt32;
 import jscenegraph.database.inventor.misc.SoNotList;
@@ -244,6 +245,14 @@ public class SoIndexedFaceSet extends SoIndexedShape {
  // ....1  Vtx texcoord    (T)
  //
     static {
+    	for(int i = 0 ; i<32;i++) {
+    		final int ii = i;
+    		TriRenderFunc[i] = (ifs,a) -> SoError.post("SoIndexedFaceSet TriRenderFunc number "+ii+" not yet implemented");
+    		QuadRenderFunc[i] = (ifs,a) -> SoError.post("SoIndexedFaceSet QuadRenderFunc number "+ii+" not yet implemented");
+    		GenRenderFunc[i] = (ifs,a) -> SoError.post("SoIndexedFaceSet GenRenderFunc number "+ii+" not yet implemented");
+    	}
+    	
+    	
     	TriRenderFunc[6] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriOmVn(action);
     	TriRenderFunc[14] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriFmVn(action);
     	TriRenderFunc[22] = (soIndexedFaceSet, action) -> soIndexedFaceSet.TriFmVn(action);

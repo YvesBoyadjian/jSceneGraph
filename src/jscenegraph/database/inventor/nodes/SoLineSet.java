@@ -87,6 +87,7 @@ import jscenegraph.database.inventor.elements.SoNormalElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.elements.SoTextureCoordinateBindingElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFInt32;
 import jscenegraph.database.inventor.fields.SoSFBool;
@@ -217,7 +218,7 @@ public class SoLineSet extends SoNonIndexedShape {
     //!Typedef of pointer to method on IndexedLineSet;
     //!This will be used to simplify declaration and initialization.
     private interface PMLS {
-    	void run(SoGLRenderAction action);
+    	void run(SoLineSet ls, SoGLRenderAction action);
     }    	
 
 	 public final SoMFInt32 numVertices = new SoMFInt32();
@@ -233,6 +234,14 @@ public class SoLineSet extends SoNonIndexedShape {
 
     //! Array of function pointers to render functions:
     private static PMLS[] renderFunc = new PMLS[32];
+    
+    static {
+    	for(int i = 0 ; i<32;i++) {
+    		final int ii = i;
+    		renderFunc[i] = (ifs,a) -> SoError.post("SoLineSet RenderFunc number "+ii+" not yet implemented");
+    	}
+    	    	
+    }
     
 ////////////////////////////////////////////////////////////////////////
 //
@@ -915,7 +924,7 @@ void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway, SoShape
   } else {
 
     // Call the appropriate render loop:
-    this.renderFunc[useTexCoordsAnyway | vpCache.getRenderCase(shapeStyle)].run(action);
+    this.renderFunc[useTexCoordsAnyway | vpCache.getRenderCase(shapeStyle)].run(this,action);
 
 //#ifdef DEBUG
     if (SoDebug.GetEnv("IV_DEBUG_LEGACY_RENDERING") != null) {

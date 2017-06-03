@@ -85,6 +85,7 @@ import jscenegraph.database.inventor.elements.SoNormalElement;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFInt32;
 import jscenegraph.database.inventor.misc.SoNotList;
@@ -226,6 +227,11 @@ public class SoQuadMesh extends SoNonIndexedShape {
     private static PMQM[] renderFunc = new PMQM[32];
     
     static {
+    	for(int i = 0 ; i<32;i++) {
+    		final int ii = i;
+    		renderFunc[i] = (ifs,a) -> SoError.post("SoQuadMesh RenderFunc number "+ii+" not yet implemented");
+    	}
+    	
     	renderFunc[6] = (SoQuadMesh qm, SoGLRenderAction action) -> qm.OmVn(action);
     }
 

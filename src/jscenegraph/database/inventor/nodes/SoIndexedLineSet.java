@@ -88,6 +88,7 @@ import jscenegraph.database.inventor.elements.SoNormalElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.elements.SoTextureCoordinateBindingElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFInt32;
 import jscenegraph.database.inventor.fields.SoSFBool;
@@ -234,6 +235,11 @@ public class SoIndexedLineSet extends SoIndexedShape {
     private static PMILS[] renderFunc = new PMILS[32];
     
     static {
+    	for(int i = 0 ; i<32;i++) {
+    		final int ii = i;
+    		renderFunc[i] = (ifs,a) -> SoError.post("SoIndexedLineSet RenderFunc number "+ii+" not yet implemented");
+    	}
+    	
     	renderFunc[6] = (set, action) -> set.OmVn(action); 
     }
     

@@ -87,6 +87,7 @@ import jscenegraph.database.inventor.elements.SoShapeHintsElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.elements.SoTextureCoordinateBindingElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFInt32;
 import jscenegraph.database.inventor.fields.SoSFBool;
@@ -239,6 +240,13 @@ private static final int AUTO_CACHE_FS_MAX = SoGLCacheContextElement.OIV_AUTO_CA
     private static PMFS[] GenRenderFunc = new PMFS[32];
     
     static {
+    	for(int i = 0 ; i<32;i++) {
+    		final int ii = i;
+    		TriRenderFunc[i] = (ifs,a) -> SoError.post("SoFaceSet TriRenderFunc number "+ii+" not yet implemented");
+    		QuadRenderFunc[i] = (ifs,a) -> SoError.post("SoFaceSet QuadRenderFunc number "+ii+" not yet implemented");
+    		GenRenderFunc[i] = (ifs,a) -> SoError.post("SoFaceSet GenRenderFunc number "+ii+" not yet implemented");
+    	}
+    	
     	QuadRenderFunc[0] = (set, action)-> set.QuadOmOn(action);
     	QuadRenderFunc[1] = (set, action)-> set.QuadOmOnT(action);
     	QuadRenderFunc[7] = (set, action)-> set.QuadOmVnT(action);
