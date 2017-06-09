@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved. 
+ *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,18 +18,18 @@
  *  otherwise, applies only to this software file.  Patent licenses, if
  *  any, provided herein do not apply to combinations of this program with
  *  other software, or any other product whatsoever.
- * 
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
  *  Mountain View, CA  94043, or:
- * 
- *  http://www.sgi.com 
- * 
- *  For further information regarding this notice, see: 
- * 
+ *
+ *  http://www.sgi.com
+ *
+ *  For further information regarding this notice, see:
+ *
  *  http://oss.sgi.com/projects/GenInfo/NoticeExplan/
  *
  */
@@ -84,61 +84,61 @@ public class SbBox3f implements Mutable {
 
 	private final SbVec3f min = new SbVec3f();
 	private final SbVec3f max = new SbVec3f();
-	
+
 	public SbBox3f() {
 		makeEmpty();
 	}
-	
+
 	public SbBox3f(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax) {
-		 min.setValue(xmin, ymin, zmin); max.setValue(xmax, ymax, zmax); 
+		 min.setValue(xmin, ymin, zmin); max.setValue(xmax, ymax, zmax);
 	}
-	
+
 	// java port
 	public SbBox3f(SbBox3f other) {
 		copyFrom(other);
 	}
-	
+
 	/**
-	 * Constructor given minimum and maximum points min and max 
-	 * are the corners of the diagonal that define the box. 
-	 * 
+	 * Constructor given minimum and maximum points min and max
+	 * are the corners of the diagonal that define the box.
+	 *
 	 * @param min
 	 * @param max
 	 */
 	public SbBox3f(SbVec3f min, SbVec3f max) {
-		 this.min.copyFrom(min); this.max.copyFrom(max); 
+		 this.min.copyFrom(min); this.max.copyFrom(max);
 	}
-	
+
 	/**
-	 * Returns the minimum point of the box. 
-	 * The minimum point is the corner of the box with 
-	 * the lowest X, Y, and Z values. 
-	 * 
+	 * Returns the minimum point of the box.
+	 * The minimum point is the corner of the box with
+	 * the lowest X, Y, and Z values.
+	 *
 	 * @return
 	 */
 	public SbVec3f getMin() {
-		 return min; 
+		 return min;
 	}
-	
+
 	/**
-	 * Returns the maximum point of the box. 
-	 * The maximum point is the corner of the box with 
-	 * the highest X, Y, and Z values. 
-	 * 
+	 * Returns the maximum point of the box.
+	 * The maximum point is the corner of the box with
+	 * the highest X, Y, and Z values.
+	 *
 	 * @return
 	 */
 	public SbVec3f getMax() {
-		 return max; 
+		 return max;
 	}
-	
-	// Returns the center of the box. 
+
+	// Returns the center of the box.
 	public SbVec3f getCenter() {
 	     return new SbVec3f(0.5f * (min.getValue()[0] + max.getValue()[0]),
-	    		                       0.5f * (min.getValue()[1] + max.getValue()[1]), 
+	    		                       0.5f * (min.getValue()[1] + max.getValue()[1]),
 	    		                       0.5f * (min.getValue()[2] + max.getValue()[2]));
-	    		   		
+
 	}
-	
+
 	//
 // Extends Box3f (if necessary) to contain given 3D point
 //
@@ -149,30 +149,54 @@ extendBy(final SbVec3f ptV)
 	float[] pt = ptV.getValue();
 	float[] min = this.min.getValue();
 	float[] max = this.max.getValue();
-	
-    if (pt[0] < min[0]) min[0] = pt[0];
-    if (pt[1] < min[1]) min[1] = pt[1];
-    if (pt[2] < min[2]) min[2] = pt[2];
-    if (pt[0] > max[0]) max[0] = pt[0];
-    if (pt[1] > max[1]) max[1] = pt[1];
-    if (pt[2] > max[2]) max[2] = pt[2];
+
+    if (pt[0] < min[0]) {
+        min[0] = pt[0];
+    }
+    if (pt[1] < min[1]) {
+        min[1] = pt[1];
+    }
+    if (pt[2] < min[2]) {
+        min[2] = pt[2];
+    }
+    if (pt[0] > max[0]) {
+        max[0] = pt[0];
+    }
+    if (pt[1] > max[1]) {
+        max[1] = pt[1];
+    }
+    if (pt[2] > max[2]) {
+        max[2] = pt[2];
+    }
 }
 
-	
-	public void SbBox3f_extendBy(SbBox3f bb) {				
-	     if (bb.min.getValue()[0] < min.getValue()[0]) min.getValue()[0] = bb.min.getValue()[0];
-	          if (bb.min.getValue()[1] < min.getValue()[1]) min.getValue()[1] = bb.min.getValue()[1];
-	          if (bb.min.getValue()[2] < min.getValue()[2]) min.getValue()[2] = bb.min.getValue()[2];
-	          if (bb.max.getValue()[0] > max.getValue()[0]) max.getValue()[0] = bb.max.getValue()[0];
-	         if (bb.max.getValue()[1] > max.getValue()[1]) max.getValue()[1] = bb.max.getValue()[1];
-	         if (bb.max.getValue()[2] > max.getValue()[2]) max.getValue()[2] = bb.max.getValue()[2];
+
+	public void SbBox3f_extendBy(SbBox3f bb) {
+	     if (bb.min.getValue()[0] < min.getValue()[0]) {
+            min.getValue()[0] = bb.min.getValue()[0];
+        }
+	          if (bb.min.getValue()[1] < min.getValue()[1]) {
+                min.getValue()[1] = bb.min.getValue()[1];
+            }
+	          if (bb.min.getValue()[2] < min.getValue()[2]) {
+                min.getValue()[2] = bb.min.getValue()[2];
+            }
+	          if (bb.max.getValue()[0] > max.getValue()[0]) {
+                max.getValue()[0] = bb.max.getValue()[0];
+            }
+	         if (bb.max.getValue()[1] > max.getValue()[1]) {
+                max.getValue()[1] = bb.max.getValue()[1];
+            }
+	         if (bb.max.getValue()[2] > max.getValue()[2]) {
+                max.getValue()[2] = bb.max.getValue()[2];
+            }
 	}
-	// Extends Box3f (if necessary) to contain given Box3f. 
+	// Extends Box3f (if necessary) to contain given Box3f.
 	public void extendBy(SbBox3f bb) {
-		
+
 		SbBox3f_extendBy(bb);
 	    	}
-	
+
 
 //
 // Returns true if intersection of given point and Box3f is not empty
@@ -201,42 +225,42 @@ intersect(final SbBox3f bb)
             (bb.max.getValue()[2] >= min.getValue()[2]) && (bb.min.getValue()[2] <= max.getValue()[2]));
 }
 
-	
-	
-	// Common get and set functions. 
+
+
+	// Common get and set functions.
 	public void setBounds (float xmin, float ymin, float zmin, float xmax, float ymax, float zmax) {
-		 min.setValue(xmin, ymin, zmin); max.setValue(xmax, ymax, zmax); 
+		 min.setValue(xmin, ymin, zmin); max.setValue(xmax, ymax, zmax);
 	}
-	
+
 	public void setBounds(SbVec3f _min, SbVec3f _max) {
-		 min.copyFrom(_min); max.copyFrom(_max); 
+		 min.copyFrom(_min); max.copyFrom(_max);
 	}
-	
+
     public void        getBounds(final float[] xmin, final float[] ymin, final float[] zmin,
                           final float[] xmax, final float[] ymax, final float[] zmax)
         { min.getValue(xmin, ymin, zmin); max.getValue(xmax, ymax, zmax); }
 
-	
-	
+
+
 	public void getBounds(final SbVec3f _min, final SbVec3f _max) {
-		 _min.copyFrom(min); _max.copyFrom(max); 
+		 _min.copyFrom(min); _max.copyFrom(max);
 	}
 
 	 //
 	 // Sets Box3f to contain nothing
 	 //
-	 
+
 	 public void makeEmpty()
 	 {
 	  min.setValue( Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
 	  max.setValue(- Float.MAX_VALUE, - Float.MAX_VALUE, - Float.MAX_VALUE);
 	}
-	 
-	 // Returns true if the box is empty, and FALSE otherwise. 
+
+	 // Returns true if the box is empty, and FALSE otherwise.
 	 public boolean isEmpty() {
-		 return max.getValue()[0] < min.getValue()[0]; 
+		 return max.getValue()[0] < min.getValue()[0];
 	 }
-	
+
 //
 // View-volume culling: axis-aligned bounding box against view volume,
 // given as Model/View/Projection matrix.
@@ -301,11 +325,11 @@ intersect(final SbBox3f bb)
 //        \    /
 //         \  /
 // Q1       \/  Q2
-// CLIPPED  /\  CLIPPED    
-//         /  \ 
-//        /    \ 
-//       /  Q3  \ 
-//      / CLIPPED\ 
+// CLIPPED  /\  CLIPPED
+//         /  \
+//        /    \
+//       /  Q3  \
+//      / CLIPPED\
 //
 // If the axis-aligned box [(Xmin,Xmax),(Wmin,Wmax)] lies entirely in
 // Q0, then it is entirely inside the X-axis clipping planes (IN
@@ -320,7 +344,7 @@ intersect(final SbBox3f bb)
 // are rare and the cases that are incorrectly classified will likely
 // be culled when testing against the other clipping planes (these
 // cases are cases where the bounding box is near the eye).
-// 
+//
 // Finding [(Xmin,Xmax),(Wmin,Wmax)] is easy.  Consider Xmin.  It is
 // the smallest X coordinate when all of the points in the range
 // Pmin,Pmax are transformed by MVP; written out:
@@ -330,14 +354,14 @@ intersect(final SbBox3f bb)
 // by choosing Pmin; if the matrix entry is negative, the term is
 // minimized by choosing Pmax.  Three 'if' test will let us calculate
 // the transformed Xmin.  Xmax can be calculated similarly.
-// 
+//
 // Testing for IN/OUT/STRADDLE for the Y and Z coordinates is done
 // exactly the same way.
 //
 
 //
 // Helper functions:
-// 
+//
 // Given a range in object space, find the minimum or maximum for the
 // X,Y,Z or W coordinates in the transformed space.
 //    3 multiplies, 3 adds, 3 comparisons/branches.
@@ -370,11 +394,11 @@ findQuadrant(float x, float y, float z,
     return quadrant(c, w);
 }
 
-	 
-	 
-	 
-	 
-	 // Transforms box by matrix, enlarging box to contain result. 
+
+
+
+
+	 // Transforms box by matrix, enlarging box to contain result.
 
 	 //
 	   // Transforms Box3f by matrix, enlarging Box3f to contain result.
@@ -385,48 +409,50 @@ findQuadrant(float x, float y, float z,
 	   // is a projection matrix
 	   //
 	  	 public void transform(SbMatrix m) {
-		 
+
 	     // a transformed empty box is still empty
-		       if (isEmpty())
-		           return;
-		   
+		       if (isEmpty()) {
+                return;
+            }
+
 		       final SbVec3f     newMin = new SbVec3f(), newMax = new SbVec3f();
 		       int         i;
-		   
+
 		       for (i = 0; i < 3; i++) {
 		           newMin.getValue()[i] = minExtreme(min, max, m, i);
 		           newMax.getValue()[i] = minExtreme(max, min, m, i);
 		       }
 		       float Wmin = minExtreme(min, max, m, 3);
 		       float Wmax = minExtreme(max, min, m, 3);
-		   
+
 		       // Division by small W's make things bigger; wacky things happen
 		       // if W's are negative, but negative W's are wacky so I think
 		       // that's OK:
-		   
+
 		       newMin.operator_div_equal(Wmax);
 		       newMax.operator_div_equal(Wmin);
-		   
+
 		       min.copyFrom(newMin);
 		       max.copyFrom(newMax);
 		   	 }
-	  	 
+
 
 //
 // Finds the volume of the box (0 for an empty box)
 //
 
 public float
-getVolume() 
+getVolume()
 {
-    if (isEmpty())
+    if (isEmpty()) {
         return 0.0f;
+    }
 
     return (max.getValue()[0] - min.getValue()[0]) * (max.getValue()[1] - min.getValue()[1]) * (max.getValue()[2] - min.getValue()[2]);
 }
 
-	  	 
-	  	 
+
+
 	  	 // java port
 	  	 public void getBounds(float[] bounds) {
 	  		 float[] mini = min.getValue();
@@ -438,7 +464,14 @@ getVolume()
 	  		 bounds[4] = maxi[1];
 	  		 bounds[5] = maxi[2];
 	  	 }
-	  	 
+
+    // java port
+    public float[] getBounds() {
+        float[] bounds = new float[6];
+        getBounds(bounds);
+        return bounds;
+    }
+
     //! Gets box size.
 	public    void        getSize(final float[] sizeX, final float[] sizeY, final float[] sizeZ)
         { sizeX[0] = max.getValue()[0] - min.getValue()[0];
@@ -448,11 +481,12 @@ getVolume()
 	public void getSize(final float[] xyz) {
         { xyz[0] = max.getValue()[0] - min.getValue()[0];
         xyz[1] = max.getValue()[1] - min.getValue()[1];
-        xyz[2] = max.getValue()[2] - min.getValue()[2]; }		
+        xyz[2] = max.getValue()[2] - min.getValue()[2]; }
 	}
 
 	     // java port
-	     public void copyFrom(Object otherObject) {
+	     @Override
+        public void copyFrom(Object otherObject) {
 	    	 SbBox3f other = (SbBox3f) otherObject;
 	    	 min.copyFrom(other.min);
 	    	 max.copyFrom(other.max);
@@ -463,7 +497,9 @@ public boolean
 outside(final SbMatrix MVP, final int[] cullBits)
 {
     float Wmax = minExtreme(max, min, MVP, 3);
-    if (Wmax < 0) return true;
+    if (Wmax < 0) {
+        return true;
+    }
 
     float Wmin = minExtreme(min, max, MVP, 3);
 
@@ -502,7 +538,7 @@ outside(final SbMatrix MVP, final int[] cullBits)
                     q0 = quadrant(Cmax, Wmax);
                     and_bits &= q0;
                     or_bits |= q0;
-                    
+
                     // Either completely IN or completely OUT:
                     if (or_bits == 0) { // IN
                         cullBits[0] &= ~(1<<i); // Clear bit
@@ -522,43 +558,57 @@ outside(final SbMatrix MVP, final int[] cullBits)
             // are in the same quadrant.  If so, the object is either
             // completely in or out of the view.  Otherwise, it straddles
             // at least one of the view boundaries.
-            
+
             // java port
             final float[] min_ = min.getValue();
             final float[] max_ = max.getValue();
-            
+
             and_bits = or_bits = findQuadrant(min_[0], min_[1], min_[2], i, MVP);
-            if (and_bits == 0 && or_bits != 0) continue;
+            if (and_bits == 0 && or_bits != 0) {
+                continue;
+            }
 
             q0 = findQuadrant(max_[0], max_[1], max_[2], i, MVP);
             and_bits &= q0;
             or_bits |= q0;
-            if (and_bits == 0 && or_bits != 0) continue;
+            if (and_bits == 0 && or_bits != 0) {
+                continue;
+            }
 
             q0 = findQuadrant(max_[0], min_[1], min_[2], i, MVP);
             and_bits &= q0;
             or_bits |= q0;
-            if (and_bits == 0 && or_bits != 0) continue;
+            if (and_bits == 0 && or_bits != 0) {
+                continue;
+            }
 
             q0 = findQuadrant(min_[0], max_[1], max_[2], i, MVP);
             and_bits &= q0;
             or_bits |= q0;
-            if (and_bits == 0 && or_bits != 0) continue;
+            if (and_bits == 0 && or_bits != 0) {
+                continue;
+            }
 
             q0 = findQuadrant(min_[0], max_[1], min_[2], i, MVP);
             and_bits &= q0;
             or_bits |= q0;
-            if (and_bits == 0 && or_bits != 0) continue;
+            if (and_bits == 0 && or_bits != 0) {
+                continue;
+            }
 
             q0 = findQuadrant(max_[0], min_[1], max_[2], i, MVP);
             and_bits &= q0;
             or_bits |= q0;
-            if (and_bits == 0 && or_bits != 0) continue;
+            if (and_bits == 0 && or_bits != 0) {
+                continue;
+            }
 
             q0 = findQuadrant(max_[0], max_[1], min_[2], i, MVP);
             and_bits &= q0;
             or_bits |= q0;
-            if (and_bits == 0 && or_bits != 0) continue;
+            if (and_bits == 0 && or_bits != 0) {
+                continue;
+            }
 
             q0 = findQuadrant(min_[0], min_[1], max_[2], i, MVP);
             and_bits &= q0;
@@ -579,7 +629,7 @@ outside(final SbMatrix MVP, final int[] cullBits)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Equality comparison operator. 
+// Equality comparison operator.
 //
 public boolean
 operator_equal_equal( final SbBox3f b2)

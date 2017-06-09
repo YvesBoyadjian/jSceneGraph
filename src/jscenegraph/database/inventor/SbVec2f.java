@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved. 
+ *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,18 +18,18 @@
  *  otherwise, applies only to this software file.  Patent licenses, if
  *  any, provided herein do not apply to combinations of this program with
  *  other software, or any other product whatsoever.
- * 
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
  *  Mountain View, CA  94043, or:
- * 
- *  http://www.sgi.com 
- * 
- *  For further information regarding this notice, see: 
- * 
+ *
+ *  http://www.sgi.com
+ *
+ *  For further information regarding this notice, see:
+ *
  *  http://oss.sgi.com/projects/GenInfo/NoticeExplan/
  *
  */
@@ -61,7 +61,7 @@
  |      SbPlane
  |      SbSphere
  |
- |   Author(s)          : Paul S. Strauss, Nick Thompson, 
+ |   Author(s)          : Paul S. Strauss, Nick Thompson,
  |                        David Mott, Alain Dumesny
  |
  ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
@@ -96,41 +96,41 @@ SbVec3f, SbVec4f, SbVec2s, SbRotation
  */
 public class SbVec2f implements Mutable {
 	protected final float[] vec = new float[2];
-	
-	// Default constructor. 
+
+	// Default constructor.
 	public SbVec2f() {
-		
+
 	}
-	
-	// Constructor given vector components. 
+
+	// Constructor given vector components.
 	public SbVec2f(float[] v) {
-		 setValue(v); 
+		 setValue(v);
 	}
-	
-	// Constructor given vector components. 
+
+	// Constructor given vector components.
 	public SbVec2f(float x, float y) {
-		 setValue(x, y); 
+		 setValue(x, y);
 	}
-	
+
 	// java port
 	public SbVec2f(final SbVec2f other) {
 		setValue(other.vec);
 	}
-	
-	// Sets the vector components. 
+
+	// Sets the vector components.
 	public SbVec2f setValue(float[] v) {
 	     vec[0] = v[0];
 	     vec[1] = v[1];
-	      
-	     return (this);	     		
+
+	     return (this);
 	}
-	
-	// Sets the vector components. 
+
+	// Sets the vector components.
 	public SbVec2f setValue(float x, float y) {
-		
+
 		  vec[0] = x;
 		    vec[1] = y;
-		   
+
 		    return this;
 	}
 
@@ -142,7 +142,7 @@ public class SbVec2f implements Mutable {
 	public float operator_square_bracket(int i) {
 		return vec[i];
 	}
-	
+
 	public void operator_square_bracket(int i, float value) {
 		vec[i] = value;
 	}
@@ -151,8 +151,8 @@ public class SbVec2f implements Mutable {
 	//
 	// Nondestructive unary negation - returns a new vector
 	//
-	
-	public SbVec2f operator_minus() 
+
+	public SbVec2f operator_minus()
 	{
 	    return new SbVec2f(-vec[0], -vec[1]);
 	}
@@ -169,7 +169,7 @@ operator_minus(final SbVec2f v2)
                   v1.vec[1] - v2.vec[1]);
 }
 
-	
+
     //! Component-wise scalar multiplication and division operators.
     public SbVec2f    operator_div_equal(float d)
         { return operator_mul_equal (1.0f / d); }
@@ -177,7 +177,7 @@ operator_minus(final SbVec2f v2)
  //
    // Equality comparison operator. Componenents must match exactly.
    //
-   
+
   public boolean
    operator_equal_equal(final SbVec2f v2)
    {
@@ -185,7 +185,11 @@ operator_minus(final SbVec2f v2)
        return (v1.vec[0] == v2.vec[0] &&
                v1.vec[1] == v2.vec[1]);
    }
-   
+
+
+	public boolean operator_not_equal(SbVec2f range) {
+		return !operator_equal_equal(range);
+	}
 
 //
 // Component-wise vector addition operator
@@ -209,12 +213,12 @@ public float dot(final SbVec2f v)
     return vec[0] * v.vec[0] + vec[1] * v.vec[1];
 }
 
-      
+
 //
 // Component-wise scalar multiplication operator
 //
 
-    public SbVec2f 
+    public SbVec2f
     operator_mul_equal(float d)
 {
     vec[0] *= d;
@@ -231,7 +235,7 @@ public float dot(final SbVec2f v)
 public SbVec2f
 operator_mul(float d)
 {
-	final SbVec2f v = this; 
+	final SbVec2f v = this;
     return new SbVec2f(v.vec[0] * d, v.vec[1] * d);
 }
 
@@ -247,7 +251,7 @@ operator_add( final SbVec2f v2)
                   v1.vec[1] + v2.vec[1]);
 }
 
-	
+
 //
 // Changes vector to be unit length
 //
@@ -256,15 +260,16 @@ public float normalize()
 {
     float len = length();
 
-    if (len != 0.0)
-        (this).operator_mul_equal(1.0f / len);
-
-    else setValue(0.0f, 0.0f);
+    if (len != 0.0) {
+		(this).operator_mul_equal(1.0f / len);
+	} else {
+		setValue(0.0f, 0.0f);
+	}
 
     return len;
 }
 
-	
+
 //
 // Returns geometric length of vector
 //
@@ -274,20 +279,20 @@ public float length()
     return (float)Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1]);
 }
 
-	
-	
+
+
 	@Override
 	public void copyFrom(Object other) {
 		SbVec2f otherVec2f = (SbVec2f)other;
-		vec[0] = otherVec2f.vec[0];		
-		vec[1] = otherVec2f.vec[1];		
+		vec[0] = otherVec2f.vec[0];
+		vec[1] = otherVec2f.vec[1];
 	}
-	
+
 	// java port
 	public static int sizeof() {
 		return 2 * Float.SIZE / Byte.SIZE;
 	}
-	
+
 	/**
 	 * Allocates an array of SbVec2f
 	 * @param num

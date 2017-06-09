@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved. 
+ *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,18 +18,18 @@
  *  otherwise, applies only to this software file.  Patent licenses, if
  *  any, provided herein do not apply to combinations of this program with
  *  other software, or any other product whatsoever.
- * 
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
  *  Mountain View, CA  94043, or:
- * 
- *  http://www.sgi.com 
- * 
- *  For further information regarding this notice, see: 
- * 
+ *
+ *  http://www.sgi.com
+ *
+ *  For further information regarding this notice, see:
+ *
  *  http://oss.sgi.com/projects/GenInfo/NoticeExplan/
  *
  */
@@ -113,25 +113,27 @@ SoSeparator, SoQtRenderArea
  *
  */
 public class SoGLRenderAction extends SoAction implements Destroyable {
-	
+
+	@Override
 	public SoType getTypeId() {
 		return new SoType(classTypeId);
 	}
-    public static SoType getClassTypeId()                              
-                                    { return classTypeId; }                   
-    public static void addMethod(SoType t, SoActionMethod method)    
-                                    { methods.addMethod(t, method); }        
+    public static SoType getClassTypeId()
+                                    { return classTypeId; }
+    public static void addMethod(SoType t, SoActionMethod method)
+                                    { methods.addMethod(t, method); }
     // java port
-    public  static void                 enableElement(Class<?> klass)         
+    public  static void                 enableElement(Class<?> klass)
     { enabledElements.enable(SoElement.getClassTypeId(klass), SoElement.getClassStackIndex(klass));}
-    
-    public static void enableElement(SoType t, int stkIndex)         
-                                    { enabledElements.enable(t, stkIndex);}  
-    protected SoEnabledElementsList getEnabledElements() {
+
+    public static void enableElement(SoType t, int stkIndex)
+                                    { enabledElements.enable(t, stkIndex);}
+    @Override
+	protected SoEnabledElementsList getEnabledElements() {
 	  return enabledElements;
     }
-    protected  static SoEnabledElementsList enabledElements;                            
-    protected  static SoActionMethodList   methods;                                     
+    protected  static SoEnabledElementsList enabledElements;
+    protected  static SoActionMethodList   methods;
     private static SoType               classTypeId	;
 
     //! Various levels of transparency rendering quality
@@ -143,12 +145,12 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
            BLEND,                  //!< Use GL alpha blending
            DELAYED_BLEND,          //!< Use GL alpha blending, do transp objs last
           SORTED_OBJECT_BLEND;     //!< Use GL alpha blending, sort objects by bbox
-           
+
            public int getValue() {
         	   return ordinal();
            }
       };
-  	
+
     //! Possible return codes from a render abort callback
       enum AbortCode {
           CONTINUE,               //!< Continue as usual
@@ -159,27 +161,27 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 
     //! Callback functions used between rendering passes should be of this type.
       public interface SoGLRenderPassCB extends IGLCallback {
-    	  
+
       }
-            
+
       //! Callback functions for render abort should be of this type.
            //! This typedef is defined within the class, since it needs to
            //! refer to the AbortCode enumerated type.
            public interface SoGLRenderAbortCB {
-        	   
+
         	   AbortCode abort(Object userData);
-        	   
+
            }
-           
+
 	     private final	       SbViewportRegion    vpRegion = new SbViewportRegion();       //!< Current viewport region
 	     private final	       SbVec2f             updateOrigin = new SbVec2f();   //!< Origin of update area
 	     private final	       SbVec2f             updateSize = new SbVec2f();     //!< Size of update area
-	   
-	   
-	       //! Variables for render abort: 
+
+
+	       //! Variables for render abort:
 	     private	       SoGLRenderAbortCB   abortCB;       //!< Callback to test abort
 	     private	       Object                abortData;     //!< User data for abort callback
-	   
+
 	       //! Variables for transparency, smoothing, and multi-pass rendering:
 	     private	       TransparencyType    transpType;     //!< Transparency quality type
 	     private	       boolean              doSmooth;       //!< Doing smoothing ?
@@ -188,7 +190,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 	     private	       boolean              passUpdate;     //!< Whether to update after each pass
 	     private	       SoGLRenderPassCB    passCB;        //!< Callback between passes
 	     private	       Object                passData;      //!< User data for pass callback
-	   
+
 	       //! For SORTED_OBJECT_ADD or SORTED_OBJECT_BLEND transparency:
 	     private	       boolean              renderingTranspObjs; //!< true when rendering transp objs
 	     private	       boolean              delayObjs;      //!< true if transp objects are to be
@@ -198,14 +200,14 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 	     private	       SoGetBoundingBoxAction ba;         //!< For computing bounding boxes
 	     private	       SbBox3f[]             bboxes;        //!< Bounding boxes of objects
 	     private	       int                 numBBoxes;      //!< Number of bboxes allocated
-	   
+
 	     private	       GL2            cacheContext;   //!< GL cache context
 	     private	       boolean              remoteRendering;//!< Remote rendering?
-	   
+
 	       //! Stuff needed to implement rendering of delayed paths
 	     private final	       SoPathList          delayedPaths = new SoPathList();   //!< List of paths to render
 	     private	       boolean              renderingDelPaths; //!< true when rendering them
-	   	
+
 	     //! These flags determine which things have to be sent to GL when
 	          //! the action is applied. They indicate what's changed since the
 	          //! last time the action was applied.
@@ -213,52 +215,52 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
               TRANSPARENCY_TYPE(0x01),
               SMOOTHING(0x02),
               ALL(0x03);  //!< Initial value
-              
+
               private int value;
-              
+
               flags(int value) {
             	  this.value = value;
               }
-              
+
               public int getValue() {
             	  return value;
               }
           };
      	  int whatChanged;
-	     	
+
        //! Keep track of which planes we need to view-volume cull test
        //! against:
        int                 cullBits;
-     	       	  
+
      ////////////////////////////////////////////////////////////////////////
      //
      // Description:
      //    Constructor. The first parameter defines the viewport region
-     //    into which rendering will take place. 
+     //    into which rendering will take place.
      //
      // Use: public
-     
+
      public SoGLRenderAction(final SbViewportRegion viewportRegion)
-     
+
      //
      ////////////////////////////////////////////////////////////////////////
      {
          //SO_ACTION_CONSTRUCTOR(SoGLRenderAction);
          traversalMethods = methods;
-        		           
-     
+
+
          vpRegion.copyFrom(viewportRegion);
          updateOrigin.setValue(0.0f, 0.0f);
          updateSize.setValue(1.0f, 1.0f);
-     
+
          abortCB             = null;
-     
+
          transpType          = TransparencyType.SCREEN_DOOR;
          doSmooth            = false;
          numPasses           = 1;
          passUpdate          = false;
          passCB              = null;
-     
+
          renderingTranspObjs = false;
          delayObjs           = false;
          sortObjs            = false;
@@ -266,24 +268,27 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
         bboxes              = null;
         cacheContext        = null;
         remoteRendering     = false;
-    
+
         renderingDelPaths   = false;
-    
+
         whatChanged         = flags.ALL.getValue();
-    
+
         // These three bits keep track of which view-volume planes we need
         // to test against; by default, all bits are 1.
         cullBits            = 7;
     }
-     
-     public void destructor() {
-    	    if (ba != null)
-    	        ba.destructor();
 
-    	    if (bboxes != null)
-    	        /*delete []*/ bboxes = null;    	 
+     @Override
+	public void destructor() {
+    	    if (ba != null) {
+				ba.destructor();
+			}
+
+    	    if (bboxes != null) {
+				/*delete []*/ bboxes = null;
+			}
      }
-    
+
    ////////////////////////////////////////////////////////////////////////
      //
      // Description:
@@ -298,14 +303,14 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
      {
          vpRegion.copyFrom(newRegion);
      }
-     
-        
+
+
     /**
-     * Returns viewport region to use for rendering. 
+     * Returns viewport region to use for rendering.
      */
     //! Returns viewport region to use for rendering.
       public SbViewportRegion getViewportRegion() { return vpRegion; }
-        
+
        ////////////////////////////////////////////////////////////////////////
        //
        // Description:
@@ -320,7 +325,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
            updateOrigin.copyFrom(origin);
            updateSize.copyFrom(size);
        }
-       
+
        ////////////////////////////////////////////////////////////////////////
        //
        // Description:
@@ -335,33 +340,34 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
            origin.copyFrom(updateOrigin);
            size.copyFrom(updateSize);
        }
-             
+
       ////////////////////////////////////////////////////////////////////////
        //
        // Invalidate the state so that it will be created again
        // next time the action is applied.
        //
        // Use: public, virtual
-       
-      public void
+
+      @Override
+	public void
        invalidateState()
        //
        ////////////////////////////////////////////////////////////////////////
        {
            // Invalidate the state in the usual way
            super.invalidateState();
-       
+
            // Also invalidate what we think we know...
            whatChanged = flags.ALL.getValue();
        }
-             
+
       ////////////////////////////////////////////////////////////////////////
        //
        // Description:
        //    Sets cache context to given value
        //
        // Use: public
-       
+
       public void
        setCacheContext( GL2 context)
        //
@@ -374,14 +380,14 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
                cacheContext = context;
            }
        }
-        
+
       /**
-       * Sets/gets whether or not "remote" rendering is happening. 
-       * Inventor's auto-render-caching algorithm will choose to cache more often 
-       * when rendering is remote (the assumption being that performance will be 
-       * better with display lists stored on the remote machine). 
-       * By default, it is assumed rendering is NOT remote. 
-       * 
+       * Sets/gets whether or not "remote" rendering is happening.
+       * Inventor's auto-render-caching algorithm will choose to cache more often
+       * when rendering is remote (the assumption being that performance will be
+       * better with display lists stored on the remote machine).
+       * By default, it is assumed rendering is NOT remote.
+       *
        * @param flag
        */
       ////////////////////////////////////////////////////////////////////////
@@ -390,7 +396,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //    Sets whether rendering is remote or local.
        //
        // Use: public
-       
+
       public void
        setRenderingIsRemote(boolean flag)
        //
@@ -398,14 +404,14 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        {
            remoteRendering = flag;
        }
-             
+
       ////////////////////////////////////////////////////////////////////////
        //
        // Description:
        //    Gets whether renering is remote or local.
        //
        // Use: public
-       
+
       public boolean
        getRenderingIsRemote()
        //
@@ -413,15 +419,15 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        {
            return remoteRendering;
        }
-       
-      
+
+
       ////////////////////////////////////////////////////////////////////////
        //
        // Description:
        //    Sets transparency quality level to use when rendering.
        //
        // Use: public
-       
+
       public void
        setTransparencyType(TransparencyType type)
        //
@@ -432,14 +438,14 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
                whatChanged |= flags.TRANSPARENCY_TYPE.getValue();
            }
        }
-             
+
       //! Sets/returns transparency quality level to use when rendering. The
            //! default is SCREEN_DOOR. (Note that SCREEN_DOOR transparency does not work
            //! in the case where transparency values are specified for each vertex
            //! of a shape. If this is the case, use one of the other transparency types.)
       public TransparencyType    getTransparencyType() { return transpType; }
-       
-      
+
+
       ////////////////////////////////////////////////////////////////////////
        //
        // Description:
@@ -447,7 +453,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //    the state of alpha blending to make the smoothing work.
        //
        // Use: public
-       
+
       public void
        setSmoothing(boolean smooth)
        //
@@ -458,15 +464,15 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
                whatChanged |= flags.SMOOTHING.getValue();
            }
        }
-             
+
       //! Sets/returns smoothing flag. When on, smoothing uses OpenGL's line-
            //! and point-smoothing features to provide cheap antialiasing of lines
            //! and points. The default is false.
       public     boolean              isSmoothing() { return doSmooth; }
-       
+
       //! \see getNumPasses
       public     void                setNumPasses(int num)           { numPasses = num;  }
-            
+
       //! Sets/returns number of rendering passes for multipass rendering.
            //! Specifying more than one pass will result in antialiasing of the
            //! rendered scene, using OpenGL's accumulation buffer. (Camera nodes
@@ -474,26 +480,26 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
            //! the antialiasing.)  Each additional pass provides better
            //! antialiasing, but requires more rendering time The default is 1 pass.
       public int                 getNumPasses() { return numPasses; }
-                         
+
       //! \see isPassUpdate
       public     void                setPassUpdate(boolean flag)      { passUpdate = flag; }
            //! Sets/returns a flag indicating whether intermediate results are
            //! displayed after each antialiasing pass for progressive improvement
            //! (default is false).
            public boolean              isPassUpdate()             { return passUpdate; }
-       
-            
+
+
       //! Sets a callback function to invoke between passes when antialiasing.
            //! Passing NULL (which is the default state) will cause a clear of the color
            //! and depth buffers to be performed.
       public     void                setPassCallback(SoGLRenderPassCB funcArg, Object userData)
                { passCB = funcArg; passData = userData; }
-             
+
       /**
-       * Sets/returns the OpenGL cache context. 
-       * A cache context is just an integer identifying when OpenGL display lists 
-       * (which are used for render caching) can be shared between render actions. 
-       * 
+       * Sets/returns the OpenGL cache context.
+       * A cache context is just an integer identifying when OpenGL display lists
+       * (which are used for render caching) can be shared between render actions.
+       *
        * @return
        */
       ////////////////////////////////////////////////////////////////////////
@@ -502,7 +508,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //    Gets cache context
        //
        // Use: public
-       
+
       public GL2
        getCacheContext()
        //
@@ -510,14 +516,14 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        {
            return cacheContext;
        }
-       
+
     //! Returns current rendering pass number
     public int                 getCurPass()  { return curPass; }
 
       //! Returns true if render action should abort - checks user callback
       public     boolean              abortNow()
                { return (hasTerminated() || (abortCB != null && checkAbort())); }
-       
+
       ////////////////////////////////////////////////////////////////////////
        //
        // Description:
@@ -525,51 +531,51 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //    callback. This assumes the callback is not NULL.
        //
        // Use: private
-       
+
       private boolean
        checkAbort()
        //
        ////////////////////////////////////////////////////////////////////////
        {
            boolean doAbort;
-       
+
            switch (abortCB.abort(abortData)) {
-       
+
              case CONTINUE:
                doAbort = false;
                break;
-       
+
              case ABORT:
                // Mark the action has having terminated
                setTerminated(true);
                doAbort = true;
                break;
-       
+
              case PRUNE:
                // Don't mark anything, but return true. This will tell the
                // node not to render itself.
                doAbort = true;
                break;
-       
+
              case DELAY:
                // Add the current path to the list of delayed paths
                delayedPaths.append(getCurPath().copy());      // Also refs the path
                doAbort = true;
                break;
-               
+
                default:
             	   throw new IllegalStateException("checkAbort : Illegal abort code");
            }
-       
+
            return doAbort;
-       }            
+       }
       ////////////////////////////////////////////////////////////////////////
        //
        // Description:
        //    Initializes the SoGLRenderAction class.
        //
        // Use: internal
-       
+
       public static void
        initClass()
        //
@@ -577,10 +583,10 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        {
            //SO_ACTION_INIT_CLASS(SoGLRenderAction, SoAction);
 	       enabledElements = new SoEnabledElementsList(SoAction.enabledElements);
-	       methods = new SoActionMethodList(SoAction.methods);          
-	       classTypeId    = SoType.createType(SoAction.getClassTypeId(),        
+	       methods = new SoActionMethodList(SoAction.methods);
+	       classTypeId    = SoType.createType(SoAction.getClassTypeId(),
 	                                           new SbName("SoGLRenderAction"), null);
-       
+
            //SO_ENABLE(SoGLRenderAction, SoGLLazyElement);
 	       SoGLRenderAction.enableElement(SoGLLazyElement.class);
 
@@ -594,7 +600,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 	       SoGLRenderAction.enableElement(SoWindowElement.class);
 
        }
- 
+
     //! Returns true if render action handles processing of a
     //! transparent object (if it is to be sorted and rendered later).
     //! If this returns false, the object should just go ahead and
@@ -605,7 +611,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
     public boolean              handleTransparency() {
     	return handleTransparency(false);
     }
-    
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -626,8 +632,9 @@ handleTransparency(boolean isTransparent)
     boolean      ret;
 
     // Nothing special to do for screen-door blending
-    if (transpType == TransparencyType.SCREEN_DOOR)
-        return false;
+    if (transpType == TransparencyType.SCREEN_DOOR) {
+		return false;
+	}
 
     // Determine if the object is likely to be transparent. This is
     // true if: there are several transparency values in the state or
@@ -660,18 +667,21 @@ handleTransparency(boolean isTransparent)
 
             // Add path if not already there
             if (! isCopy)
-                transpPaths.append(curPath.copy());    // Also refs the path
+			 {
+				transpPaths.append(curPath.copy());    // Also refs the path
+			}
 
             // We also need to make sure that any open caches are
             // invalidated; if they aren't, they will skip this
             // object and (since the cache replaces traversal),
             // this object will not be rendered delayed at all.
 
-            if (getState().isCacheOpen())
-                SoCacheElement.invalidate(getState());
+            if (getState().isCacheOpen()) {
+				SoCacheElement.invalidate(getState());
+			}
 
             ret = true;
-        }       
+        }
 
         // If transparency is not delayed, enable blending
         else {
@@ -734,6 +744,7 @@ enableBlending(boolean enable)
 //
 // Use: protected
 
+@Override
 public void
 beginTraversal(SoNode node)
 //
@@ -744,7 +755,7 @@ beginTraversal(SoNode node)
     //       which OIV has a valid current OpenGL context (e.g. from SoQt or another window binding),
     //       so this is the right place to initialize OpenGL/GLEW:
     SbOpenGL.init();
-    
+
     // This is called either from the main call to apply() that is
     // used to render a graph OR from the apply() call made while
     // rendering transparent objects or delayed objects. In the first
@@ -752,11 +763,11 @@ beginTraversal(SoNode node)
     // cases, we want to render only the current pass. We can tell
     // these cases apart by examining the flags.
 
-    if (renderingTranspObjs || renderingDelPaths)
-        traverse(node);
-
-    else
-        renderAllPasses(node);
+    if (renderingTranspObjs || renderingDelPaths) {
+		traverse(node);
+	} else {
+		renderAllPasses(node);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -772,7 +783,7 @@ renderAllPasses(SoNode node)
 ////////////////////////////////////////////////////////////////////////
 {
 	GL2 gl2 = cacheContext;
-	
+
     // If anything has changed since the last time this action was
     // applied, make sure it is set up correctly in GL.
     if (whatChanged != 0) {
@@ -784,9 +795,9 @@ renderAllPasses(SoNode node)
                 // work properly
                 gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 enableBlending(true);
-            }
-            else
-                enableBlending(false);
+            } else {
+				enableBlending(false);
+			}
             break;
 
           case ADD:
@@ -824,12 +835,12 @@ renderAllPasses(SoNode node)
     // Set the GL cache context:
     SoGLCacheContextElement.set(state, cacheContext, delayObjs,
                                  remoteRendering);
-    
+
     // Set the transparency bit in the ShapeStyle element
     // and the lazy element.
     SoShapeStyleElement.setTransparencyType(state,transpType.getValue());
     SoLazyElement.setTransparencyType(state, transpType.getValue());
-    
+
     // Simple case of one pass
     if (getNumPasses() == 1) {
         renderPass(node, 0);
@@ -837,34 +848,38 @@ renderAllPasses(SoNode node)
     }
 
     int         pass;
-    float       passFrac = 1.0f / (float) getNumPasses();
+    float       passFrac = 1.0f / getNumPasses();
 
     for (pass = 0; pass < getNumPasses(); pass++) {
 
         // Stuff to do between passes:
         if (pass > 0) {
             // Update the buffer after each pass if requested
-            if (passUpdate)
-            	gl2.glAccum(GL_RETURN, (float) getNumPasses() / (float) pass);
+            if (passUpdate) {
+				gl2.glAccum(GL_RETURN, (float) getNumPasses() / (float) pass);
+			}
 
             // If user-defined callback exists, call it. Otherwise,
             // clear to current clear color and depth buffer clear value
-            if (passCB != null)
-                (passCB).run(gl2,passData);
-            else
-            	gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            if (passCB != null) {
+				(passCB).run(gl2,passData);
+			} else {
+				gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
         }
 
         renderPass(node, pass);
 
         // Stop if rendering was aborted
-        if (hasTerminated())
-            return;
+        if (hasTerminated()) {
+			return;
+		}
 
-        if (pass > 0)
-        	gl2.glAccum(GL_ACCUM, passFrac);
-        else
-        	gl2.glAccum(GL_LOAD,  passFrac);
+        if (pass > 0) {
+			gl2.glAccum(GL_ACCUM, passFrac);
+		} else {
+			gl2.glAccum(GL_LOAD,  passFrac);
+		}
     }
 
     gl2.glAccum(GL_RETURN, 1.0f);
@@ -886,7 +901,7 @@ renderPass(SoNode node, int pass)
     curPass = pass;
     SoGLRenderPassElement.set(getState(), pass);
 
-    // Set the viewport region 
+    // Set the viewport region
     SoViewportRegionElement.set(getState(), vpRegion);
     SoGLUpdateAreaElement.set(getState(), updateOrigin, updateSize);
 
@@ -898,14 +913,16 @@ renderPass(SoNode node, int pass)
     if (delayObjs && transpPaths.getLength() > 0 && ! hasTerminated()) {
 
         // Make sure blending is enabled if necessary
-        if (transpType != TransparencyType.SCREEN_DOOR)
-            enableBlending(true);
+        if (transpType != TransparencyType.SCREEN_DOOR) {
+			enableBlending(true);
+		}
 
         renderTransparentObjs();
 
         // Disable blending for next pass
-        if (transpType != TransparencyType.SCREEN_DOOR)
-            enableBlending(false);
+        if (transpType != TransparencyType.SCREEN_DOOR) {
+			enableBlending(false);
+		}
     }
 
     // Delayed paths
@@ -939,7 +956,7 @@ renderTransparentObjs()
 ////////////////////////////////////////////////////////////////////////
 {
     int i, numObjs = transpPaths.getLength(), numToDo;
-    
+
     GL2 gl2 = cacheContext;
 
     // Indicate that we are doing transparent objects so we know not
@@ -955,13 +972,11 @@ renderTransparentObjs()
     gl2.glDepthMask(false);
 
     // If not sorting, just render them in order
-    if (! sortObjs)
-        // Render paths to transparent objects. We know these paths
+    if (! sortObjs) {
+		// Render paths to transparent objects. We know these paths
         // obey the rules for compact path lists, so let the action know.
         apply(transpPaths, true);
-
-    // Otherwise, compute bounding boxes, render objs back to front
-    else {
+	} else {
         if (ba == null) {
             ba = new SoGetBoundingBoxAction(vpRegion);
 
@@ -1026,6 +1041,20 @@ renderTransparentObjs()
 
     public int                 getCullTestResults() { return cullBits; }
     public void                setCullTestResults(int b) { cullBits = b; }
+
+	private boolean transparencyrender; // COIN 3D
+
+	/*
+	 * !
+	 *
+	 * Returns TRUE if the action is currently rendering delayed or sorted
+	 * transparent objects.
+	 *
+	 * \since Coin 3.0
+	 */
+	public boolean isRenderingTranspPaths() {
+		return this.transparencyrender;
+	}
 
 
 }

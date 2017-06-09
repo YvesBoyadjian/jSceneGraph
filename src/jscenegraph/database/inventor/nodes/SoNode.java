@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved. 
+ *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,18 +18,18 @@
  *  otherwise, applies only to this software file.  Patent licenses, if
  *  any, provided herein do not apply to combinations of this program with
  *  other software, or any other product whatsoever.
- * 
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
  *  Mountain View, CA  94043, or:
- * 
- *  http://www.sgi.com 
- * 
- *  For further information regarding this notice, see: 
- * 
+ *
+ *  http://www.sgi.com
+ *
+ *  For further information regarding this notice, see:
+ *
  *  http://oss.sgi.com/projects/GenInfo/NoticeExplan/
  *
  */
@@ -54,15 +54,14 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;
 import jscenegraph.database.inventor.SoNodeList;
 import jscenegraph.database.inventor.SoType;
-import jscenegraph.database.inventor.SoType.CreateMethod;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoActionMethodList.SoActionMethod;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
@@ -95,10 +94,10 @@ classes are derived.
 \par Action Behavior
 \par
 SoSearchAction
-<BR> If the node pointer, type, or name matches the search criteria, returns a path to the node. 
+<BR> If the node pointer, type, or name matches the search criteria, returns a path to the node.
 \par
 SoWriteAction
-<BR> Writes the contents of the node to the current SoOutput. 
+<BR> Writes the contents of the node to the current SoOutput.
 
 \par See Also
 \par
@@ -111,28 +110,28 @@ SoPath, SoAction, SoNodeKit
  *
  */
 public abstract class SoNode extends SoFieldContainer {
-	
+
 	private static long nextAddress;
-	
-	
+
+
 	private final long address;
-	
+
 	//! Unique id for this node.
 	protected int uniqueId;
-	
+
 	//! Next available unique id
 	protected static int nextUniqueId;
-	
+
     //! Next index into the action method table
     protected  static int          nextActionMethodIndex;
-  
+
  	   private
 		        static SoType       classTypeId;    //!< Type identifier
-		    
+
 		   	private boolean override; //!< TRUE if node overrides others
-	
+
 	protected SoNode() {
-		
+
 //		 #ifdef DEBUG
 		   if (! SoDB.isInitialized()) {
 		   SoDebugError.post("SoNode.SoNode",
@@ -140,32 +139,32 @@ public abstract class SoNode extends SoFieldContainer {
 		   "calling SoDB.init()");
 		   }
 //		  #endif /* DEBUG */
-		  
+
 		   override = false;
 		   uniqueId = nextUniqueId++;
-		 
+
 		   address = nextAddress++;
 		 }
-	
+
 	public long getAddress() { return address;}
-	
+
     //! Returns type identifier for the SoNode class.
     public  static SoType       getClassTypeId()        { return new SoType(classTypeId); }
-  
- 
+
+
 	@Override
 	public SoType getTypeId() {
 		return classTypeId;
 	}
-	
-	// Turns override flag on or off. 
+
+	// Turns override flag on or off.
 	 ////////////////////////////////////////////////////////////////////////
 	   //
 	   // Description:
 	   //    Turns override flag on or off. Causes notification.
 	   //
 	   // Use: public
-	   
+
 	  public void
 	   setOverride(boolean state)
 	   //
@@ -174,20 +173,20 @@ public abstract class SoNode extends SoFieldContainer {
 	       override = state;
 	       startNotify();
 	   }
-	   
+
 	     //! Returns the state of the override flag.
 	  public     boolean              isOverride()              { return override; }
-	   	  	
+
 	/**
-	 * Creates and returns an exact copy of the node. 
-	 * If the node is a group, it copies the children as well. 
-	 * If copyConnections is TRUE (it is FALSE by default), 
-	 * any connections to (but not from) fields of the node are copied, 
-	 * as well. 
-	 * Note that multiple references to a node under the node 
-	 * to be copied will result in multiple references to the copy 
-	 * of that node. 
-	 * 
+	 * Creates and returns an exact copy of the node.
+	 * If the node is a group, it copies the children as well.
+	 * If copyConnections is TRUE (it is FALSE by default),
+	 * any connections to (but not from) fields of the node are copied,
+	 * as well.
+	 * Note that multiple references to a node under the node
+	 * to be copied will result in multiple references to the copy
+	 * of that node.
+	 *
 	 * @return
 	 */
 	  // java port
@@ -195,7 +194,7 @@ public abstract class SoNode extends SoFieldContainer {
 		return copy(false);
 	}
 	public SoNode copy(boolean copyConnections) {
-		
+
 	     //
 		       // The copy operation is done in two passes:
 		       //
@@ -214,50 +213,50 @@ public abstract class SoNode extends SoFieldContainer {
 		       // dictionary. This dictionary is maintained in the
 		       // SoFieldContainer class so both nodes and engines can access it.
 		       //
-		   
+
 		       // Ref ourselves, just in case our ref count is 0
 		       ref();
-		   
+
 		       // Step (1):
-		   
+
 		       // Set up a new dictionary. Recursive copy operations use new
 		       // dictionaries to avoid confusion.
 		       initCopyDict();
-		   
+
 		       // Recursively figure out which nodes are inside and add them to
 		       // the copy dictionary, each with NO ref().
 		       SoNode newNode = addToCopyDict();
 		       newNode.ref();
-		   
+
 		       // Step (2):
-		   
+
 		       // Copy the contents of this node into the new copy. This will
 		       // recurse (for groups) and will also handle connections and
 		       // fields that point to nodes, paths, or engines.
 		       newNode.copyContents(this, copyConnections);
-		   
+
 		       // Get rid of the dictionary
 		       copyDone();
-		   
+
 		       // Return the copy
 		       newNode.unrefNoDelete();
 		       unref();
 		       return newNode;
-		   		
+
 	}
 
-	// Initiates notification from an instance. 
+	// Initiates notification from an instance.
 	@Override
 	public void startNotify() {
 		  // Update our unique id to indicate that we are a different node.
 		  uniqueId = nextUniqueId;
 		  nextUniqueId++;
-		 
+
 		  // Let FieldContainer pass notification on to auditors...
 		  super.startNotify();
-				
+
 	}
-	
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -266,6 +265,7 @@ public abstract class SoNode extends SoFieldContainer {
 //
 // Use: internal
 
+@Override
 public void
 notify(SoNotList list)
 //
@@ -282,8 +282,9 @@ notify(SoNotList list)
     // Do nothing if this node has already been notified by this
     // current notification. We can tell this by comparing the
     // notification list's time stamp with the node id.
-    if (list.getTimeStamp() <= uniqueId)
-        return;
+    if (list.getTimeStamp() <= uniqueId) {
+		return;
+	}
 
     // Update our unique id to indicate that we are a different node
     uniqueId = nextUniqueId++;
@@ -292,56 +293,59 @@ notify(SoNotList list)
     super.notify(list);
 }
 
-	
-	
-	// Returns pointer to children, or NULL if none. 
+
+
+	// Returns pointer to children, or NULL if none.
 	public SoChildList getChildren() {
 		return null;
 	}
-	
+
 	/**
-	 * Recursively adds this node and all nodes under it 
-	 * to the copy dictionary. 
+	 * Recursively adds this node and all nodes under it
+	 * to the copy dictionary.
 	 * Returns the copy of this node.
-	 * 
+	 *
 	 * @return
 	 */
 	public SoNode addToCopyDict() {
-		
+
 	     // If this node is already in the dictionary, nothing else to do
 		       SoNode copy = (SoNode ) checkCopy(this);
 		       if (copy == null) {
-		   
+
 		           // Create and add a new instance to the dictionary
 		           copy = (SoNode ) getTypeId().createInstance();
 		           copy.ref();
 		           addCopy(this, copy);            // Adds a ref()
 		           copy.unrefNoDelete();
-		   
+
 		           // Recurse on children, if any
 		           SoChildList kids = getChildren();
-		           if (kids != null)
-		              for (int i = 0; i < kids.getLength(); i++)
-		                   kids.operator_square_bracket(i).addToCopyDict();
+		           if (kids != null) {
+					for (int i = 0; i < kids.getLength(); i++) {
+						kids.operator_square_bracket(i).addToCopyDict();
+					}
+				}
 		       }
-		   
+
 		       return copy;
 		  	}
-	
+
 	/**
-	 * Copies the contents of the given node into this instance. 
+	 * Copies the contents of the given node into this instance.
 	 * The default implementation copies just field values and the name.
-	 * 
+	 *
 	 * @param fromFC
 	 * @param copyConnections
 	 */
+	@Override
 	public void copyContents(SoFieldContainer fromFC, boolean copyConnections) {
 	     // Copy the regular stuff
 		 super.copyContents(fromFC, copyConnections);
-		   
+
 		       // Copy the override flag
 		       override = ((SoNode ) fromFC).override;
-		  
+
 	}
 
 ////////////////////////////////////////////////////////////////////////
@@ -352,8 +356,9 @@ notify(SoNotList list)
 //
 // Use: internal, virtual
 
-public SoFieldContainer 
-copyThroughConnection() 
+@Override
+public SoFieldContainer
+copyThroughConnection()
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -361,9 +366,10 @@ copyThroughConnection()
     // first pass of a copy() operation), use it. Otherwise, just use
     // this node.
     SoFieldContainer copy = findCopy(this, true);
-    if (copy != null)
-        return copy;
-    return (SoFieldContainer ) this;
+    if (copy != null) {
+		return copy;
+	}
+    return this;
 }
 
 
@@ -375,7 +381,7 @@ copyThroughConnection()
 //
 // Use: public
 
-public SoNode 
+public SoNode
 getByName( SbName name)
 //
 ////////////////////////////////////////////////////////////////////////
@@ -401,13 +407,13 @@ getByName( SbName name, SoNodeList list)
 
 
 
-	// Returns the next available unique id. 
+	// Returns the next available unique id.
 	public static int getNextNodeId() {
-		 return nextUniqueId; 
+		 return nextUniqueId;
 	}
-	
+
 	public static int getActionMethodIndex(SoType t)
-	               { return t.getData(); }	
+	               { return t.getData(); }
 
 	 ////////////////////////////////////////////////////////////////////////
 	   //
@@ -418,7 +424,7 @@ getByName( SbName name, SoNodeList list)
 	   //    graph override this method to return FALSE.
 	   //
 	   // Use: public
-	   
+
 	  public boolean
 	   affectsState()
 	   //
@@ -426,15 +432,15 @@ getByName( SbName name, SoNodeList list)
 	   {
 	       return true;
 	   }
-	   	
-	
-	// Initialize ALL Inventor node classes. 
+
+
+	// Initialize ALL Inventor node classes.
 	public static void initClasses() {
 		//TODO
-		
+
 	     // Base class must be initialized first
 		        SoNode.initClass();
-		    
+
 		        // Parent classes must always be initialized before their subclasses
 		        SoCamera.initClass();
 		        SoGroup.initClass();
@@ -446,7 +452,7 @@ getByName( SbName name, SoNodeList list)
 		        SoVertexShape.initClass();
 		        SoIndexedShape.initClass();
 		        SoNonIndexedShape.initClass();
-		    
+
 		        SoAnnotation.initClass();
 		        SoArray.initClass();
 //		        SoAsciiText.initClass();
@@ -528,13 +534,15 @@ getByName( SbName name, SoNodeList list)
 		       SoVertexProperty.initClass();
 //		       SoWWWAnchor.initClass();
 //		       SoWWWInline.initClass();
-		   
-		       // Four self-animating nodes. These are subclassed from 
+
+		       // Four self-animating nodes. These are subclassed from
 		       // SoSwitch, SoRotation, and SoTranslation
 //		       SoBlinker.initClass();
 //		       SoPendulum.initClass();
 //		       SoRotor.initClass();
 //		       SoShuttle.initClass();
+
+		SoDepthBuffer.initClass(); // COIN 3D
 	}
 
 	 ////////////////////////////////////////////////////////////////////////
@@ -543,7 +551,7 @@ getByName( SbName name, SoNodeList list)
 	   //    This initializes the base SoNode class.
 	   //
 	   // Use: internal
-	   
+
 	  public static void
 	   initClass()
 	   //
@@ -556,99 +564,110 @@ getByName( SbName name, SoNodeList list)
 	                                        new SbName("Node"),
 	                                        null,      // Cannot create, abstract
 	                                        (short)nextActionMethodIndex++);
-	   
+
 	       // Start nodeIds at 10--that way values of 0 through 9 can be used
-	       // for special meanings to attach to nonexistent nodes, 
+	       // for special meanings to attach to nonexistent nodes,
 	       // like "default" or "invalid"
 	       nextUniqueId = 10;
-	   
+
 	       // Add action methods
 	       SoCallbackAction.addMethod(classTypeId, new SoActionMethod() {
-	    	   public void run(SoAction soAction, SoNode soNode) {
+	    	   @Override
+			public void run(SoAction soAction, SoNode soNode) {
 	    		   callbackS(soAction, soNode);
 	    	   }
 	       });
 	       SoGLRenderAction.addMethod(classTypeId, new SoActionMethod() {
-	    	   public void run(SoAction soAction, SoNode soNode) {
+	    	   @Override
+			public void run(SoAction soAction, SoNode soNode) {
 	    		   GLRenderS(soAction, soNode);
 	    	   }
 	       }            );
 	       SoGetBoundingBoxAction.addMethod(classTypeId, new SoActionMethod() {
-	    	   public void run(SoAction soAction, SoNode soNode) {
+	    	   @Override
+			public void run(SoAction soAction, SoNode soNode) {
 	    		   getBoundingBoxS(soAction, soNode);
 	    	   }
 	       }      );
 	       SoGetMatrixAction.addMethod(classTypeId, new SoActionMethod() {
-	    	   public void run(SoAction soAction, SoNode soNode) {
+	    	   @Override
+			public void run(SoAction soAction, SoNode soNode) {
 	    		   getMatrixS(soAction, soNode);
 	    	   }
 	       }           );
 	       SoHandleEventAction.addMethod(classTypeId, new SoActionMethod() {
-	    	   public void run(SoAction soAction, SoNode soNode) {
+	    	   @Override
+			public void run(SoAction soAction, SoNode soNode) {
 	    		   handleEventS(soAction, soNode);
 	    	   }
 	       }         );
 	       SoPickAction.addMethod(classTypeId, new SoActionMethod() {
-	    	   public void run(SoAction soAction, SoNode soNode) {
+	    	   @Override
+			public void run(SoAction soAction, SoNode soNode) {
 	    		   pickS(soAction, soNode);
 	    	   }
 	       }                );
 	       SoRayPickAction.addMethod(classTypeId, new SoActionMethod() {
-	    	   public void run(SoAction soAction, SoNode soNode) {
+	    	   @Override
+			public void run(SoAction soAction, SoNode soNode) {
 	    		   rayPickS(soAction, soNode);
 	    	   }
 	       }             );
 	       SoSearchAction.addMethod(classTypeId, new SoActionMethod() {
-	    	   public void run(SoAction soAction, SoNode soNode) {
+	    	   @Override
+			public void run(SoAction soAction, SoNode soNode) {
 	    		   searchS(soAction, soNode);
 	    	   }
 	       }              );
 	       SoWriteAction.addMethod(classTypeId, new SoActionMethod() {
-	    	   public void run(SoAction soAction, SoNode soNode) {
+	    	   @Override
+			public void run(SoAction soAction, SoNode soNode) {
 	    		   writeS(soAction, soNode);
 	    	   }
 	       }               );
 	   }
-	  
+
 	     //! These static methods are registered with the database - they
 	       //! simply call the appropriate virtual function
 	  private     static void         callbackS(SoAction action, SoNode node) {
 		     SoCallbackAction a = (SoCallbackAction )action;
-		      
+
 		          // Pre/post callbacks are automatically handled.  If the callbacks
-		          // set the 'response' flag to stop traversal, handle that also. 
-		      
-		          if (a.hasTerminated())
-		              return;
-		      
+		          // set the 'response' flag to stop traversal, handle that also.
+
+		          if (a.hasTerminated()) {
+					return;
+				}
+
 		          a.setCurrentNode(node);
-		      
+
 		          a.invokePreCallbacks(node);
-		      
+
 		          if (! a.hasTerminated() &&
-		              a.getCurrentResponse() != SoCallbackAction.Response.PRUNE)
-		              node.callback(a);
-		      
+		              a.getCurrentResponse() != SoCallbackAction.Response.PRUNE) {
+					node.callback(a);
+				}
+
 		          a.invokePostCallbacks(node);
-		     		  
+
 	  }
 	  private     static void         GLRenderS(SoAction action, SoNode node) {
-		  
+
 		     SoGLRenderAction a = (SoGLRenderAction ) action;
-		      
-		          if (! a.abortNow())
-		              node.GLRender(a);
-		          else {
+
+		          if (! a.abortNow()) {
+					node.GLRender(a);
+				} else {
 		              SoCacheElement.invalidate(action.getState());
 		          }
 		     	  }
 	  private     static void         getBoundingBoxS(SoAction action, SoNode node) {
 		     SoGetBoundingBoxAction a = (SoGetBoundingBoxAction )action;
-		      
+
 		          a.checkResetBefore();
 		          node.getBoundingBox(a);
 		          a.checkResetAfter();
-		     		  
+
 	  }
 	  private     static void         getMatrixS(SoAction action, SoNode node) {
 		  node.getMatrix((SoGetMatrixAction ) action);
@@ -660,7 +679,7 @@ getByName( SbName name, SoNodeList list)
 		  node.pick((SoPickAction ) action);
 	  }
 	  private     static void         rayPickS(SoAction action, SoNode node) {
-		     node.rayPick((SoRayPickAction ) action);		     		 
+		     node.rayPick((SoRayPickAction ) action);
 	  }
 	  private     static void         searchS(SoAction action, SoNode node) {
 		  node.search((SoSearchAction ) action);
@@ -668,39 +687,39 @@ getByName( SbName name, SoNodeList list)
 	  private     static void         writeS(SoAction action, SoNode node) {
 		  // not implemented
 	  }
-	  
-//	  protected static SoType SO__NODE_INIT_ABSTRACT_CLASS(Class className, String classPrintName, 
+
+//	  protected static SoType SO__NODE_INIT_ABSTRACT_CLASS(Class className, String classPrintName,
 //			  Class<? extends SoBase> parentClass,
 //			  SoFieldData[][]    parentFieldData) {
 //		  return SO__NODE_INIT_CLASS(className,classPrintName,parentClass,parentFieldData,false);
 //	  }
 
 	  protected static void SO__NODE_INIT_ABSTRACT_CLASS(
-			  Class className, String classPrintName, 
+			  Class className, String classPrintName,
 			  Class<? extends SoBase> parentClass) {
 		  SoSubNode.SO__NODE_INIT_ABSTRACT_CLASS(className, classPrintName, parentClass);
 	  }
 
 	  protected static void SO__NODE_INIT_CLASS(
-			  Class className, String classPrintName, 
+			  Class className, String classPrintName,
 			  Class<? extends SoBase> parentClass) {
 		  SoSubNode.SO__NODE_INIT_CLASS(className, classPrintName, parentClass);
 	  }
 
 //	  protected static SoType SO__NODE_INIT_CLASS(
-//			  Class className, String classPrintName, 
+//			  Class className, String classPrintName,
 //			  Class<? extends SoBase> parentClass,
 //			  SoFieldData[][]    parentFieldData) {
 //		  return SO__NODE_INIT_CLASS(className,classPrintName,parentClass,parentFieldData,true);
 //	  }
 //	  protected static SoType SO__NODE_INIT_CLASS(
-//			  Class className, String classPrintName, 
+//			  Class className, String classPrintName,
 //			  Class<? extends SoBase> parentClass,
 //			  SoFieldData[][]    parentFieldData,boolean create) {
-//		    if ((SoNode.nextActionMethodIndex <     0) ||                            
-//		            (SoNode.nextActionMethodIndex > 32767)){                             
-//		            SoDebugError.post("SO__NODE_INIT_CLASS",                             
-//		                               "Overflow of SoNode::nextActionMethodIndex");      
+//		    if ((SoNode.nextActionMethodIndex <     0) ||
+//		            (SoNode.nextActionMethodIndex > 32767)){
+//		            SoDebugError.post("SO__NODE_INIT_CLASS",
+//		                               "Overflow of SoNode::nextActionMethodIndex");
 //		            //abort();
 //		            throw new IllegalStateException("Overflow of SoNode::nextActionMethodIndex");
 //		        }
@@ -718,16 +737,16 @@ getByName( SbName name, SoNodeList list)
 //				} catch (NoSuchMethodException e2) {
 //					throw new IllegalStateException(e2);
 //				}
-//		    	
+//
 //				try {
 //					CreateMethod createMethod = null;
 //					if(create) {
 //						final Constructor<?> constructor = className.getConstructor();
-//	
+//
 //				    	createMethod = new CreateMethod() {
-//	
+//
 //							@Override
-//							public Object run() {						
+//							public Object run() {
 //								try {
 //									return constructor.newInstance();
 //								} catch (IllegalArgumentException e) {
@@ -740,7 +759,7 @@ getByName( SbName name, SoNodeList list)
 //									throw new RuntimeException(e);
 //								}
 //							}
-//				    		
+//
 //				    	};
 //					}
 //			        try {
@@ -751,25 +770,25 @@ getByName( SbName name, SoNodeList list)
 //						throw new RuntimeException(e);
 //					} catch (InvocationTargetException e) {
 //						throw new RuntimeException(e);
-//					}//parentClass.getFieldDataPtr();                         
-//			  
-//			        return SoType.createType(parent/*parentClass.getClassTypeId()*/,                     
-//			                       new SbName(classPrintName),                                            
-//			                       createMethod/*className.createInstance*/,                                
-//			                       (short)(SoNode.nextActionMethodIndex++));      
-//			        
+//					}//parentClass.getFieldDataPtr();
+//
+//			        return SoType.createType(parent/*parentClass.getClassTypeId()*/,
+//			                       new SbName(classPrintName),
+//			                       createMethod/*className.createInstance*/,
+//			                       (short)(SoNode.nextActionMethodIndex++));
+//
 //				} catch (SecurityException e1) {
 //					throw new IllegalStateException(e1);
 //				} catch (NoSuchMethodException e1) {
 //					throw new IllegalStateException(e1);
 //				}
 //	  }
-	  
+
 	  protected static void SO_ENABLE(Class<? extends SoAction> actionClass, Class<? extends SoElement> elementClass) {
-		  
+
 		  Class<?>[] parameterTypes = new Class<?>[1];
 		  parameterTypes[0] = Class.class;
-		  
+
 		  try {
 			Method enableElement = actionClass.getMethod("enableElement", parameterTypes);
 			enableElement.invoke(actionClass, elementClass);
@@ -790,7 +809,7 @@ getByName( SbName name, SoNodeList list)
 		        //! This is used by the field-inheritence mechanism, hidden in
 		        //! the SoSubNode macros
 		        static SoFieldData[] getFieldDataPtr() { return null; }
-	   
+
 	   ////////////////////////////////////////////////////////////////////////
 	    //
 	    // Description:
@@ -801,7 +820,7 @@ getByName( SbName name, SoNodeList list)
 	    search(SoSearchAction action) {
 		   SoNode_search(action);
 	   }
-	    
+
 	   public final void
 	    SoNode_search(SoSearchAction action)
 	    //
@@ -809,39 +828,42 @@ getByName( SbName name, SoNodeList list)
 	    {
 	        int         lookingFor = action.getFind();
 	        boolean      foundMe = true;
-	    
+
 	        // We have to match everything set by the search action.
 	        // First, see if node doesn't match:
-	        if (((lookingFor & SoSearchAction.LookFor.NODE.getValue())!= 0) && action.getNode() != this)
-	            foundMe = false;
-	    
+	        if (((lookingFor & SoSearchAction.LookFor.NODE.getValue())!= 0) && action.getNode() != this) {
+				foundMe = false;
+			}
+
 	        // Next, see if the name doesn't match:
 	        if (((lookingFor & SoSearchAction.LookFor.NAME.getValue()) != 0) &&
-	            action.getName().operator_not_equal(this.getName()))
-	            foundMe = false;
-	    
+	            action.getName().operator_not_equal(this.getName())) {
+				foundMe = false;
+			}
+
 	        // Finally, figure out if types match:
 	        if ((lookingFor & SoSearchAction.LookFor.TYPE.getValue()) != 0) {
 	            final boolean[]     derivedOk = new boolean[1];
 	            SoType  t = action.getType(derivedOk);
-	            if (! (derivedOk[0] ? isOfType(t) : getTypeId().operator_equal_equal(t)))
-	                foundMe = false;
+	            if (! (derivedOk[0] ? isOfType(t) : getTypeId().operator_equal_equal(t))) {
+					foundMe = false;
+				}
 	        }
-	    
+
 	        if (foundMe) {
 	            // We have a match! Add it to the action.
-	    
-	            if (action.getInterest() == SoSearchAction.Interest.ALL)
-	                action.getPaths().append(action.getCurPath().copy());
-	    
-	            else {
+
+	            if (action.getInterest() == SoSearchAction.Interest.ALL) {
+					action.getPaths().append(action.getCurPath().copy());
+				} else {
 	                action.addPath(action.getCurPath().copy());
-	                if (action.getInterest() == SoSearchAction.Interest.FIRST)
-	                    action.setFound();
+	                if (action.getInterest() == SoSearchAction.Interest.FIRST) {
+						action.setFound();
+					}
 	            }
 	        }
 	    }
-	   
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -870,8 +892,8 @@ grabEventsCleanup()
 {
 }
 
-	   
-	   
+
+
 	   public void
 	    callback(SoCallbackAction action)
 	    {
@@ -880,7 +902,7 @@ grabEventsCleanup()
 //	                          "Called for %s", getTypeId().getName().getString());
 //	    #endif /* DEBUG_DEFAULT_METHODS */
 	    }
-	   	   
+
 	   public void
 	   GLRender(SoGLRenderAction action)
 	    {
@@ -889,7 +911,7 @@ grabEventsCleanup()
 //	                          "Called for %s", getTypeId().getName().getString());
 //	    #endif /* DEBUG_DEFAULT_METHODS */
 	    }
-	   
+
 
 public void
 GLRenderBelowPath(SoGLRenderAction action)
@@ -909,11 +931,11 @@ GLRenderOffPath(SoGLRenderAction action)
     GLRender(action);
 }
 
-	   
-	    	   
+
+
 	     //! Returns the unique id for a node
 	   public int getNodeId()        { return uniqueId; }
-	    
+
 	   public void
 	    getBoundingBox(SoGetBoundingBoxAction action)
 	    {
@@ -922,7 +944,7 @@ GLRenderOffPath(SoGLRenderAction action)
 //	                          "Called for %s", getTypeId().getName().getString());
 //	    #endif /* DEBUG_DEFAULT_METHODS */
 	    }
-	   
+
 	   protected void
 	    getMatrix(SoGetMatrixAction action)
 	    {
@@ -931,8 +953,8 @@ GLRenderOffPath(SoGLRenderAction action)
 //	                          "Called for %s", getTypeId().getName().getString());
 //	    #endif /* DEBUG_DEFAULT_METHODS */
 	    }
-	    	   
-	   
+
+
 	   protected void
 	    handleEvent(SoHandleEventAction action)
 	    {
@@ -941,7 +963,7 @@ GLRenderOffPath(SoGLRenderAction action)
 //	                          "Called for %s", getTypeId().getName().getString());
 //	    #endif /* DEBUG_DEFAULT_METHODS */
 	    }
-	   
+
 	   protected void
 	    pick(SoPickAction action)
 	    {
@@ -950,7 +972,7 @@ GLRenderOffPath(SoGLRenderAction action)
 //	                          "Called for %s", getTypeId().getName().getString());
 //	    #endif /* DEBUG_DEFAULT_METHODS */
 	    }
-	    
+
 	    protected void
 	    rayPick(SoRayPickAction action)
 	    {
@@ -958,5 +980,5 @@ GLRenderOffPath(SoGLRenderAction action)
 	        // have a more general pick() method for any pick action.
 	        pick(action);
 	    }
-	    	   
+
 	    	    	   }

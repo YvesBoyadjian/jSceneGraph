@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved. 
+ *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,18 +18,18 @@
  *  otherwise, applies only to this software file.  Patent licenses, if
  *  any, provided herein do not apply to combinations of this program with
  *  other software, or any other product whatsoever.
- * 
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
  *  Mountain View, CA  94043, or:
- * 
- *  http://www.sgi.com 
- * 
- *  For further information regarding this notice, see: 
- * 
+ *
+ *  http://www.sgi.com
+ *
+ *  For further information regarding this notice, see:
+ *
  *  http://oss.sgi.com/projects/GenInfo/NoticeExplan/
  *
  */
@@ -63,6 +63,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import jscenegraph.coin3d.inventor.elements.SoDepthBufferElement;
+import jscenegraph.coin3d.inventor.elements.SoGLDepthBufferElement;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.SoType.CreateMethod;
@@ -104,22 +106,22 @@ import jscenegraph.port.Destroyable;
  *
  */
 public abstract class SoElement implements Destroyable {
-	
-	   protected static final Map<Class,Integer> classStackIndexMap = new HashMap<Class,Integer>();
-	   protected static final Map<Class,SoType> classTypeIdMap = new HashMap<Class,SoType>();
-	   
+
+	   protected static final Map<Class,Integer> classStackIndexMap = new HashMap<>();
+	   protected static final Map<Class,SoType> classTypeIdMap = new HashMap<>();
+
 	   public static SoType getClassTypeId(Class klass) {
 		   return classTypeIdMap.get(klass);
 	   }
-	   
+
 	     //! Returns type identifier for element instance
-	   public     SoType              getTypeId() { return typeId; }	    
-	   	   
+	   public     SoType              getTypeId() { return typeId; }
+
 	   public static int getClassStackIndex(Class klass) {
 		   Integer index = classStackIndexMap.get(klass);
 		   return index;
 	   }
-		  
+
 	   //
 	    // Description:
 	    //    Creates and returns a new stack index for an element class to
@@ -128,39 +130,39 @@ public abstract class SoElement implements Destroyable {
 	    //    debugging purposes.
 	    //
 	    // Use: internal protected
-	    
+
 	protected static int createStackIndex(SoType id)
 	    //
 	    {
 	        int stackIndex = nextStackIndex++;
-	    
+
 //	    #ifdef DEBUG
 	        // Store id in list so we can get it from stack index later
 	        stackToType.set(stackIndex, id);
 //	    #endif
-	    
+
 	        return stackIndex;
 	    }
-	   
-private      SoType              typeId;         
-		    
-private        static int          nextStackIndex; 
-private        static SoTypeList   stackToType;   
-private        int                 stackIndex;     
-		    
-		    
-		    
-private        SoElement           nextInStack;   
-private        SoElement           nextFree;      
-		    
-private        SoElement           next;          
+
+private      SoType              typeId;
+
+private        static int          nextStackIndex;
+private        static SoTypeList   stackToType;
+private        int                 stackIndex;
+
+
+
+private        SoElement           nextInStack;
+private        SoElement           nextFree;
+
+private        SoElement           next;
 private        int                 depth;
 
 
 	public SoElement() {
 		// SO__ELEMENT_METHODS
-	    setTypeId(getClassTypeId(this.getClass()));                                                   
-	    setStackIndex(getClassStackIndex(this.getClass()));                                           	  		
+	    setTypeId(getClassTypeId(this.getClass()));
+	    setStackIndex(getClassStackIndex(this.getClass()));
 	}
 
     //! Returns an instance of an element from the stack with the given
@@ -168,80 +170,80 @@ private        int                 depth;
       //! returns NULL if no writable instance can be returned.
     public  static SoElement getElement(SoState state, int stackIndex)
           { return state.getElement(stackIndex); }
-  
- 	
+
+
 	/**
-	 * Initializes element. 
-	 * Called for first element of its kind in stack. 
-	 * Default method does nothing. 
-	 * 
-	 * 
+	 * Initializes element.
+	 * Called for first element of its kind in stack.
+	 * Default method does nothing.
+	 *
+	 *
 	 * @param state
 	 */
 	public void init(SoState state) {
 	}
-	
+
 	public void push(SoState state) {
 	}
-	
+
 	public void pop(SoState state, SoElement prevTopElement) {
-		
+
 	}
-	
-	// Returns the stack index for an element instance. 
+
+	// Returns the stack index for an element instance.
 	public int getStackIndex() {
-		 return stackIndex; 
+		 return stackIndex;
 	}
-		    	
-	// Sets stuff in an element instance. 
+
+	// Sets stuff in an element instance.
 	public void setDepth(int dpth) {
 		 depth = dpth;
 	}
-	
+
 	public void setNext(SoElement nxt) {
-		 next = nxt; 
+		 next = nxt;
 	}
-	
+
 	public void setNextInStack(SoElement nxt) {
 		nextInStack = nxt;
 	}
-	
+
 	public void setNextFree(SoElement nxt) {
-		 nextFree = nxt; 
-	}
-	
-	// Returns stuff from element instance. 
-	public int getDepth() {
-		 return depth; 
-	}
-	
-	public SoElement getNext() {
-		 return next; 
+		 nextFree = nxt;
 	}
 
-	// Returns the number of stack indices allocated. 
-	public static int getNumStackIndices() {
-		 return nextStackIndex; 
+	// Returns stuff from element instance.
+	public int getDepth() {
+		 return depth;
 	}
-	
-	// Sets typeId in instance. 
+
+	public SoElement getNext() {
+		 return next;
+	}
+
+	// Returns the number of stack indices allocated.
+	public static int getNumStackIndices() {
+		 return nextStackIndex;
+	}
+
+	// Sets typeId in instance.
 	protected final void setTypeId(SoType id) {
 		typeId = id;
 	}
-	
-	// Sets stackIndex in instance. 
+
+	// Sets stackIndex in instance.
 	protected final void setStackIndex(int index) {
-		stackIndex = index; 
+		stackIndex = index;
 	}
-	
-	// Returns next instance in specific element stack. 
+
+	// Returns next instance in specific element stack.
 	public SoElement getNextInStack() {
-		 return nextInStack; 
+		 return nextInStack;
 	}
-	
-	// Returns next free element in a specific element stack. 
+
+	// Returns next free element in a specific element stack.
 	public SoElement getNextFree() {
-		 return nextFree; 
+		 return nextFree;
 	}
 
 	 /////////////////////////////////////////////////////////////////////////
@@ -251,7 +253,7 @@ private        int                 depth;
 	   ///      element stack.  inline to speed up traversal.
 	   ///
 	   /// Use: protected
-	   
+
 	  public static SoElement getConstElement(SoState state,
 	                                                      int stackIndex)
 	   //!
@@ -260,14 +262,16 @@ private        int                 depth;
 	       SoElement elt = (state.getConstElement(stackIndex));
 	       elt.capture(state);
 	       return elt;
-	   }	
-	
+	   }
+
 	     //! Does whatever is necessary in state to capture this element for
 	       //! caching purposes. Should be called by subclasses whenever
 	       //! any value in the element is accessed.
 	  public     void                capture(SoState state)
-	           { if (state.isCacheOpen()) captureThis(state); }
-	  
+	           { if (state.isCacheOpen()) {
+				captureThis(state);
+			} }
+
 	  ////////////////////////////////////////////////////////////////////////
 	   //
 	   // Description:
@@ -275,15 +279,15 @@ private        int                 depth;
 	   //    added to all currently open caches, using the SoCacheElement.
 	   //
 	   // Use: virtual, protected
-	   
+
 	  public void
 	   captureThis(SoState state)
 	   //
 	   ////////////////////////////////////////////////////////////////////////
 	   {
 	       SoCacheElement.addElement(state, this);
-	   }	  
-	  
+	   }
+
     //! Returns TRUE if the element matches another element (of the
     //! same class, presumably) with respect to cache validity.  If you
     //! write a matches() method, you must also write a copy() method.
@@ -292,92 +296,96 @@ private        int                 depth;
 	     //! Create a copy that we can put in a cache used list and call
 	       //! matches() on later.
 	  public abstract SoElement   copyMatchInfo();
-	   	  
-	   	  
-	// Initialize ALL Inventor element classes. 
+
+
+	// Initialize ALL Inventor element classes.
 	public static void initElements() {
-		
+
 	     // Initialize base classes first
 		        SoElement.initClass(SoElement.class);
 		        SoAccumulatedElement.SoAccumulatedElement_initClass(SoAccumulatedElement.class);
 		        SoReplacedElement.SoReplacedElement_initClass(SoReplacedElement.class);
 		        SoInt32Element.SoInt32Element_initClass(SoInt32Element.class);
 		        SoFloatElement.SoFloatElement_initClass(SoFloatElement.class);
-		    
+
 		        // Initialize derived classes
-		        SoCacheElement.initClass(SoCacheElement.class);
-		        SoClipPlaneElement.initClass(SoClipPlaneElement.class);
-		        SoComplexityElement.initClass(SoComplexityElement.class);
-		        SoComplexityTypeElement.initClass(SoComplexityTypeElement.class);
-		        SoCoordinateElement.initClass(SoCoordinateElement.class);
-		        SoCreaseAngleElement.initClass(SoCreaseAngleElement.class);
+		        SoElement.initClass(SoCacheElement.class);
+		        SoElement.initClass(SoClipPlaneElement.class);
+		        SoElement.initClass(SoComplexityElement.class);
+		        SoElement.initClass(SoComplexityTypeElement.class);
+		        SoElement.initClass(SoCoordinateElement.class);
+		        SoElement.initClass(SoCreaseAngleElement.class);
 		        SoDrawStyleElement.initClass(SoDrawStyleElement.class);
 		        SoFocalDistanceElement.initClass(SoFocalDistanceElement.class);
 		        SoFontNameElement.initClass(SoFontNameElement.class);
 		        SoFontSizeElement.initClass(SoFontSizeElement.class);
 		        // We must put this before Lazy Element:
-		        SoShapeStyleElement.initClass(SoShapeStyleElement.class);
-		        SoLazyElement.initClass(SoLazyElement.class);
+		        SoElement.initClass(SoShapeStyleElement.class);
+		        SoElement.initClass(SoLazyElement.class);
 		        SoLightAttenuationElement.initClass(SoLightAttenuationElement.class);
 		        SoLinePatternElement.initClass(SoLinePatternElement.class);
 		        SoLineWidthElement.initClass(SoLineWidthElement.class);
 		        SoMaterialBindingElement.initClass(SoMaterialBindingElement.class);
-		        SoModelMatrixElement.initClass(SoModelMatrixElement.class);
-		        SoNormalBindingElement.initClass(SoNormalBindingElement.class);
-		        SoNormalElement.initClass(SoNormalElement.class);
-		        SoOverrideElement.initClass(SoOverrideElement.class);
-		        SoPickRayElement.initClass(SoPickRayElement.class);
+		        SoElement.initClass(SoModelMatrixElement.class);
+		        SoElement.initClass(SoNormalBindingElement.class);
+		        SoElement.initClass(SoNormalElement.class);
+		        SoElement.initClass(SoOverrideElement.class);
+		        SoElement.initClass(SoPickRayElement.class);
 		        SoPickStyleElement.initClass(SoPickStyleElement.class);
 		       SoPointSizeElement.initClass(SoPointSizeElement.class);
-		       SoProfileCoordinateElement.initClass(SoProfileCoordinateElement.class);
-		       SoProfileElement.initClass(SoProfileElement.class);
+		       SoElement.initClass(SoProfileCoordinateElement.class);
+		       SoElement.initClass(SoProfileElement.class);
 		       SoProjectionMatrixElement.initClass(SoProjectionMatrixElement.class);
-		       SoShapeHintsElement.initClass(SoShapeHintsElement.class);
+		       SoElement.initClass(SoShapeHintsElement.class);
 		       SoSwitchElement.initClass(SoSwitchElement.class);
-		       SoTextureCoordinateBindingElement.initClass(SoTextureCoordinateBindingElement.class);
-		       SoTextureCoordinateElement.initClass(SoTextureCoordinateElement.class);
-		       SoTextureImageElement.initClass(SoTextureImageElement.class);
-		       SoTextureMatrixElement.initClass(SoTextureMatrixElement.class);
-		       SoTextureQualityElement.initClass(SoTextureQualityElement.class);
-		       SoTextureOverrideElement.initClass(SoTextureOverrideElement.class);
-		       SoUnitsElement.initClass(SoUnitsElement.class);
+		       SoElement.initClass(SoTextureCoordinateBindingElement.class);
+		       SoElement.initClass(SoTextureCoordinateElement.class);
+		       SoElement.initClass(SoTextureImageElement.class);
+		       SoElement.initClass(SoTextureMatrixElement.class);
+		       SoElement.initClass(SoTextureQualityElement.class);
+		       SoElement.initClass(SoTextureOverrideElement.class);
+		       SoElement.initClass(SoUnitsElement.class);
 		       SoViewVolumeElement.initClass(SoViewVolumeElement.class);
 		       SoViewingMatrixElement.initClass(SoViewingMatrixElement.class);
 		       SoViewportRegionElement.initClass(SoViewportRegionElement.class);
-		   
+
 		       // GL specific elements must be initialized after their more
 		       // generic counterparts
-		   
+
 		       SoGLCacheContextElement.initClass(SoGLCacheContextElement.class);
-		       SoGLClipPlaneElement.initClass(SoGLClipPlaneElement.class);
-		       SoGLCoordinateElement.initClass(SoGLCoordinateElement.class);
-		       SoGLDrawStyleElement.initClass(SoGLDrawStyleElement.class);
-		       SoGLLazyElement.initClass(SoGLLazyElement.class);
+		       SoElement.initClass(SoGLClipPlaneElement.class);
+		       SoElement.initClass(SoGLCoordinateElement.class);
+		       SoDrawStyleElement.initClass(SoGLDrawStyleElement.class);
+		       SoElement.initClass(SoGLLazyElement.class);
 		       SoGLLightIdElement.initClass(SoGLLightIdElement.class);
-		       SoGLLinePatternElement.initClass(SoGLLinePatternElement.class);
-		       SoGLLineWidthElement.initClass(SoGLLineWidthElement.class);
-		       SoGLModelMatrixElement.initClass(SoGLModelMatrixElement.class);
-		       SoGLNormalElement.initClass(SoGLNormalElement.class);
-		       SoGLPointSizeElement.initClass(SoGLPointSizeElement.class);
-		       SoGLProjectionMatrixElement.initClass(SoGLProjectionMatrixElement.class);
-		       SoGLRenderPassElement.initClass(SoGLRenderPassElement.class);
-		       SoGLShapeHintsElement.initClass(SoGLShapeHintsElement.class);
-		       SoGLTextureCoordinateElement.initClass(SoGLTextureCoordinateElement.class);
-		       SoGLTextureEnabledElement.initClass(SoGLTextureEnabledElement.class);
-		       SoGLTextureImageElement.initClass(SoGLTextureImageElement.class);
-		       SoGLTextureMatrixElement.initClass(SoGLTextureMatrixElement.class);
-		       SoGLUpdateAreaElement.initClass(SoGLUpdateAreaElement.class);
-		       SoGLViewingMatrixElement.initClass(SoGLViewingMatrixElement.class);
+		       SoLinePatternElement.initClass(SoGLLinePatternElement.class);
+		       SoLineWidthElement.initClass(SoGLLineWidthElement.class);
+		       SoElement.initClass(SoGLModelMatrixElement.class);
+		       SoElement.initClass(SoGLNormalElement.class);
+		       SoPointSizeElement.initClass(SoGLPointSizeElement.class);
+		       SoProjectionMatrixElement.initClass(SoGLProjectionMatrixElement.class);
+		       SoElement.initClass(SoGLRenderPassElement.class);
+		       SoElement.initClass(SoGLShapeHintsElement.class);
+		       SoElement.initClass(SoGLTextureCoordinateElement.class);
+		       SoElement.initClass(SoGLTextureEnabledElement.class);
+		       SoElement.initClass(SoGLTextureImageElement.class);
+		       SoElement.initClass(SoGLTextureMatrixElement.class);
+		       SoElement.initClass(SoGLUpdateAreaElement.class);
+		       SoViewingMatrixElement.initClass(SoGLViewingMatrixElement.class);
 		       SoGLViewportRegionElement.initClass(SoGLViewportRegionElement.class);
 		       // Added by MeVis:
-		       SoGLVBOElement.initClass(SoGLVBOElement.class);
-		   
-		       // Other derived classes 
-		       SoBBoxModelMatrixElement.initClass(SoBBoxModelMatrixElement.class);
-		       SoLocalBBoxMatrixElement.initClass(SoLocalBBoxMatrixElement.class);
-		   
-		       SoWindowElement.initClass(SoWindowElement.class);
-		  		
+		       SoElement.initClass(SoGLVBOElement.class);
+
+		SoElement.initClass(SoDepthBufferElement.class); // COIN 3D
+		SoElement.initClass(SoGLDepthBufferElement.class); // COIN
+																		// 3D
+
+		       // Other derived classes
+		       SoElement.initClass(SoBBoxModelMatrixElement.class);
+		       SoElement.initClass(SoLocalBBoxMatrixElement.class);
+
+		       SoElement.initClass(SoWindowElement.class);
+
 	}
 
 	// This is the initial number of slots in the array of types that's
@@ -387,7 +395,7 @@ private        int                 depth;
 	private final static int NUM_STACK_INDICES     =  100;
 
 	 public static void initClass(final Class<? extends SoElement> javaClass) {
-		 {                        
+		 {
 			 if(javaClass.equals(SoElement.class)) {
 				 ////////////////////////////////////////////////////////////////////////
 				   //
@@ -395,25 +403,25 @@ private        int                 depth;
 				   //    Initializes the SoElement class.
 				   //
 				   // Use: internal
-				   
+
 			       nextStackIndex = 0;
-				   
+
 			       // Initialize type id and unique id
 			       classTypeIdMap.put(SoElement.class, SoType.createType(SoType.badType(), new SbName("Element"), null));
-			   
+
 			       // Initialize stack index to a bad value since this is an abstract
 			       // class that can't appear in stacks
 			       classStackIndexMap.put(SoElement.class, -1);
-			   
+
 //			   #ifdef DEBUG
 			       // Create list that correlates stack indices to type id's
 			       stackToType = new SoTypeList(NUM_STACK_INDICES);
 //			   #endif
-				 
+
 				   //#undef NUM_STACK_INDICES
 			       return;
 			 }
-			 
+
 				CreateMethod createInstance = new CreateMethod() {
 
 					@Override
@@ -439,23 +447,24 @@ private        int                 depth;
 							throw new IllegalStateException(e);
 						}
 					}
-					
+
 				};
-			    boolean _value_false= false;                                                      
+			    boolean _value_false= false;
 				Class<?> parentClass = javaClass.getSuperclass();
 				String className = javaClass.getSimpleName();
-			    do {                                                                      
-			        classTypeIdMap.put(javaClass, SoType.createType(getClassTypeId(parentClass),       
-			                                         new SbName(className),                
-			                                         createInstance));         
-			        if (classStackIndexMap.get(parentClass) < 0)                                 
-			            classStackIndexMap.put(javaClass, createStackIndex(classTypeIdMap.get(javaClass)));                  
-			        else                                                                  
-			            classStackIndexMap.put(javaClass, classStackIndexMap.get(parentClass));                   
-			    } while (_value_false);                                                   
-			    }		 
+			    do {
+			        classTypeIdMap.put(javaClass, SoType.createType(getClassTypeId(parentClass),
+			                                         new SbName(className),
+			                                         createInstance));
+			        if (classStackIndexMap.get(parentClass) < 0) {
+						classStackIndexMap.put(javaClass, createStackIndex(classTypeIdMap.get(javaClass)));
+					} else {
+						classStackIndexMap.put(javaClass, classStackIndexMap.get(parentClass));
+					}
+			    } while (_value_false);
+			    }
 	 }
-	 
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -468,7 +477,7 @@ private        int                 depth;
 
 //#ifdef DEBUG
 public void
-print(PrintStream fp) 
+print(PrintStream fp)
 {
     fp.print( "Element: type "+typeId.getName().getString()+", depth "+depth+"\n" );
 }
@@ -479,8 +488,8 @@ print(PrintStream fp)
 //}
 //#endif /* DEBUG */
 
-	 
-	 
+
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -500,9 +509,10 @@ getIdFromStackIndex(int stackIndex)
 //#endif
 }
 
-	 
-	 public void destructor() {
-		 
+
+	 @Override
+	public void destructor() {
+
 	 }
-	 
+
 }
