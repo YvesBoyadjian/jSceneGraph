@@ -99,4 +99,12 @@ public class SoMouseWheelEvent extends SoEvent {
        public void  setWheelOrientation(Orientation orient) {
     	   _orientation = orient;
        }
+       
+
+public short getWheelRotation() 
+{
+  return _wheelRotation;
+}
+
+       
 }

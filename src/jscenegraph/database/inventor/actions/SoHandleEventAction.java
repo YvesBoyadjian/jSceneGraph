@@ -423,6 +423,9 @@ beginTraversal(SoNode node)
         traverse(node);
 }
 
+//! Sets/returns current viewport region to use for action.
+public SbViewportRegion getViewportRegion() { return vpRegion; }
+
 
 
 

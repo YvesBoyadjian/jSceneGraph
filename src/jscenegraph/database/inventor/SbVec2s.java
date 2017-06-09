@@ -200,5 +200,15 @@ operator_minus(final SbVec2s v2)
 		ref[1] = value -> vec[1] = (short) value;
 		return ref;
 	}
+
+	// java port
+	public int getX() {
+		return vec[0];
+	}
+
+	//java port
+	public int getY() {
+		return vec[1];
+	}
 }
 

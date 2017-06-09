@@ -331,6 +331,11 @@ setPath(SoPath path)
     public boolean                isHandled() 
         { return (eventAction != null) ? eventAction.isHandled() : false; }
 
+    //! Returns the SoHandleEventAction currently traversing this node,
+    //! or NULL if traversal is not taking place. This should be called
+    //! only from callback functions.
+    public SoHandleEventAction        getAction() { return eventAction; }
+
 	   
 	   
 	 ////////////////////////////////////////////////////////////////////////
