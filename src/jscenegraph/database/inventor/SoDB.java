@@ -58,6 +58,9 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
+import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
+import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
+import jscenegraph.coin3d.inventor.misc.SoGLImage;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.elements.SoElement;
@@ -633,6 +636,10 @@ init()
         SoEngine.initClasses();
         SoEvent.initClasses();
         SoDetail.initClasses();
+        
+        SoGLDriverDatabase.init();
+        SoGLImage.initClass();
+        SoGLBigImage.initClass();        
 
         SoUpgrader.initClasses();
         

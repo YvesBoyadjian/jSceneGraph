@@ -210,5 +210,9 @@ operator_minus(final SbVec2s v2)
 	public int getY() {
 		return vec[1];
 	}
+
+	public boolean operator_not_equal(SbVec2s other) {
+		return !operator_equal_equal(other);
+	}
 }
 

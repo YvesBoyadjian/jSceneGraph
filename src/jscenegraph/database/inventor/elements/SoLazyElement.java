@@ -127,7 +127,7 @@ public class SoLazyElement extends SoElement {
 	public static final float SO_LAZY_SHINY_THRESHOLD       =  0.005f;
 
 	 //! number of components (subelements) in this element:
-	   public static final int SO_LAZY_NUM_COMPONENTS         = 9;
+	   public static final int SO_LAZY_NUM_COMPONENTS         = 9; // TODO
 	    	
 
 	   public
@@ -146,7 +146,14 @@ public class SoLazyElement extends SoElement {
 		           SPECULAR_CASE           (   5),
 		           SHININESS_CASE          (   6),
 		           BLENDING_CASE           (   7),
-		           TRANSPARENCY_CASE       (   8);
+		           TRANSPARENCY_CASE       (   8),
+		    	    VERTEXORDERING_CASE(9), // COIN 3D
+		    	    TWOSIDE_CASE(10), // COIN 3D
+		    	    CULLING_CASE(11), // COIN 3D
+		    	    SHADE_MODEL_CASE(12), // COIN 3D
+		    	    GLIMAGE_CASE(13), // COIN 3D
+		    	    ALPHATEST_CASE(14), // COIN 3D
+		    	    LAZYCASES_LAST(15); // must be last
 		           
 		           private int value;
 		           
@@ -169,6 +176,13 @@ public class SoLazyElement extends SoElement {
 		        	   case 6: return SHININESS_CASE;
 		        	   case 7: return BLENDING_CASE;
 		        	   case 8: return TRANSPARENCY_CASE;
+		        	   case 9: return	VERTEXORDERING_CASE; // COIN 3D
+		        	   case 10: return	 TWOSIDE_CASE; // COIN 3D
+		        	   case 11: return	 CULLING_CASE; // COIN 3D
+		        	   case 12: return	 SHADE_MODEL_CASE; // COIN 3D
+		        	   case 13: return	 GLIMAGE_CASE; // COIN 3D
+		        	   case 14: return	 ALPHATEST_CASE; // COIN 3D
+		        	   case 15: return	 LAZYCASES_LAST; // must be last
 		        	   default: return null;
 		        	   }
 		           }
@@ -183,7 +197,13 @@ public class SoLazyElement extends SoElement {
 		           SHININESS_MASK          ( 1<<cases.SHININESS_CASE.getValue()),
 		           TRANSPARENCY_MASK       ( 1<<cases.TRANSPARENCY_CASE.getValue()),
 		           BLENDING_MASK           ( 1<<cases.BLENDING_CASE.getValue()),
-		           ALL_MASK                ( (1<<SO_LAZY_NUM_COMPONENTS)-1);
+		           VERTEXORDERING_MASK ( 1 << cases.VERTEXORDERING_CASE.getValue()),     // 0x0200
+		           TWOSIDE_MASK ( 1 << cases.TWOSIDE_CASE.getValue()),                   // 0x0400
+		           CULLING_MASK ( 1 << cases.CULLING_CASE.getValue()),                   // 0x0800
+		           SHADE_MODEL_MASK ( 1 << cases.SHADE_MODEL_CASE.getValue()),           // 0x1000
+		           GLIMAGE_MASK ( 1 << cases.GLIMAGE_CASE.getValue()),                   // 0x2000
+		           ALPHATEST_MASK ( 1 << cases.ALPHATEST_CASE.getValue()),               // 0x4000
+		           ALL_MASK                ( (1<</*SO_LAZY_NUM_COMPONENTS*/cases.LAZYCASES_LAST.getValue())-1);
 		           
 		           private int value;
 		           
@@ -323,6 +343,15 @@ public class SoLazyElement extends SoElement {
 		       
 		       
 		       protected final ivStateStructName ivState = new ivStateStructName();
+		       
+		       private class CoinState {
+		    	    public int glimageid;
+		    	    public boolean istransparent;
+		    	    public boolean alphatest;
+		    	    public boolean glimageusealphatest;
+		       }
+		       
+		       protected final CoinState coinstate = new CoinState();
 		        		       
     //! This is more convenient here, but might logically be kept with
     //! SoGLLazyElement.  This is a bitmask indicating what components
@@ -1291,6 +1320,20 @@ setMaterialElt(SoNode node, int mask, SoColorPacker packer,
 }
 
 
+public void
+setGLImageIdElt(int glimageid, boolean alphatest) // COIN 3D
+{
+  this.coinstate.glimageid = glimageid;
+  this.coinstate.glimageusealphatest = alphatest;
+}
+
+public void
+setAlphaTestElt(boolean onoff)
+{
+  this.coinstate.alphatest = onoff;
+}
+
+
 ///////////////////////////////////////////////////////////////////////
 //
 // Description: static set() method for color indices
@@ -1384,6 +1427,45 @@ public static void drawElements( SoState state, /*GLenum*/int mode, /*GLsizei*/i
   }
 }
 
+public static void
+setGLImageId(SoState state, int glimageid, boolean alphatest) // COIN 3D
+{
+  SoLazyElement elem = SoLazyElement.getInstance(state);
+  if (elem.coinstate.glimageid != glimageid) {
+    elem = getWInstance(state);
+    elem.setGLImageIdElt(glimageid, alphatest);
+    if (state.isCacheOpen()) elem.lazyDidSet(SoLazyElement.masks.GLIMAGE_MASK.getValue());
+  }
+  else if (state.isCacheOpen()) {
+    elem.lazyDidntSet(SoLazyElement.masks.GLIMAGE_MASK.getValue());
+  }
+  SoLazyElement.setAlphaTest(state, !elem.coinstate.istransparent && alphatest);
+}
+
+
+public static void
+setAlphaTest(SoState  state, boolean onoff) // COIN 3D
+{
+  SoLazyElement elem = SoLazyElement.getInstance(state);
+  if (elem.coinstate.alphatest != onoff) {
+    elem = getWInstance(state);
+    elem.setAlphaTestElt(onoff);
+    if (state.isCacheOpen()) elem.lazyDidSet(SoLazyElement.masks.ALPHATEST_MASK.getValue());
+  }
+  else if (state.isCacheOpen()) {
+    elem.lazyDidntSet(SoLazyElement.masks.ALPHATEST_MASK.getValue());
+  }
+}
+
+public void
+lazyDidSet(int mask) // TODO : implement in derived class
+{
+}
+
+public void
+lazyDidntSet(int mask)
+{
+}
 
 
 ////////////////////////////////////////////////////////////////////////

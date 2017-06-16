@@ -118,4 +118,11 @@ public class Util {
 			destBytes[i] = srcBytes[i];
 		}
 	}
+
+	// java port
+	public static void memcpy(byte[] destBytes, int destIndex, byte[] srcBytes, int numBytes) {
+		for(int i = 0; i< numBytes; i++) {
+			destBytes[i+destIndex] = srcBytes[i];
+		}
+	}
 }

@@ -65,6 +65,10 @@ import java.util.Map;
 
 import jscenegraph.coin3d.inventor.elements.SoDepthBufferElement;
 import jscenegraph.coin3d.inventor.elements.SoGLDepthBufferElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
+import jscenegraph.coin3d.inventor.elements.SoTexture3EnabledElement;
+import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
+import jscenegraph.coin3d.inventor.elements.gl.SoGLTexture3EnabledElement;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.SoType.CreateMethod;
@@ -368,6 +372,8 @@ private        int                 depth;
 		       SoElement.initClass(SoGLShapeHintsElement.class);
 		       SoElement.initClass(SoGLTextureCoordinateElement.class);
 		       SoElement.initClass(SoGLTextureEnabledElement.class);
+		       SoElement.initClass(SoTexture3EnabledElement.class);
+		       SoElement.initClass(SoGLTexture3EnabledElement.class);
 		       SoElement.initClass(SoGLTextureImageElement.class);
 		       SoElement.initClass(SoGLTextureMatrixElement.class);
 		       SoElement.initClass(SoGLUpdateAreaElement.class);
@@ -375,6 +381,17 @@ private        int                 depth;
 		       SoGLViewportRegionElement.initClass(SoGLViewportRegionElement.class);
 		       // Added by MeVis:
 		       SoElement.initClass(SoGLVBOElement.class);
+		       
+		       //SoMultiTextureCoordinateElement.initClass(); // COIN 3D
+		       SoMultiTextureImageElement.initClass(SoMultiTextureImageElement.class); // COIN 3D
+		       //SoMultiTextureEnabledElement.initClass(); // COIN 3D
+		       //SoMultiTextureMatrixElement.initClass(); // COIN 3D
+		       //SoGLMultiTextureCoordinateElement.initClass(); // COIN 3D
+		       SoGLMultiTextureImageElement.initClass(SoGLMultiTextureImageElement.class); // COIN 3D
+		       //SoGLMultiTextureEnabledElement.initClass(); // COIN 3D
+		       //SoGLMultiTextureMatrixElement.initClass(); // COIN 3D
+
+
 
 		SoElement.initClass(SoDepthBufferElement.class); // COIN 3D
 		SoElement.initClass(SoGLDepthBufferElement.class); // COIN

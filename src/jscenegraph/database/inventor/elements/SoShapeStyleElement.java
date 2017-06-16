@@ -97,6 +97,33 @@ import jscenegraph.database.inventor.nodes.SoVertexPropertyCache;
  */
 public class SoShapeStyleElement extends SoElement {
 	
+  // flags used for optimized testing of features
+  public enum Flags {
+    LIGHTING                ( 0x00000100),
+    TEXENABLED              ( 0x00000200),
+    TEXFUNC                 ( 0x00000400),
+    BBOXCMPLX               ( 0x00000800),
+    INVISIBLE               ( 0x00001000),
+    ABORTCB                 ( 0x00002000),
+    OVERRIDE                ( 0x00004000),
+    TEX3ENABLED             ( 0x00008000),
+    BIGIMAGE                ( 0x00010000),
+    BUMPMAP                 ( 0x00020000),
+    VERTEXARRAY             ( 0x00040000),
+    TRANSP_TEXTURE          ( 0x00080000),
+    TRANSP_MATERIAL         ( 0x00100000),
+    TRANSP_SORTED_TRIANGLES ( 0x00200000),
+    SHADOWMAP               ( 0x00400000),
+    SHADOWS                 ( 0x00800000);
+    private int value;
+    Flags(int value) {
+    	this.value = value;
+    }
+    public int getValue() {
+    	return value;
+    }
+  };	
+	
 	public static final int INVISIBLE_BIT = 0x1;
 	public static final int BBOX_BIT = 0x2;
 	public static final int DELAY_TRANSP_BIT = 0x4;
@@ -106,7 +133,10 @@ public class SoShapeStyleElement extends SoElement {
 	   private        int                 delayFlags; //!< True if rendering might be delayed
 	   private        boolean              needNorms;
 	   private        boolean              texEnabled, texFunc;
-	   private        int                 renderCaseMask;	
+	   private        int                 renderCaseMask;
+	   
+	   private int flags; // COIN 3D
+
 	
     //! Returns TRUE if shapes may not render for some reason:
     public boolean              mightNotRender() { return delayFlags != 0; }
@@ -340,6 +370,43 @@ setTextureEnabled(SoState state, boolean value)
         elt.renderCaseMask |= SoVertexPropertyCache.Bits.TEXCOORD_BIT.getValue();
 }
 
+/*!
+  FIXME: write doc.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public static void //TODO : merge coin3D with mevislab
+setTexture3Enabled(SoState state,
+                                       boolean value)
+{
+  SoShapeStyleElement elem = (SoShapeStyleElement )getElement(state, classStackIndexMap.get(SoShapeStyleElement.class));
+  if (value) {
+    elem.flags |= Flags.TEX3ENABLED.getValue();
+  }
+  else {
+    elem.flags &= ~Flags.TEX3ENABLED.getValue();
+  }
+}
+
+/*!
+  Sets bigimage enabled.
+
+  \since Coin 2.4
+*/
+public static void
+setBigImageEnabled(SoState state, boolean value)
+{
+  SoShapeStyleElement elem = (SoShapeStyleElement )getElement(state, classStackIndexMap.get(SoShapeStyleElement.class));
+  if (value) {
+    elem.flags |= Flags.BIGIMAGE.getValue();
+  }
+  else {
+    elem.flags &= ~Flags.BIGIMAGE.getValue();
+  }
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -401,6 +468,23 @@ isScreenDoor(SoState state)
         getElement(state, classStackIndexMap.get(SoShapeStyleElement.class));
 
     return (elt.delayFlags & DELAY_TRANSP_BIT) == 0;
+}
+
+/*!
+  Sets texture transparency.
+
+  \since Coin 2.4
+*/
+public static void
+setTransparentTexture(SoState state, final boolean value) // COIN 3D
+{
+  SoShapeStyleElement elem = (SoShapeStyleElement) getElement(state, classStackIndexMap.get(SoShapeStyleElement.class));
+  if (value) {
+    elem.flags |= Flags.TRANSP_TEXTURE.getValue();
+  }
+  else {
+    elem.flags &= ~Flags.TRANSP_TEXTURE.getValue();
+  }
 }
 
 

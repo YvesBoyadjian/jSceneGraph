@@ -85,6 +85,7 @@ public class SoGLDisplayList implements Destroyable {
     private int refCount;
     private GL2 context;
     
+    private boolean mipmap; //COIN 3D
 
 
    public enum Type {
@@ -298,6 +299,16 @@ addDependency(SoState state)
             SoCacheElement.getCurrentCache(state);
         c.addNestedCache(this);
     }
+}
+
+
+/*! COIN 3D
+  Returns whether the texture object stored in this instance
+  was created with mipmap data. This method is an extension
+  versus the Open Inventor API.
+*/
+public boolean isMipMapTextureObject() {
+	return this.mipmap;
 }
 
 

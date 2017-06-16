@@ -8,20 +8,29 @@ import java.nio.ByteBuffer;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 
+import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
+import jscenegraph.coin3d.inventor.misc.SoGLImage;
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbColor;
+import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbVec2s;
+import jscenegraph.database.inventor.SbVec3s;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.mevislab.soshader.inventor.elements.SoGLShaderProgramElement;
+import jscenegraph.mevislab.soshader.inventor.misc.SoGLShaderProgram;
 
 /**
- * @author Yves Boyadjian
+ * @author Yves Boyadjian //TODO COIN 3D code is different
  *
  */
 public class SoGLTextureImageElement extends SoTextureImageElement {
 
+	  private SoGLImage glimage; // COIN 3D
     private SoGLDisplayList     list;
     private float               quality;
+    private SoState state; // COIN 3D
 
 // Formats for 1-4 component textures
 static int formats[] = {
@@ -46,6 +55,18 @@ public void init(SoState state)
 {
     // Initialize base class stuff
     super.init(state);
+    this.glimage = null; // COIN 3D
+    this.state = state; // COIN 3D
+}
+
+// Documented in superclass. Overridden to pass GL state to the next
+// element.
+public void
+push(SoState  stateptr) // COIN 3D
+{
+  super.push(stateptr);
+  this.glimage = null;
+  this.state = stateptr;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -55,7 +76,7 @@ public void init(SoState state)
 //
 // Use: public
 
-public void pop(SoState state, SoElement element)
+public void pop(SoState state, SoElement element) //TODO COIN 3D code is different 
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -72,6 +93,16 @@ public void pop(SoState state, SoElement element)
     sendTexEnv(state);
     sendTex(state);
 }
+
+
+private static SoTextureImageElement.Wrap
+translateWrap( SoGLImage.Wrap wrap)
+{
+  if (wrap == SoGLImage.Wrap.REPEAT) return SoTextureImageElement.Wrap.REPEAT;
+  return SoTextureImageElement.Wrap.CLAMP;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -345,7 +376,7 @@ private void sendTex(SoState state)
     
     byte[] level0 = null;
     // scale the image if the new size is different from the original size:
-    if (newSize != size) {
+    if (newSize.operator_not_equal(new SbVec2s(size.getValue()[0],size.getValue()[1]))) {
         level0 = (byte [])
             new byte[newSize.getValue()[0]*newSize.getValue()[1]*numComponents/**sizeof(GLubyte)*/];
 
@@ -440,4 +471,100 @@ private void sendTex(SoState state)
 
     gl2.glPixelStorei(GL2.GL_UNPACK_ALIGNMENT, 4);  // Reset to default
 }
+
+
+/*! TODO : COIN 3D : merge this method with mevislab one
+  Sets the current texture. Id \a didapply is TRUE, it is assumed
+  that the texture image already is the current GL texture. Do not
+  use this feature unless you know what you're doing.
+*/
+public static void
+set(final SoState stateptr, SoNode node,
+                             SoGLImage image, final Model model,
+                             final SbColor blendColor)
+{
+  SoGLTextureImageElement  elem = (SoGLTextureImageElement)
+    stateptr.getElement(classStackIndexMap.get(SoGLTextureImageElement.class));
+
+  if (elem.glimage != null && elem.glimage.getImage() != null) elem.glimage.getImage().readUnlock();
+  if (image != null) {
+    // keep SoTextureImageElement "up-to-date"
+	  SoTextureImageElement.set(stateptr, node,
+                   new SbVec3s((short)0,(short)0,(short)0),
+                   0,
+                   null,
+                   translateWrap(image.getWrapS()),
+                   translateWrap(image.getWrapT()),
+                   translateWrap(image.getWrapR()),
+                   model,
+                   blendColor);
+    elem.glimage = image;
+    // make sure image isn't changed while this is the active texture
+    if (image.getImage() != null) image.getImage().readLock();
+  }
+  else {
+    elem.glimage = null;
+    SoTextureImageElement.setDefault(stateptr, node);
+  }
+  SoShapeStyleElement.setBigImageEnabled(stateptr,
+                                          image != null && image.isOfType(SoGLBigImage.getClassTypeId()));
+  SoGL.sogl_update_shapehints_transparency(stateptr);
+  
+  elem.updateLazyElement();
+
+  SoGLShaderProgram prog = SoGLShaderProgramElement.get(stateptr);
+// TODO  if (prog != null) prog.updateCoinParameter(stateptr, new SbName("coin_texunit0_model"), (elem.glimage!=null) ? elem.model : 0);
+}
+
+/*!
+
+  Return TRUE if at least one pixel in the current texture image is
+  transparent.
+
+  \since Coin 3.1
+ */
+public static boolean 
+hasTransparency(SoState state)
+{
+  SoGLTextureImageElement elem = ( SoGLTextureImageElement)
+    getConstElement(state, classStackIndexMap.get(SoGLTextureImageElement.class));
+  return elem.hasTransparency();
+}
+
+
+// doc from parent
+public boolean
+hasTransparency()
+{
+  if (this.glimage != null) {
+    // only return TRUE if the image has transparency, and if it can't
+    // be rendered using glAlphaTest()
+    return this.glimage.hasTransparency() && !this.glimage.useAlphaTest();
+  }
+  return false;
+}
+
+public void
+updateLazyElement()
+{
+  if (state.isElementEnabled(SoLazyElement.getClassStackIndex(SoLazyElement.class))) {
+    int glimageid = (this.glimage!=null) ? this.glimage.getGLImageId() : 0;
+    boolean alphatest = false;
+    int flags = (this.glimage!=null) ? this.glimage.getFlags() : 0;
+    if ((flags & SoGLImage.Flags.FORCE_ALPHA_TEST_TRUE.getValue())!=0) {
+      alphatest = true;
+    }
+    else if ((flags & SoGLImage.Flags.FORCE_ALPHA_TEST_FALSE.getValue())!=0) {
+      alphatest = false;
+    }
+    else {
+      alphatest = (this.glimage!=null) &&
+        (this.glimage.getImage()!=null) &&
+        this.glimage.getImage().hasData() ?
+        this.glimage.useAlphaTest() : false;
+    }
+    SoLazyElement.setGLImageId(state, glimageid, alphatest);
+  }
+}
+
 }

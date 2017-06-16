@@ -163,7 +163,7 @@ public class SoSubNode {
 	return new SoSubNode(class1,parent);
   }	
 
-  protected static void SO__NODE_INIT_ABSTRACT_CLASS(Class className, String classPrintName, 
+  public static void SO__NODE_INIT_ABSTRACT_CLASS(Class className, String classPrintName, 
 		  Class<? extends SoBase> parentClass) {
 	  SO__NODE_INIT_CLASS(className,classPrintName,parentClass,false);
   }

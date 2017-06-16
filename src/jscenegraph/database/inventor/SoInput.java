@@ -2554,4 +2554,125 @@ makeRoomInBuf(int nBytes)
     return true;
 }
 
+
+/*!
+  Returns the list of directories which'll be searched upon loading
+  Coin and VRML format files. Directory searches will be done whenever
+  any external references appears in a file, for instance to texture images.
+ */
+public static SbStringList 
+getDirectories()
+{
+//  if (soinput_tls) { TODO COIN 3D
+//    soinput_tls_data  data = (soinput_tls_data )soinput_tls->get();
+//    if (data->instancecount) { return *data->searchlist; }
+//  }
+//
+//  return SoInput.dirsearchlist;
+    return directories;
+}
+
+// internal method used for testing if a file exists
+private static boolean
+test_filename(final String filename)
+{
+  FILE fp = FILE.fopen(filename, "rb");
+//#if COIN_DEBUG && 0 // flip 1<->0 to turn texture search trace on or off
+//  SoDebugError::postInfo("test_filename", "file search: %s (%s)\n",
+//                         filename.getString(), fp ? "hit" : "miss");
+//#endif // !COIN_DEBUG
+
+  if (fp != null) {
+    FILE.fclose(fp);
+    return true;
+  }
+  return false;
+}
+
+
+/*!
+  Given a \a basename for a file and an array of \a directories to
+  search, returns the full name of the file found.
+
+  In addition to looking at the root of each directory in \a
+  directories, all \a subdirectories is also searched for each item in
+  \a directories.
+
+  If no file matching \a basename could be found in any of the
+  directories, returns an empty string.
+
+  This method is a Coin extension, not part of the original Inventor
+  API.
+*/
+public static String
+searchForFile( final String basename,
+                       final SbStringList directories,
+                       final SbStringList subdirectories)
+{
+  int i;
+
+  if (test_filename(basename)) return basename;
+
+  String fullname = basename;
+
+  // TODO : to implement with java classes
+//  boolean trypath = true;
+//  const char * strptr = basename.getString();
+//  const char * lastunixdelim = strrchr(strptr, '/');
+//  const char * lastdosdelim = strrchr(strptr, '\\');
+//  if (!lastdosdelim) {
+//    lastdosdelim = strrchr(strptr, ':');
+//    if (lastdosdelim) trypath = FALSE;
+//  }
+//  const char * lastdelim = SbMax(lastunixdelim, lastdosdelim);
+//
+//  if (lastdelim && trypath) {
+//    String tmpstring;
+//    for (i = 0; i < directories.getLength(); i++) {
+//      SbString dirname(directories[i]->getString());
+//      int dirlen = dirname.getLength();
+//
+//      if (dirlen > 0 &&
+//          dirname[dirlen-1] != '/' &&
+//          dirname[dirlen-1] != '\\' &&
+//          dirname[dirlen-1] != ':') {
+//        dirname += "/";
+//      }
+//
+//      tmpstring.sprintf("%s%s", dirname.getString(),
+//                        fullname.getString());
+//      if (test_filename(tmpstring)) return tmpstring;
+//    }
+//  }
+//
+//  const ptrdiff_t offset = lastdelim - strptr;
+//  String base = lastdelim ?
+//    basename.getSubString((int)(offset + 1), -1) :
+//    basename;
+//
+//  for (i = 0; i < directories.getLength(); i++) {
+//    String dirname = (directories.operator_square_bracket(i).getString());
+//    int dirlen = dirname.length();
+//
+//    if (dirlen > 0 &&
+//        dirname[dirlen-1] != '/' &&
+//        dirname[dirlen-1] != '\\' &&
+//        dirname[dirlen-1] != ':') {
+//      dirname += "/";
+//    }
+//    fullname.sprintf("%s%s", dirname.getString(),
+//                     base.getString());
+//    if (test_filename(fullname)) return fullname;
+//    for (int j = 0; j < subdirectories.getLength(); j++) {
+//      fullname.sprintf("%s%s/%s", dirname.getString(),
+//                       subdirectories[j]->getString(),
+//                       base.getString());
+//      if (test_filename(fullname)) return fullname;
+//    }
+//  }
+  // none found
+  return new String("");
+}
+
+
 }

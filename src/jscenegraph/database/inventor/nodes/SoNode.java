@@ -58,6 +58,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
+import jscenegraph.coin3d.inventor.nodes.SoTexture;
+import jscenegraph.coin3d.inventor.nodes.SoTexture3;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;
 import jscenegraph.database.inventor.SoNodeList;
@@ -523,7 +525,9 @@ getByName( SbName name, SoNodeList list)
 		       SoTextureCoordinateDefault.initClass();
 		       SoTextureCoordinateEnvironment.initClass();
 		       SoTextureCoordinatePlane.initClass();
+		       SoTexture.initClass(); // COIN 3D
 		       SoTexture2.initClass();
+		       SoTexture3.initClass(); // COIN 3D
 		       SoTexture2Transform.initClass();
 		       SoTransform.initClass();
 		       SoTransformSeparator.initClass();

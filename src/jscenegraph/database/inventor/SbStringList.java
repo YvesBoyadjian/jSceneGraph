@@ -77,4 +77,13 @@ public class SbStringList extends SbPList {
 	public void append(String string) {
 		 ((SbPList ) this).append((Object) string); 
 	}
+
+	public String[] getArrayPtr() {
+		int length = getLength();
+		String[] array = new String[length]; 
+		for(int i=0; i< length;i++){
+			array[i] = (String)get(i);
+		}
+		return null;
+	}
 }
