@@ -232,6 +232,7 @@ public class SoVertexProperty extends SoNode {
 	
 	public final SoMFVec3f vertex = new SoMFVec3f();		//!< Coordinate point(s)
     public final SoMFVec2f texCoord = new SoMFVec2f();       //!< Texture coordinate(s)
+    public final SoMFVec3f texCoord3 = new SoMFVec3f(); // COIN 3D
     public final SoMFVec3f normal = new SoMFVec3f();        //!< Normal vector(s)
     public final SoSFEnum normalBinding = new SoSFEnum();  //!< Ignored unless normal field set
     public final SoMFUInt32 orderedRGBA = new SoMFUInt32();    //!< Diffuse+transparency
@@ -291,6 +292,17 @@ public SoVertexProperty()
     orderedRGBA.deleteValues(0);
     orderedRGBA.setDefault(true);
 
+    // FIXME: this field was added in TGS Inventor 2.6 and Coin
+    // 2.0. This should have repercussions for file format
+    // compatibility. 20030227 mortene.
+    nodeHeader.SO_NODE_ADD_MFIELD(texCoord3,"texCoord3", new SbVec3f(0,0,0)); // COIN 3D
+    // Make multivalue fields empty.
+    this.texCoord3.setNum(0); // COIN 3D
+    // So they are not written in their default state on SoWriteAction
+    // traversal.
+    this.texCoord3.setDefault(true);
+
+    
     // Initialize these with default values.  They'll be ignored if
     // the corresponding fields have no values:
     nodeHeader.SO_NODE_ADD_SFIELD(materialBinding,"materialBinding", (SoVertexProperty.Binding.OVERALL.getValue()));
@@ -424,7 +436,11 @@ SoVertexProperty_doAction(SoAction action)
     SoMaterialBindingElement.set(state, 
         SoMaterialBindingElement.Binding.fromValue(materialBinding.getValue()));
 
-    if ( texCoord.getNum() > 0) {
+    if ( texCoord3.getNum() > 0) { // COIN 3D
+        SoTextureCoordinateElement.set3(state, this,
+                         texCoord3.getNum(), texCoord3.getValues(0));
+    }
+    else if ( texCoord.getNum() > 0) {
         SoTextureCoordinateElement.set2(state, this,
                          texCoord.getNum(), texCoord.getValues(0));
     }

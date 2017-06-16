@@ -130,8 +130,10 @@ public class SoTextureCoordinateElement extends SoReplacedElement {
     //! Storage for EXPLICIT:
     public  int             numCoords;
     public SbVec2f[]       coords2;
+    public SbVec3f[] 		coords3; // COIN 3D
     public SbVec4f[]       coords4;
     public  boolean              coordsAre2D;
+    protected int coordsDimension; // COIN 3D
   	
 
 	 ////////////////////////////////////////////////////////////////////////
@@ -340,12 +342,49 @@ set2(SoState state, SoNode node,
     SoTextureCoordinateElement  elt = (SoTextureCoordinateElement )getElement(state, classStackIndexMap.get(SoTextureCoordinateElement.class), node);
 
     if (elt != null) {
+        elt.coordsDimension = 2; // COIN 3D
         elt.whatKind    = CoordType.EXPLICIT;
         elt.numCoords   = numCoords;
         elt.coords2     = coords;
         elt.coordsAre2D = true;
     }
     SoShapeStyleElement.setTextureFunction(state, false);
+}
+
+
+/*!
+  FIXME: write doc.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public static void // COIN 3D
+set3(final SoState state,
+                                 final SoNode node,
+                                 final int numCoords,
+                                 final SbVec3f[] coords)
+{
+//  if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { COIN 3D
+//    SoGLVBOElement.setTexCoordVBO(state, 0, null);
+//  }
+
+    // if someone sets this directly, remove any texcoord VBO
+    SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.TEXCOORD_VBO); // MEVISLAB
+
+	SoTextureCoordinateElement  element =
+    (SoTextureCoordinateElement)
+    (
+     SoReplacedElement.getElement(state, classStackIndexMap.get(SoTextureCoordinateElement.class), node)
+     );
+  if (element != null) {
+    element.coordsDimension = 3;
+    element.numCoords = numCoords;
+    element.coords2 = null;
+    element.coords3 = coords;
+    element.coords4 = null;
+    element.whatKind = CoordType.EXPLICIT;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -367,6 +406,7 @@ init(SoState state)
     numCoords = 0;
     coords2   = null;
     coords4   = null;
+    coordsDimension = 2; //Initialize to 2D as before COIN 3D
 }
 
 ////////////////////////////////////////////////////////////////////////
