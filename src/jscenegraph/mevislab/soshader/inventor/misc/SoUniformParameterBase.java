@@ -32,6 +32,9 @@
 
 package jscenegraph.mevislab.soshader.inventor.misc;
 
+import jscenegraph.database.inventor.SbVec2s;
+import jscenegraph.database.inventor.SbVec3s;
+
 /**
  * @author Yves Boyadjian
  *
@@ -45,4 +48,41 @@ public interface SoUniformParameterBase {
         SAMPLER_CUBEMAP
       };
 
+    //! Adds a texture sampler with the given name and returns the assigned texture unit
+     int addTextureSampler(String name) ;//{ return 0; }
+    
+    // These functions are used to assign values to uniform parameter via OpenGL
+     void set1f(String name, float value) ;//{}
+     void set2f(String name, float[] value) ;//{}
+     void set3f(String name, float[] value) ;//{}
+     void set4f(String name, float[] value) ;//{}
+     void set2f(String name, float  value0, float  value1) ;//{}
+     void set3f(String name, float  value0, float  value1, float  value2) ;//{}
+     void set4f(String name, float  value0, float  value1, float  value2, float  value3) ;//{}
+
+     void set1fv(String name,  int num, float[] value) ;//{}
+     void set2fv(String name,  int num, float[] value) ;//{}
+     void set3fv(String name,  int num, float[] value) ;//{}
+     void set4fv(String name,  int num, float[] value) ;//{}
+
+     void set1i(String name,  int   value) ;//{}
+     void set2i(String name,  int [] value) ;//{}
+     void set2i(String name,  SbVec2s  value) ;//{}
+     void set3i(String name,  int [] value) ;//{}
+     void set3i(String name,  SbVec3s  value) ;//{}
+     void set4i(String name,  int [] value) ;//{}
+
+     default void setMatrix3f(String  name, float[]  values) {setMatrix3f( name, values, false);} // java port
+     default void setMatrix3f(String  name, float[]  values, boolean transpose/* = false*/) { setMatrix3fv(name, 1, values, transpose); }
+     default void setMatrix4f(String  name, float[]  values) {setMatrix4f(name, values, false);} // java port
+     default void setMatrix4f(String  name, float[]  values, boolean transpose/* = false*/) { setMatrix4fv(name, 1, values, transpose); }
+     default void setMatrix3fv(String name, int num, float[] value) {setMatrix3fv( name, num, value, false);} // java port
+     void setMatrix3fv(String name, int num, float[] value, boolean transpose /*= false*/) ;//{}
+     default void setMatrix4fv(String name, int num, float[] value) {setMatrix4fv( name, num, value, false);} // java port
+     void setMatrix4fv(String name, int num, float[] value, boolean transpose /*= false*/) ;//{}
+
+
+    // Provide additional information about the purpose of a uniform parameter. Those information
+    // may be collected and analyzed by derived classes.
+     default void setSamplerInfo(String name, SamplerType type, int texId) {}
 }

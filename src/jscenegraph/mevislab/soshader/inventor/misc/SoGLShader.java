@@ -62,12 +62,14 @@ public class SoGLShader {
 
       private int _openGLError;
       
+      protected GL2 gl2; // java port TODO
+      
       //! Returns 'TRUE' if OpenGL error is found.
-      protected boolean  error(GL2 gl2) { // java port
-    	  return error(null, gl2);
+      protected boolean  error() { // java port
+    	  return error(null);
       }
-      protected boolean  error(String string, GL2 gl2) {
-         errCheck(string, gl2); return _openGLError != GL2.GL_NO_ERROR;
+      protected boolean  error(String string) {
+         errCheck(string); return _openGLError != GL2.GL_NO_ERROR;
       }
 
 public SoGLShader()
@@ -80,14 +82,14 @@ reset()
 }
 
 public boolean
-isSupported(GL2 gl2)
+isSupported()
 {
    if(_isSupported < 0) {
       if(GLEW_VERSION_2_0) {
          _isSupported = true ? 1 : 0;
 
          if (SoDebug.GetEnv("IV_DEBUG_SHADER") != null) {
-           printCapabilities(gl2);
+           printCapabilities();
          }
       }
       else {
@@ -103,7 +105,7 @@ isSupported(GL2 gl2)
 static boolean initialized = false;
 static boolean supported = false;
 
-public boolean supportsGeometryShaders()
+public static boolean supportsGeometryShaders()
 {
   if (!initialized) {
     initialized = false;
@@ -115,9 +117,9 @@ public boolean supportsGeometryShaders()
 }
 
 public void
-printCapabilities(GL2 gl2)
+printCapabilities()
 {
-   if(!isSupported(gl2))
+   if(!isSupported())
       return;
 
    String capabilities = "";
@@ -216,7 +218,7 @@ printCapabilities(GL2 gl2)
 static String errString2;
 
 public void
-errClear(String string, GL2 gl2)
+errClear(String string)
 {
   _openGLError = gl2.glGetError();//ml.GLResource.getGLError(); // java port
   if (_openGLError != GL2.GL_NO_ERROR && _openGLError != GL2.GL_INVALID_OPERATION) {
@@ -230,7 +232,7 @@ errClear(String string, GL2 gl2)
 private static String errString;
 
 public void
-errCheck(String string, GL2 gl2) 
+errCheck(String string) 
 {
    
    _openGLError = gl2.glGetError();//ml.GLResource.getGLError(); // java port

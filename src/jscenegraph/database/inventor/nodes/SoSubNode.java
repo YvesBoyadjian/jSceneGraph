@@ -168,6 +168,106 @@ public class SoSubNode {
 	  SO__NODE_INIT_CLASS(className,classPrintName,parentClass,false);
   }
   	
+/////////////////////////////////////////////
+///
+/// This initializes the type identifer variables defined in
+/// SO_NODE_HEADER or SO_NODE_ABSTRACT_HEADER. This macro
+/// should be called from within initClass(). The parentClass argument
+/// should be the class that this subclass is derived from.
+///
+
+public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String parentPrintClass) {          
+    if ((SoNode.nextActionMethodIndex <     0) ||                            
+        (SoNode.nextActionMethodIndex > 32767)){                             
+        SoDebugError.post("SO_NODE_INIT_CLASS",                              
+                           "Overflow of SoNode::nextActionMethodIndex");      
+        throw new RuntimeException();//abort();                                                              
+    }                
+    
+    SoType.CreateMethod createMethod = new SoType.CreateMethod() {
+		
+		@Override
+		public Object run() {
+			Constructor<?> constructor;
+			try {
+				constructor = className.getConstructor();
+			} catch (NoSuchMethodException | SecurityException e) {
+				throw new RuntimeException(e);
+			}
+			try {
+				return constructor.newInstance();
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}/*className::createInstance;*/
+		}
+	};
+    
+    classTypeId.put(className,                                                             
+        SoType.createType(SoType.fromName(new SbName(parentPrintClass)),                
+                   new SbName(className.getSimpleName()),                                      
+                   createMethod,                                
+                   (short)(SoNode.nextActionMethodIndex++)));    
+    
+	  if( !fieldData.containsKey(className)) { // java port
+		  final SoFieldData[] fieldData1 = new SoFieldData[1];                                   
+		  final SoFieldData[][]    parentFieldData1 = new SoFieldData[1][];
+		  fieldData.put(className, fieldData1);
+		  parentFieldData.put(className, parentFieldData1);
+	  }
+	  else {
+		  throw new IllegalStateException("Class "+ className + " already initialized");
+	  }
+	  
+    //parentFieldData = parentClass::getFieldDataPtr();                         
+	  SoFieldData[][]    parentFieldData1 = parentFieldData.get(className);
+	  
+	  try {
+		parentFieldData1[0] = (SoFieldData[])parentClass.getMethod("getFieldDataPtr").invoke(null);
+	} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+			| SecurityException e) {
+		throw new RuntimeException(e);
+	}
+	  
+}
+
+	public static void SO_NODE_INIT_ABSTRACT_CLASS(Class className, Class parentClass, String parentPrintClass) {  
+    if ((SoNode.nextActionMethodIndex <     0) ||                             
+        (SoNode.nextActionMethodIndex > 32767)){                             
+        SoDebugError.post("SO_NODE_INIT_ABSTRACT_CLASS",                     
+                           "Overflow of SoNode::nextActionMethodIndex");      
+        throw new RuntimeException();//abort();                                                              
+    }                                                                         
+    classTypeId.put(className,
+        SoType.createType(SoType.fromName(new SbName(parentPrintClass)),                
+                   new SbName(className.getSimpleName()),                                      
+                   null,                                                      
+                   (short)(SoNode.nextActionMethodIndex++)));   
+    
+	  if( !fieldData.containsKey(className)) { // java port
+		  final SoFieldData[] fieldData1 = new SoFieldData[1];                                   
+		  final SoFieldData[][]    parentFieldData1 = new SoFieldData[1][];
+		  fieldData.put(className, fieldData1);
+		  parentFieldData.put(className, parentFieldData1);
+	  }
+	  else {
+		  throw new IllegalStateException("Class "+ className + " already initialized");
+	  }
+	  
+    
+    //parentFieldData = parentClass.getFieldDataPtr();
+	  SoFieldData[][]    parentFieldData1 = parentFieldData.get(className);
+	  
+	  try {
+		parentFieldData1[0] = (SoFieldData[])parentClass.getMethod("getFieldDataPtr").invoke(null);
+	} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+			| SecurityException e) {
+		throw new RuntimeException(e);
+	}
+	  
+}
+
+  
   public static void SO__NODE_INIT_CLASS(
 		  Class className, String classPrintName, 
 		  Class<? extends SoBase> parentClass) {

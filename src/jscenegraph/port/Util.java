@@ -125,4 +125,29 @@ public class Util {
 			destBytes[i+destIndex] = srcBytes[i];
 		}
 	}
+
+	public static int strncmp(String str1, String str2, int n) {
+		int index=0;
+		while(index<str1.length() && index< str2.length() && index <n) {
+			char c1 = str1.charAt(index);
+			char c2 = str2.charAt(index);
+			if( c1 != c2) {
+				return c1 - c2;
+			}
+			index++;
+		}
+		if(index < n) {
+			if(index == str1.length()) {
+				return -1;
+			}
+			else if(index == str2.length()) {
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+	public static int strstr(String str1, String str2) {
+		return str1.indexOf(str2);
+	}
 }

@@ -112,4 +112,8 @@ public class SoNodeList extends SoBaseList {
     public SoNodeList         operator_assign( SoNodeList l)
         { super.copy(l) ; return this; }
 
+    //! Copies a list, keeping all reference counts correct.
+    public void        copyFrom(Object other) // java port
+        { final SoNodeList l = (SoNodeList)other; super.copy(l) ; }
+
 }
