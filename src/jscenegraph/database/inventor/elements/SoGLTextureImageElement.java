@@ -1,6 +1,26 @@
-/**
- * 
- */
+/**************************************************************************\
+ *
+ *  This file is part of the Coin 3D visualization library.
+ *  Copyright (C) by Kongsberg Oil & Gas Technologies.
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  ("GPL") version 2 as published by the Free Software Foundation.
+ *  See the file LICENSE.GPL at the root directory of this source
+ *  distribution for additional information about the GNU GPL.
+ *
+ *  For using Coin with software that can not be combined with the GNU
+ *  GPL, and for taking advantage of the additional benefits of our
+ *  support services, please contact Kongsberg Oil & Gas Technologies
+ *  about acquiring a Coin Professional Edition License.
+ *
+ *  See http://www.coin3d.org/ for more information.
+ *
+ *  Kongsberg Oil & Gas Technologies, Bygdoy Alle 5, 0257 Oslo, NORWAY.
+ *  http://www.sim.no/  sales@sim.no  coin-support@coin3d.org
+ *
+\**************************************************************************/
+
 package jscenegraph.database.inventor.elements;
 
 import java.nio.ByteBuffer;
@@ -11,6 +31,8 @@ import com.jogamp.opengl.glu.GLU;
 import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
 import jscenegraph.coin3d.inventor.misc.SoGLImage;
 import jscenegraph.coin3d.misc.SoGL;
+import jscenegraph.coin3d.shaders.SoGLShaderProgram;
+import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbVec2s;
@@ -18,8 +40,6 @@ import jscenegraph.database.inventor.SbVec3s;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
-import jscenegraph.mevislab.soshader.inventor.elements.SoGLShaderProgramElement;
-import jscenegraph.mevislab.soshader.inventor.misc.SoGLShaderProgram;
 
 /**
  * @author Yves Boyadjian //TODO COIN 3D code is different
@@ -513,7 +533,7 @@ set(final SoState stateptr, SoNode node,
   elem.updateLazyElement();
 
   SoGLShaderProgram prog = SoGLShaderProgramElement.get(stateptr);
-// TODO  if (prog != null) prog.updateCoinParameter(stateptr, new SbName("coin_texunit0_model"), (elem.glimage!=null) ? elem.model : 0);
+  if (prog != null) prog.updateCoinParameter(stateptr, new SbName("coin_texunit0_model"), (elem.glimage!=null) ? elem.model : 0);
 }
 
 /*!

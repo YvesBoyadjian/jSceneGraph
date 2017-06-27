@@ -56,6 +56,7 @@ package jscenegraph.database.inventor.elements;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
@@ -111,6 +112,17 @@ private class extInfo {
     final SbPList support = new SbPList();
 };
 
+	private static class so_scheduledeletecb_info {
+	  public GL2 contextid;
+	  public SoScheduleDeleteCB cb;
+	  public Object closure;
+	} ;
+
+
+
+	public interface SoScheduleDeleteCB {		
+		void invoke(Object closure, GL2 contextid);
+	}
 	
 	
 	//! the default maximum value for OpenInventor auto caching (it used to be 1000 in
@@ -147,6 +159,9 @@ private class extInfo {
 	   protected	        boolean              is2PassTransp;
 	   protected		        boolean              isRemoteRendering;
 	   protected		        int                 autoCacheBits;
+	   
+	   private static SbList <so_scheduledeletecb_info> scheduledeletecblist;
+
 		    	
 ////////////////////////////////////////////////////////////////////////
 //
@@ -432,6 +447,32 @@ public static boolean       getIsRemoteRendering(SoState state)
                     state.getConstElement(classStackIndexMap.get(SoGLCacheContextElement.class));
             return elt.isRemoteRendering;
         }
+
+/*!
+  Can be used to receive a callback the next time Coin knows that the
+  context (specified by \a contextid) is the current OpenGL context.
+
+  This function can be used to free OpenGL resources for a context.
+
+  Note that the callback will be invoked only once, and then removed
+  from the internal list of scheduled callbacks.
+
+  \since Coin 2.3
+*/
+public static void
+scheduleDeleteCallback( GL2 contextid,
+                                                SoScheduleDeleteCB cb,
+                                                Object closure)
+{
+  so_scheduledeletecb_info info = new so_scheduledeletecb_info();
+  info.contextid = contextid;
+  info.cb = cb;
+  info.closure = closure;
+
+  //CC_MUTEX_LOCK(glcache_mutex);
+  scheduledeletecblist.append(info);
+  //CC_MUTEX_UNLOCK(glcache_mutex);
+}
 
 
 	   }

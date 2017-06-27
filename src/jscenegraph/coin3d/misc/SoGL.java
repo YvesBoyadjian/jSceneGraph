@@ -9,6 +9,7 @@ import jscenegraph.database.inventor.elements.SoGLTextureImageElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Util;
 
 public class SoGL {
 
@@ -54,6 +55,20 @@ sogl_update_shapehints_transparency(SoState state)
   SoShapeStyleElement.setTransparentTexture(state, 
                                              SoGLTextureImageElement.hasTransparency(state) ||
                                              SoGLMultiTextureImageElement.hasTransparency(state));
+}
+
+static int COIN_GLERROR_DEBUGGING = -1;
+
+// Used by library code to decide whether or not to add extra
+// debugging checks for glGetError().
+public static boolean
+sogl_glerror_debugging()
+{
+  if (COIN_GLERROR_DEBUGGING == -1) {
+    String str = /*coin_getenv*/System.getenv("COIN_GLERROR_DEBUGGING");
+    COIN_GLERROR_DEBUGGING = ((str!=null) ? Util.atoi(str) : 0);
+  }
+  return (COIN_GLERROR_DEBUGGING == 0) ? false : true;
 }
 
 }

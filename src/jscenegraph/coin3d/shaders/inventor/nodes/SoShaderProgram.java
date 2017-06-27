@@ -22,46 +22,14 @@
  *
 \**************************************************************************/
 
-package jscenegraph.coin3d.inventor.misc;
+package jscenegraph.coin3d.shaders.inventor.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.database.inventor.nodes.SoNode;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoContextHandler {
-	
-	public interface ContextDestructionCB {
-		void run(GL2 contextid, Object userData);
-	}
-
-	/**
-	 * 
-	 */
-	public SoContextHandler() {
-		// TODO Auto-generated constructor stub
-	}
-
-	/*!
-	  Add a callback which will be called every time a GL context is
-	  destructed. The callback should delete all GL resources tied to that
-	  context.
-	  
-	  All nodes/classes that allocate GL resources should set up a callback
-	  like this. Add the callback in the constructor of the node/class,
-	  and remove it in the destructor.
-
-	  \sa removeContextDestructionCallback()
-	*/
-	public static void addContextDestructionCallback(ContextDestructionCB func,
-	                                                Object closure)
-	{
-		//TODO
-	}
-	public static void removeContextDestructionCallback(ContextDestructionCB func, Object closure) {
-		// TODO Auto-generated method stub
-		
-	}
+public class SoShaderProgram extends SoNode {
 
 }

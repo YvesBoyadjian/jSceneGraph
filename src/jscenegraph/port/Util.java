@@ -150,4 +150,8 @@ public class Util {
 	public static int strstr(String str1, String str2) {
 		return str1.indexOf(str2);
 	}
+
+	public static int atoi(String str) {
+		return Integer.valueOf(str);
+	}
 }
