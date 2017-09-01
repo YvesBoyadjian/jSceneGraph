@@ -639,5 +639,11 @@ operator_equal_equal( final SbBox3f b2)
     return ( (b1.min == b2.min) && (b1.max == b2.max ) );
 }
 
+public SbVec3f getSize() { // java port
+	float[] xyz = new float[3];
+	getSize(xyz);
+	return new SbVec3f(xyz);
+}
+
 
 }

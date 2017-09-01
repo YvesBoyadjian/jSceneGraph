@@ -316,5 +316,13 @@ public float length()
 		ref[1] = value -> vec[1] = (float)value;
 		return ref;
 	}
+
+	public float getX() { // java port
+		return vec[0];
+	}
+	
+	public float getY() { // java port
+		return vec[1];
+	}
  }
 

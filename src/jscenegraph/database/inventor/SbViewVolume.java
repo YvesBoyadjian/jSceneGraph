@@ -378,6 +378,12 @@ public void projectPointToLine(final SbVec2f pt, SbLine line)
 	     		
 	}
 	
+	// java port
+	public SbVec3f projectToScreen(final SbVec3f src) {
+		SbVec3f dst = new SbVec3f();
+		projectToScreen(src,dst);
+		return dst;
+	}
 
 ////////////////////////////////////////////////////////////////////////
 //

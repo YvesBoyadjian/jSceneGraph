@@ -462,4 +462,32 @@ equals(final SbVec3f v, float tolerance)
     return diff.dot(diff) <= tolerance;
 }
 
+public float getX() { // java port
+	return vec[0];
+}
+
+public float getY() {
+	return vec[1];
+}
+
+public float getZ() {
+	return vec[2];
+}
+
+public void setX(float f) { // java port
+	vec[0] = f;
+}
+
+public void setY(float f) {
+	vec[1] = f;
+}
+
+public void setZ(float f) {
+	vec[2] = f;
+}
+
+public float getValueAt(int axis) { // java port
+	return vec[axis];
+}
+
 }

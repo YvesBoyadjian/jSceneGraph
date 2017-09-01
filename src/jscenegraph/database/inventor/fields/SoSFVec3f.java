@@ -114,4 +114,8 @@ public boolean readValue(SoInput in)
             in.read(value.getRef()[2]));
 }
 
+public void setValue(float[] vector) { // java port
+	setValue(new SbVec3f(vector));
+}
+
 	}

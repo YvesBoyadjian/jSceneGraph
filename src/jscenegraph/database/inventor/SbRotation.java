@@ -517,6 +517,11 @@ operator_mul_equal(final SbRotation q)
 	     
 	}
 
+	public SbVec3f multVec(final SbVec3f src) { // java port
+		final SbVec3f dst = new SbVec3f();
+		multVec(src,dst);
+		return dst;
+	}
 	
 ////////////////////////////////////////////////////////////////////////
 //
