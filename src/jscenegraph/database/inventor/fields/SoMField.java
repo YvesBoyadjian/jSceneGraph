@@ -55,6 +55,7 @@ package jscenegraph.database.inventor.fields;
 
 import java.util.Objects;
 
+import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.port.Mutable;
@@ -395,7 +396,6 @@ public abstract class SoMField<T extends Object> extends SoField {
 		return retVal;
 	}
 
-	@SuppressWarnings("unchecked")
 	public T operator_square_bracket(int i) {
 		evaluate();
 		return (T) values[i];
@@ -552,6 +552,15 @@ insertSpace(int start,        // Starting index
 
 	public boolean isSame(final SoField f) {
 		return (getTypeId().operator_equal_equal(f.getTypeId()) && this.operator_equal_equal((SoMField) f));
+	}
+
+	/**
+	 * java port
+	 * @param i
+	 * @return
+	 */
+	public T getValueAt(int i) {
+		return operator_square_bracket(i);
 	}
 
 }

@@ -82,6 +82,7 @@ import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
+import jscenegraph.database.inventor.elements.SoNormalElement;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoError;
@@ -604,6 +605,27 @@ public SoVertexProperty getVertexProperty()
     return null;
   }
 }
+
+/*!
+  Convenience method that returns the current coordinate and normal
+  element. This method is not part of the OIV API.
+*/
+public static void
+getVertexData(SoState state,
+                             final SoCoordinateElement [] coords,
+                             final SbVec3f [][] normals,
+                             boolean neednormals)
+{
+  coords[0] = SoCoordinateElement.getInstance(state);
+  assert(coords[0]!=null);
+
+  normals[0] = null;
+  if (neednormals) {
+    normals[0] = SoNormalElement.getInstance(state).getArrayPtr();
+  }
+}
+
+
  
 ////////////////////////////////////////////////////////////////////////
 //

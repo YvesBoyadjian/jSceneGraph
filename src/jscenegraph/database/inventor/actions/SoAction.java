@@ -918,6 +918,7 @@ apply(final SoPathList sortedList,
 	    	        SoGLRenderAction.initClass();
 	    	        SoGetBoundingBoxAction.initClass();
 	    	        SoGetMatrixAction.initClass();
+	    	        SoGetPrimitiveCountAction.initClass();
 	    	        SoHandleEventAction.initClass();
 	    	        SoPickAction.initClass();
 	    	        SoRayPickAction.initClass();

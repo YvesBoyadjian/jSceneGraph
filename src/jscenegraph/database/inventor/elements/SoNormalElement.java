@@ -164,5 +164,14 @@ set(SoState state, SoNode node,
     }
 }
 
+  /*!
+  Returns a pointer to the normal array. This method is not part of the OIV API.
+*/
+public SbVec3f[]
+getArrayPtr()
+{
+  return this.normals;
+}
+
   
    }

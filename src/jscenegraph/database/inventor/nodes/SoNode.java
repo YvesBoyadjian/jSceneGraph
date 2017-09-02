@@ -70,6 +70,7 @@ import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoGetMatrixAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoHandleEventAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
@@ -506,6 +507,7 @@ getByName( SbName name, SoNodeList list)
 		       SoPickStyle.initClass();
 		       SoPointLight.initClass();
 		       SoPointSet.initClass();
+		       SoMarkerSet.initClass();
 		       SoProfileCoordinate2.initClass();
 		       SoProfileCoordinate3.initClass();
 		       SoQuadMesh.initClass();
@@ -655,6 +657,26 @@ getByName( SbName name, SoNodeList list)
 		          a.invokePostCallbacks(node);
 
 	  }
+	  
+// Note that this documentation will also be used for all subclasses
+// which reimplements the method, so keep the doc "generic enough".
+/*!
+  Action method for the SoGetPrimitiveCountAction.
+
+  Calculates the number of triangle, line segment and point primitives
+  for the node and adds these to the counters of the \a action.
+
+  Nodes influencing how geometry nodes calculates their primitive
+  count also overrides this method to change the relevant state
+  variables.
+*/
+public void
+getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+}
+
+	  
+	  
 	  private     static void         GLRenderS(SoAction action, SoNode node) {
 
 		     SoGLRenderAction a = (SoGLRenderAction ) action;

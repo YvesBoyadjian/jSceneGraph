@@ -326,6 +326,7 @@ private        int                 depth;
 		        // We must put this before Lazy Element:
 		        SoElement.initClass(SoShapeStyleElement.class);
 		        SoElement.initClass(SoLazyElement.class);
+		        SoCullElement.initClass(SoCullElement.class);
 		        SoLightAttenuationElement.initClass(SoLightAttenuationElement.class);
 		        SoLinePatternElement.initClass(SoLinePatternElement.class);
 		        SoLineWidthElement.initClass(SoLineWidthElement.class);

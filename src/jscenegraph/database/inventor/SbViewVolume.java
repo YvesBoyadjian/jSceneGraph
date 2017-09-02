@@ -72,6 +72,7 @@ package jscenegraph.database.inventor;
 
 import static jscenegraph.database.inventor.SbBasic.M_PI_2;
 
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Mutable;
 
 
@@ -116,6 +117,9 @@ public class SbViewVolume implements Mutable {
     public final  SbVec3f     lrf = new SbVec3f();
     public final  SbVec3f     ulf = new SbVec3f();
   
+    private
+
+    	  final SbDPViewVolume dpvv = new SbDPViewVolume();
  	   
      //! Points on the near clipping plane.  Add in the projPoint to
      //! figure out where they are in world space:
@@ -1085,6 +1089,20 @@ narrow(final SbBox3f box)
     view.copyFrom( narrow(min.getValue()[0], min.getValue()[1], max.getValue()[0], max.getValue()[1]));
 
     return view.zNarrow(max.getValue()[2], min.getValue()[2]);
+}
+
+/*!
+  Returns the six planes defining the view volume in the following
+  order: left, bottom, right, top, near, far. Plane normals are
+  directed into the view volume.
+
+  This method is an extension for Coin, and is not available in the
+  original Open Inventor.
+*/
+public void
+getViewVolumePlanes(final SbPlane[] planes) 
+{
+  this.dpvv.getViewVolumePlanes(planes);
 }
 
 

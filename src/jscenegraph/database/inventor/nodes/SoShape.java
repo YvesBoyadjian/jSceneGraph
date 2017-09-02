@@ -84,6 +84,7 @@ import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.details.SoDetail;
@@ -1597,6 +1598,15 @@ errorCB(int err, GLU glu)
 {
     SoDebugError.post("SoShape.errorCB",
                        "GLU error: "+ glu.gluErrorString(err));
+}
+
+/*!
+  \COININTERNAL
+ */
+public boolean
+shouldPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+  return true; // FIXME: what to do here? pederb 1999-11-25
 }
 
 	  
