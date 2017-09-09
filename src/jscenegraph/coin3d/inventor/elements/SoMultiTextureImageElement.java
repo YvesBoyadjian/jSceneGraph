@@ -24,7 +24,10 @@
 
 package jscenegraph.coin3d.inventor.elements;
 
+import jscenegraph.database.inventor.SbColor;
+import jscenegraph.database.inventor.SbVec3s;
 import jscenegraph.database.inventor.elements.SoElement;
+import jscenegraph.database.inventor.elements.SoTextureImageElement;
 
 /**
  * @author Yves Boyadjian
@@ -44,6 +47,21 @@ import jscenegraph.database.inventor.elements.SoElement;
 
 public class SoMultiTextureImageElement extends SoElement {
 
+	public static final int MAX_UNITS =16; // FIXME: make dynamic?????
+
+  public static class UnitData {
+  
+	  public  int nodeid;
+	  public final SbVec3s size = new SbVec3s();
+	  public int numComponents;
+	  public byte[] bytes;
+	  public SoTextureImageElement.Wrap wrapS, wrapT, wrapR;
+	  public SoTextureImageElement.Model model;
+	  public final SbColor blendColor = new SbColor();
+  };
+
+  private final SoMultiTextureImageElement.UnitData[] unitdata = new SoMultiTextureImageElement.UnitData[MAX_UNITS];
+  
 	/* (non-Javadoc)
 	 * @see jscenegraph.database.inventor.elements.SoElement#matches(jscenegraph.database.inventor.elements.SoElement)
 	 */
@@ -61,5 +79,12 @@ public class SoMultiTextureImageElement extends SoElement {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+public SoMultiTextureImageElement.UnitData 
+getUnitData(int unit) 
+{
+  assert(unit >= 0 && unit < MAX_UNITS);
+  return /*PRIVATE(this)->*/unitdata[unit];
+}
 
 }

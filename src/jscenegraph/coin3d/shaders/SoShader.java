@@ -27,6 +27,10 @@ package jscenegraph.coin3d.shaders;
 import java.util.HashMap;
 import java.util.Map;
 
+import jscenegraph.coin3d.inventor.nodes.SoFragmentShader;
+import jscenegraph.coin3d.inventor.nodes.SoGeometryShader;
+import jscenegraph.coin3d.inventor.nodes.SoShaderObject;
+import jscenegraph.coin3d.inventor.nodes.SoVertexShader;
 import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter1i;
@@ -51,7 +55,7 @@ public class SoShader {
     GLSL_SHADER
   };
 
-public void
+public static void
 init()
 {
   // Trigger loading and init of Cg library glue.
@@ -67,14 +71,14 @@ init()
   // --- initialization of shader nodes --------------------------------
   if (SoShaderProgram.getClassTypeId() == SoType.badType())
     SoShaderProgram.initClass();
-//  if (SoShaderObject.getClassTypeId() == SoType.badType()) TODO
-//    SoShaderObject.initClass();
-//  if (SoFragmentShader.getClassTypeId() == SoType.badType())
-//    SoFragmentShader.initClass();
-//  if (SoVertexShader.getClassTypeId() == SoType.badType())
-//    SoVertexShader.initClass();
-//  if (SoGeometryShader.getClassTypeId() == SoType.badType())
-//    SoGeometryShader.initClass();
+  if (SoShaderObject.getClassTypeId() == SoType.badType())
+    SoShaderObject.initClass();
+  if (SoFragmentShader.getClassTypeId() == SoType.badType())
+    SoFragmentShader.initClass();
+  if (SoVertexShader.getClassTypeId() == SoType.badType())
+    SoVertexShader.initClass();
+  if (SoGeometryShader.getClassTypeId() == SoType.badType())
+    SoGeometryShader.initClass();
 
   // --- initialization of parameter nodes -----------------------------
   if (SoShaderParameter.getClassTypeId() == SoType.badType())
@@ -140,7 +144,7 @@ init()
   //coin_atexit((coin_atexit_f*) soshader_cleanup, CC_ATEXIT_NORMAL);
 }
 
-public void
+public static void
 setupBuiltinShaders()
 { //TODO
 //  shader_builtin_dict.put("lights/PointLight", POINTLIGHT_shadersource);

@@ -536,6 +536,21 @@ set(final SoState stateptr, SoNode node,
   if (prog != null) prog.updateCoinParameter(stateptr, new SbName("coin_texunit0_model"), (elem.glimage!=null) ? elem.model : 0);
 }
 
+
+public static SoGLImage 
+get(SoState state, final Model[] model,
+                             final SbColor[] blendcolor)
+{
+  SoGLTextureImageElement elem = ( SoGLTextureImageElement)
+    getConstElement(state, classStackIndexMap.get(SoGLTextureImageElement.class));
+
+  model[0] = Model.fromValue(elem.model);
+  blendcolor[0] = new SbColor(elem.blendColor);
+  return elem.glimage;
+}
+
+
+
 /*!
 
   Return TRUE if at least one pixel in the current texture image is

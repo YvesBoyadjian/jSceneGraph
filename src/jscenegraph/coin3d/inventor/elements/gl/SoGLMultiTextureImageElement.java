@@ -25,6 +25,9 @@
 package jscenegraph.coin3d.inventor.elements.gl;
 
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
+import jscenegraph.coin3d.inventor.misc.SoGLImage;
+import jscenegraph.database.inventor.SbColor;
+import jscenegraph.database.inventor.elements.SoTextureImageElement;
 import jscenegraph.database.inventor.misc.SoState;
 
 /**
@@ -39,9 +42,36 @@ import jscenegraph.database.inventor.misc.SoState;
 
 public class SoGLMultiTextureImageElement extends SoMultiTextureImageElement {
 
+	private static final int MAX_UNITS =16;
+	
+	  public static class GLUnitData {
+		  public SoGLImage glimage;
+		  };
+		  
+	private int lastunitset;
+	private		  final SoGLMultiTextureImageElement.GLUnitData[] unitdata = new SoGLMultiTextureImageElement.GLUnitData[MAX_UNITS];
+	private		  SoState state;
+	private		  int cachecontext;
+		  
 	public static boolean hasTransparency(SoState state) {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+public static final SoGLImage 
+get(SoState state,
+                                  final int unit,
+                                  final SoTextureImageElement.Model[] model,
+                                  final SbColor[] blendcolor)
+{
+  final SoGLMultiTextureImageElement elem = (SoGLMultiTextureImageElement)
+    getConstElement(state, classStackIndexMap.get(SoGLMultiTextureImageElement.class));
+
+  final UnitData ud = elem.getUnitData(unit);
+
+  model[0] = ud.model;
+  blendcolor[0].copyFrom(ud.blendColor);
+  return elem.unitdata[unit].glimage;
+}
 
 }

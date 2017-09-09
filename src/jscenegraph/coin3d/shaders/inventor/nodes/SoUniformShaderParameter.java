@@ -18,7 +18,7 @@ import jscenegraph.database.inventor.nodes.SoSubNode;
  * @author Yves Boyadjian
  *
  */
-public class SoUniformShaderParameter extends SoShaderParameter {
+public abstract class SoUniformShaderParameter extends SoShaderParameter {
 
 	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_ABSTRACT_HEADER(SoUniformShaderParameter.class,this);
    	
@@ -88,6 +88,7 @@ getGLShaderParameter(GL2 cachecontext)
   return null;
 }
 
+	public abstract void updateParameter(SoGLShaderObject shaderObject);
   
   
   public static void

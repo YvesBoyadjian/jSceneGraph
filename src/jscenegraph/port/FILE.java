@@ -24,6 +24,12 @@ public class FILE {
 	
 	public static final int EOF = -1;
 	private static final int BUFFER_SIZE = 1 << 10;
+	/* Seek method constants */
+
+	public static final int SEEK_CUR    =1;
+	public static final int SEEK_END    =2;
+	public static final int SEEK_SET    =0;
+
 	
 	PushbackInputStream in;
 
@@ -193,4 +199,19 @@ public class FILE {
 		return 0;
 	}
 
+	public static int fseek(
+		    FILE _Stream,
+		    long  _Offset,
+		    int   _Origin
+		    ) {
+		return -1; // TODO
+	}
+
+	public static int ftell(
+		    FILE _Stream
+		    ) {
+		return -1; // TODO
+	}
+
+	
 }

@@ -71,4 +71,21 @@ sogl_glerror_debugging()
   return (COIN_GLERROR_DEBUGGING == 0) ? false : true;
 }
 
+public static cc_glglue
+instance_from_context_ptr(Object ctx)
+{
+  /* The id can really be anything unique for the current context, but
+     we should avoid a crash with the possible ids defined by
+     SoGLCacheContextElement. It's a bit of a hack, this. */
+
+  /* MSVC7 on 64-bit Windows wants this extra cast. */
+  GL2 cast_aid = (GL2)ctx;
+  /* FIXME: holy shit! This doesn't look sensible at all! (Could this
+     e.g. be where the remote rendering bugs are coming from?)
+     20050525 mortene.*/
+  GL2 id = (GL2)cast_aid;
+
+  return cc_glglue_instance(id);
+}
+
 }

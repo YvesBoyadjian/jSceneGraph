@@ -109,7 +109,7 @@ public class SoMarkerSet extends SoPointSet {
 	  public  static SoFieldData[] getFieldDataPtr()                              
 	        { return SoSubNode.getFieldDataPtr(SoMarkerSet.class); }    	  	
 	
-	  public final int NONE = -1;
+	  public final static int NONE = -1;
 	  public enum MarkerType {
 		    /*NONE = -1,*/
 		    CROSS_5_5, PLUS_5_5, MINUS_5_5, SLASH_5_5, BACKSLASH_5_5, BAR_5_5,
@@ -1308,7 +1308,7 @@ getPrimitiveCount(SoGetPrimitiveCountAction action)
 /*!
   Returns the number of defined markers.
  */
-int
+public static int
 getNumDefinedMarkers()
 {
   return markerlist.getLength();
@@ -1416,7 +1416,7 @@ swap_updown(byte[] data, int width, int height)
   This will provide you with an index given by MYAPP_ARROW_IDX which
   can be used in SoMarkerSet.markerIndex to display the new marker.
 */
-public void
+public static void
 addMarker(int idx, final SbVec2s  size,
                        byte[] bytes, boolean isLSBFirst,
                        boolean isUpToDown)

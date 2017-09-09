@@ -61,6 +61,7 @@ import java.nio.file.Path;
 import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
 import jscenegraph.coin3d.inventor.misc.SoGLImage;
+import jscenegraph.coin3d.shaders.SoShader;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.elements.SoElement;
@@ -641,6 +642,8 @@ init()
         SoGLImage.initClass();
         SoGLBigImage.initClass();        
 
+        SoShader.init(); // COIN 3D        
+        
         SoUpgrader.initClasses();
         
         // Create the header list, and register valid headers we know about

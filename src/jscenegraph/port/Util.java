@@ -4,6 +4,7 @@
 package jscenegraph.port;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import com.jogamp.common.nio.Buffers;
 
@@ -153,5 +154,22 @@ public class Util {
 
 	public static int atoi(String str) {
 		return Integer.valueOf(str);
+	}
+
+	/**
+	 * Transform the array to a String, eliminating zero ending character
+	 * @param str
+	 * @return
+	 */
+	public static String toString(char[] str) {
+		int len = str.length;
+		int endIndex = len;
+		for(int i=0;i<len;i++) {
+			if(str[i] == 0) {
+				endIndex = i;
+				break;
+			}
+		}
+		return new String(Arrays.copyOfRange(str,0,endIndex));
 	}
 }

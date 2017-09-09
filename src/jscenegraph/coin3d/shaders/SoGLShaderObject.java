@@ -46,6 +46,9 @@ public abstract class SoGLShaderObject {
 		    GEOMETRY
 		  };
 
+		  public String sourceHint; // either the file name or the first line of source code
+		  
+		  
 protected
    cc_glglue  glctx;
 protected /*int*/GL2 cachecontext;
@@ -74,6 +77,10 @@ public SoGLShaderObject( /*int*/GL2 cachecontext)
   this.glctx = SoGL.cc_glglue_instance(cachecontext);
   this.cachecontext = cachecontext;
   this.id = ++shaderid;
+}
+
+public void destructor() {
+	
 }
 
 public cc_glglue 

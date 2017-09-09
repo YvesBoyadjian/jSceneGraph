@@ -1607,6 +1607,8 @@ public boolean readConnection(SoInput in)
 
     return true;
 	}
+	
+	
 
 	//
 	// Description:
@@ -1841,7 +1843,7 @@ public boolean readConnection(SoInput in)
 		SoMFMatrix.initClass(SoMFMatrix.class);
 		SoMFMatrixd.initClass(SoMFMatrixd.class);
 		SoMFName.initClass(SoMFName.class);
-		// SoMFNode.initClass();
+		SoMFNode.initClass(SoMFNode.class);
 		// SoMFPath.initClass();
 		// SoMFPlane.initClass();
 		// SoMFPlaned.initClass();
