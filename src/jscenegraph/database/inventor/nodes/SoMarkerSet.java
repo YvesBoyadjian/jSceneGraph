@@ -147,7 +147,11 @@ public class SoMarkerSet extends SoPointSet {
 		    TRIANGLE_FILLED_9_9, RHOMBUS_FILLED_9_9, HOURGLASS_FILLED_9_9,
 		    SATELLITE_FILLED_9_9, PINE_TREE_FILLED_9_9, CAUTION_FILLED_9_9,
 		    SHIP_FILLED_9_9,
-		    NUM_MARKERS /* must be last, and is _not_ a marker :) */
+		    NUM_MARKERS; /* must be last, and is _not_ a marker :) */
+		  
+		  	public int getValue() {
+		  		return ordinal();
+		  	}
 		  };
 		  
 		  public final SoMFInt32 markerIndex = new SoMFInt32();

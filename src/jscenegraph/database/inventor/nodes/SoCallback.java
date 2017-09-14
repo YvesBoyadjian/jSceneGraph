@@ -54,6 +54,8 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import java.util.function.Consumer;
+
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
@@ -314,8 +316,15 @@ search(SoSearchAction action)
 	  
 	   	
 	// java port
-	public void setCallback(SoCallbackCB func) {
-		setCallback(func, null);
+	public void setCallback(Consumer<SoAction> func) {
+		setCallback(new SoCallbackCB() {
+
+			@Override
+			public void run(Object userData, SoAction action) {
+				func.accept(action);
+			}
+			
+		},null);
 	}
 	
 	/**
