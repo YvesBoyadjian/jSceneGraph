@@ -36,7 +36,7 @@ public class SoShaderParameter1i extends SoUniformShaderParameter {
 	
 public SoShaderParameter1i()
 {
-  nodeHeader.SO_NODE_CONSTRUCTOR(/*SoShaderParameter1i.class*/);
+  nodeHeader.SO_NODE_INTERNAL_CONSTRUCTOR(/*SoShaderParameter1i.class*/);
   nodeHeader.SO_NODE_ADD_FIELD(value,"value", (0));
 }
 

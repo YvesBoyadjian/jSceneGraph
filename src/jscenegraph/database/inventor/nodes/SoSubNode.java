@@ -373,6 +373,14 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
 	  
   }
   
+  /**
+   * Coin 3D
+   */
+  public void SO_NODE_INTERNAL_CONSTRUCTOR() {
+	  SO_NODE_CONSTRUCTOR();
+	  thisParent.isBuiltIn = true;
+  }
+  
   public void SO__NODE_CHECK_INIT(Class klass) {
 	    if (classTypeId.get(klass) == null || classTypeId.get(klass).equals(SoType.badType())) {                                   
 	        SoDebugError.post("SO_NODE_CONSTRUCTOR",                             

@@ -33,6 +33,7 @@ import jscenegraph.coin3d.inventor.nodes.SoShaderObject;
 import jscenegraph.coin3d.inventor.nodes.SoVertexShader;
 import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter;
+import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter1f;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter1i;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderProgram;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoUniformShaderParameter;
@@ -87,8 +88,8 @@ init()
     SoUniformShaderParameter.initClass();
 
   // float vector parameter nodes
-//  if (SoShaderParameter1f.getClassTypeId() == SoType.badType()) TODO
-//    SoShaderParameter1f.initClass();
+  if (SoShaderParameter1f.getClassTypeId() == SoType.badType())
+    SoShaderParameter1f.initClass();
 //  if (SoShaderParameter2f.getClassTypeId() == SoType.badType())
 //    SoShaderParameter2f.initClass();
 //  if (SoShaderParameter3f.getClassTypeId() == SoType.badType())

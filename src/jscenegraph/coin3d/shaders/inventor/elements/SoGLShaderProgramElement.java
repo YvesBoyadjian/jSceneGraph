@@ -56,7 +56,7 @@ init(SoState state)
   this.enabled = false;
 }
 
-public void
+public static void
 enable(SoState state, boolean onoff)
 {
   SoGLShaderProgramElement element =
@@ -75,12 +75,12 @@ enable(SoState state, boolean onoff)
   }
 }
 
-public void
+public static void
 set(SoState state, SoNode node,
                               SoGLShaderProgram program)
 {
   SoGLShaderProgramElement element =
-    (SoGLShaderProgramElement)super.getElement(state,classStackIndexMap.get(SoGLShaderProgramElement.class), node);
+    (SoGLShaderProgramElement)SoReplacedElement.getElement(state,classStackIndexMap.get(SoGLShaderProgramElement.class), node);
   
   if (program != element.shaderProgram) {
     if (element.shaderProgram != null) element.shaderProgram.disable(state);

@@ -72,6 +72,8 @@ package jscenegraph.database.inventor;
 
 import java.util.function.IntConsumer;
 
+import jscenegraph.coin3d.inventor.SbVec2i32;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Mutable;
 
 
@@ -113,6 +115,8 @@ public class SbVec2s implements Mutable {
     	vec[0] = other.vec[0];
     	vec[1] = other.vec[1];
 	}
+    
+    public SbVec2s( SbVec2i32 v) { setValue(v); }    
 
 	//! Sets vector components.
     public SbVec2s    setValue(final short v[]) {
@@ -130,6 +134,26 @@ public class SbVec2s implements Mutable {
 		   
 		    return this;
 		  }
+	
+/*!
+  \since Coin 2.5
+*/
+
+public SbVec2s
+setValue( SbVec2i32 v)
+{
+//#if COIN_DEBUG
+  if (v.getValue()[0] > Short.MAX_VALUE || v.getValue()[0] < Short.MIN_VALUE ||
+      v.getValue()[1] > Short.MAX_VALUE || v.getValue()[1] < Short.MIN_VALUE) {
+    SoDebugError.post("SbVec2s::setValue", "SbVec2i32 argument out of range for SbVec2s");
+  }
+//#endif // COIN_DEBUG
+  vec[0] = (short)(v.getValue()[0]);
+  vec[1] = (short)(v.getValue()[1]);
+  return this;
+}
+
+	
 	
 	// java port
 	public void operator_assign(SbVec2s other) {
