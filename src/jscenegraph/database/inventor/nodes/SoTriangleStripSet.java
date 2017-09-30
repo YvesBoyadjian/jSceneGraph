@@ -349,7 +349,8 @@ public void GLRender(SoGLRenderAction action)
         final SoNormalBundle nb = new SoNormalBundle(action, false);
         nb.initGenerator(totalNumVertices);
         generateDefaultNormals(state, nb);             
-        normCache = getNormalCache();   
+        normCache = getNormalCache();
+        nb.destructor();
       }
       vpCache.numNorms = normCache.getNum();
       vpCache.normalPtr = normCache.getNormalsFloat();
@@ -760,6 +761,104 @@ public void notify(SoNotList list)
   }
 
   SoShape_notify(list);
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Generates default normals using the given state and normal
+//    bundle. Returns TRUE if normals were generated.
+//
+// Use: public
+
+public boolean generateDefaultNormals(SoState state, SoNormalBundle nb)
+//
+////////////////////////////////////////////////////////////////////////
+{
+  int numStrips = (int) numVertices.getNum();
+  int curCoord  = (int) startIndex.getValue();
+
+  int numCoords = 0;
+  SoVertexProperty vp = getVertexProperty();
+  SoCoordinateElement ce = null;
+  SbVec3f[] coords = null;
+  if (vp != null && (numCoords = vp.vertex.getNum()) > 0) {
+    coords = vp.vertex.getValues(0);
+  } else {
+    ce = SoCoordinateElement.getInstance(state);
+    numCoords = ce.getNum();
+  }
+
+  // Now pass the vertices from each strip to the normal bundle
+  int strip, numVerts = 0;
+  for (strip = 0; strip < numStrips; strip++) {
+    // Figure out number of vertices in this strip
+    int vertsInStrip = (int) numVertices.operator_square_bracket(strip);
+
+    // If we got USE_REST_OF_VERTICES, use the rest of the values
+    // in the coordinate array:
+    if (vertsInStrip < 0) {
+      vertsInStrip = numCoords - numVerts;
+    }
+
+    numVerts += vertsInStrip;
+
+    for (int vert = 0; vert < vertsInStrip-2; vert++) {
+      SbVec3f coord0, coord1, coord2;
+      if (coords != null) {
+        coord0 = coords[curCoord];
+        coord1 = coords[curCoord+1];
+        coord2 = coords[curCoord+2];
+      } else {
+        coord0 = ce.get3(curCoord);
+        coord1 = ce.get3(curCoord+1);
+        coord2 = ce.get3(curCoord+2);
+      }           
+      if ((vert & 1)!=0)
+        nb.triangle(coord1, coord0, coord2);
+      else
+        nb.triangle(coord0, coord1, coord2);
+      curCoord++;
+    }
+    curCoord += 2; // Skip last two vertices
+  } /* for strip = .. */
+
+  nb.generate(startIndex.getValue());
+
+  // Ok, we now have more normals than we need because we sent
+  // most vertices three times.  
+  // rearrange things to correspond to TriStrip's idea of
+  // per-vertex normals:
+
+  int vertexAtStartOfStrip = 0;
+  int numTrisAtStartOfStrip = 0;
+  for (strip = 0; strip < numStrips; strip++) {
+    SbVec3f n;
+
+    // Figure out number of vertices in this strip
+    int vertsInStrip = (int) numVertices.operator_square_bracket(strip);
+
+    for (int v = 0; v < vertsInStrip; v++) {
+      if (v < 2) {
+        n = nb.generator.getNormal(numTrisAtStartOfStrip*3+v);
+        nb.generator.setNormal(vertexAtStartOfStrip+v, n);
+      } else {
+        n = nb.generator.getNormal(numTrisAtStartOfStrip*3+
+          2+(v-2)*3);
+        nb.generator.setNormal(vertexAtStartOfStrip+v, n);
+      }
+    }
+    vertexAtStartOfStrip += vertsInStrip;
+    numTrisAtStartOfStrip += vertsInStrip-2;
+  }
+  nb.generator.setNumNormals(numVerts+startIndex.getValue());
+
+  // Cache the resulting normals
+  setNormalCache(state, nb.getNumGeneratedNormals(),
+    nb.getGeneratedNormals());
+
+  return true;
 }
 
 

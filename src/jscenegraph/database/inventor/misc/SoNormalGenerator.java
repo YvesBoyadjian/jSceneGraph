@@ -494,6 +494,22 @@ equal(final SbVec3f a, final SbVec3f b, float tolerance)
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
+//    Allows shape to change number of normals after generation
+//
+// Use: public
+
+public void setNumNormals(int newNum)
+//
+////////////////////////////////////////////////////////////////////////
+{   
+    if (newNum > numVertNormals) setNormal(newNum, new SbVec3f(0,0,0));
+    else if (newNum < numVertNormals) numVertNormals = newNum;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
 //    Allows shape to change or rearrange normals after generation.
 //
 // Use: public
