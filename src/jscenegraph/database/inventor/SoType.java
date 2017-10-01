@@ -63,11 +63,14 @@
 
 package jscenegraph.database.inventor;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.port.Mutable;
 
 
@@ -542,4 +545,20 @@ makeInternal()
 	   	public String toString() {
 	   		return typeData[storage.index].name.getString();
 	   	}
+
+	   	/**
+	   	 * Java port
+	   	 * @param so__CONCAT
+	   	 * @return
+	   	 */
+		public static SoType getClassTypeId(Class<? extends SoField> klass) {
+			
+			try {
+				Method method = klass.getMethod("getClassTypeId",Class.class);
+				Object object = method.invoke(klass,klass);
+				return (SoType)object;
+			} catch (NoSuchMethodException | SecurityException|IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new IllegalStateException();
+			}
+		}
 }

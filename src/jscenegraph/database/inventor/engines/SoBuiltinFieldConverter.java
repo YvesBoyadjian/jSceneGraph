@@ -249,7 +249,7 @@ public class SoBuiltinFieldConverter extends SoFieldConverter {
 		} else if (DECIDEIN(TypeConst.MFColor, new SbColor(0, 0, 0), type)) {
 		} else if (DECIDEIN(TypeConst.MFDouble, (0), type)) {
 		} else if (DECIDEIN(TypeConst.MFEnum, (0), type)) {
-		} else if (DECIDEIN(TypeConst.MFFloat, (0), type)) {
+		} else if (DECIDEIN(TypeConst.MFFloat, (0f), type)) {
 		} else if (DECIDEIN(TypeConst.MFInt32, (0), type)) {
 		}
 		// TODO else if

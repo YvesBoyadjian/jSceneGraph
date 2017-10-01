@@ -209,4 +209,10 @@ getOutputName(int index)
 //		   #endif /* DEBUG */
 		       return ((SoOutputEntry )(outputs.operator_square_bracket(index))).type;
 		  	}
+
+
+	public void destructor() {
+		// TODO Auto-generated method stub
+		
+	}
 }

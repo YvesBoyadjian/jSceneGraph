@@ -587,13 +587,13 @@ shouldCopy()
 //		        SoDecomposeVec4f.initClass();
 		    
 		       // miscellaneous engines
-//		       SoBoolOperation.initClass();
+		       SoBoolOperation.initClass();
 		       SoCalculator.initClass();
 //		       SoComputeBoundingBox.initClass();
 //		       SoConcatenate.initClass();
 //		       SoCounter.initClass();
 		       SoElapsedTime.initClass();
-//		       SoGate.initClass();
+		       SoGate.initClass();
 //		       SoOnOff.initClass();
 //		       SoOneShot.initClass();
 //		       SoSelectOne.initClass();
@@ -655,4 +655,10 @@ shouldCopy()
 	public int  clamp(int i, int n) {
 		return (i < n) ? i : n-1; 
 	}
+	
+    //! A very annoying double notification occurs with engines
+    //! that enable their outputs during inputChanged; this flag
+    //! prevents that:
+    public boolean                isNotifying() { return notifying; }
+
 }

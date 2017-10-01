@@ -270,7 +270,15 @@ operator_greater(final SbTime tm)
     public boolean                           operator_equal_equal(final SbTime tm) 
         { return (t.getSeconds() == tm.t.getSeconds()) && (t.getMicroSeconds() == tm.t.getMicroSeconds()); }
 
-	
+    /**
+     * Java port
+     * @param tm
+     * @return
+     */
+    public boolean operator_equal_equal(float tm) {
+    	return operator_equal_equal(new SbTime(tm));
+    }
+    
 
 	@Override
 	public void copyFrom(Object other) {

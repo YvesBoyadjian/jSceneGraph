@@ -1832,11 +1832,11 @@ public boolean readConnection(SoInput in)
 		// SoSFVec4f.initClass();
 		// SoSFVec4d.initClass();
 
-		// SoMFBool.initClass();
+		SoMFBool.initClass(SoMFBool.class);
 		SoMFColor.initClass(SoMFColor.class);
 		SoMFDouble.initClass(SoMFDouble.class);
 		// SoMFEngine.initClass();
-		// SoMFEnum.initClass();
+		SoMFEnum.initClass(SoMFEnum.class);
 		// SoMFBitMask.initClass(); // Note: derived from SoMFEnum!
 		SoMFFloat.initClass(SoMFFloat.class);
 		SoMFInt32.initClass(SoMFInt32.class);

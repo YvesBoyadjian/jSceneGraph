@@ -102,6 +102,7 @@ import jscenegraph.database.inventor.SoType.CreateMethod;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
+import jscenegraph.database.inventor.fields.SoMFEnum;
 import jscenegraph.database.inventor.fields.SoMField;
 import jscenegraph.database.inventor.fields.SoSField;
 
@@ -368,4 +369,117 @@ protected static SoType SO__ENGINE_INIT_ABSTRACT_CLASS(Class<? extends SoEngine>
 	}
 }
 
+/////////////////////////////////////////////
+///
+/// This registers a value of an enum type.
+///      enumType:       the name of the enum type
+///      enumValue:      the name of a value of that enum type
+///
+/// If a engine defines an enum, each of the enum's values
+/// should be registered using this macro.  For example:
+///
+///      [ in MyFunc.h file: ]
+///      class MyFunc {
+///              ...
+///              enum Chipmunk { ALVIN, SIMON, THEODORE };
+///              ...
+///      }
+///      
+///      [ in constructor MyFunc::MyFunc(): ]
+///      SO_ENGINE_DEFINE_ENUM_VALUE(Chipmunk, ALVIN);
+///      SO_ENGINE_DEFINE_ENUM_VALUE(Chipmunk, SIMON);
+///      SO_ENGINE_DEFINE_ENUM_VALUE(Chipmunk, THEODORE);
+///
+
+public void SO_ENGINE_DEFINE_ENUM_VALUE( Enum value) {
+	  String enumType = value.getClass().getSimpleName();
+	  String enumValueName = value.name();
+	  
+	  Method getValueMethod;
+	try {
+		getValueMethod = value.getClass().getMethod("getValue", null);
+		  int enumValue = (Integer)getValueMethod.invoke(value,null);
+		  SO_ENGINE_DEFINE_ENUM_VALUE(enumType,enumValueName,enumValue);
+	} catch (SecurityException e) {
+		throw new IllegalStateException(e);
+	} catch (NoSuchMethodException e) {
+		throw new IllegalStateException(e);
+	} catch (IllegalArgumentException e) {
+		throw new IllegalStateException(e);
+	} catch (IllegalAccessException e) {
+		throw new IllegalStateException(e);
+	} catch (InvocationTargetException e) {
+		throw new IllegalStateException(e);
+	}
+	  
+}
+
+	public void SO_ENGINE_DEFINE_ENUM_VALUE(String enumType, String enumValueName, int enumValue) {                     
+    int _value_false= 0;                                                      
+    do {                                                                      
+        SO__ENGINE_CHECK_CONSTRUCT(/*__FILE__*/);                                 
+        if (firstInstance)                                                    
+            inputData[0].addEnumValue(enumType, enumValueName, enumValue);         
+    } while (_value_false != 0);                                                   
+    }
+
+	private void SO__ENGINE_CHECK_CONSTRUCT() {                                   
+    int _value_false= 0;                                                      
+    do {                                                                      
+        if (inputData == null) {                                              
+            SoDebugError.post("",                                         
+                               "Instance not properly constructed.\n"+         
+                               "Did you forget to put "+        
+                               "SO_ENGINE_CONSTRUCTOR()"+                      
+                               " in the constructor?");                       
+//            inputData[0] = new SoFieldData(parentInputData != null ?                     
+//                                        parentInputData[0] : null);             
+//            outputData[0] = new SoEngineOutputData(parentOutputData != null ?            
+//                                                parentOutputData[0] : null);    
+        }                                                                     
+    } while(_value_false != 0);                                                    
+    }
+
+	public void SO_ENGINE_SET_MF_ENUM_TYPE(SoMFEnum field, String fieldName, String enumType)  {                      
+		SO__MF_ENUM_SET_TYPE(field, fieldName,enumType,"ENGINE",inputData[0]);
+	}
+
+/////////////////////////////////////////////
+///
+/// This defines the specific type of enum expected by a particular
+/// SoMFEnum field.
+///
+
+public void SO__MF_ENUM_SET_TYPE(SoMFEnum field, String fieldName, String enumType, String contMacroName, SoFieldData contData) {  
+    int _value_false= 0;                                                      
+    do {                                                                      
+        final int[] _so_mf_enum_num = new int[1];                                                  
+        final int[][] _so_mf_enum_vals = new int[1][];                                                
+        final SbName[][] _so_mf_enum_names = new SbName[1][];                                            
+        contData.getEnumData(enumType,                            
+                                _so_mf_enum_num,                              
+                                _so_mf_enum_vals,                             
+                                _so_mf_enum_names);                           
+        SO__MF_ENUM_CHECK_DATA(_so_mf_enum_vals[0],                              
+                               enumType,                           
+                               fieldName,                          
+                               contMacroName);                                
+        field.setEnums(_so_mf_enum_num[0],                                   
+                           _so_mf_enum_vals[0],                                  
+                           _so_mf_enum_names[0]);                                
+    } while (_value_false != 0);                                                   
+    }
+
+	public void SO__MF_ENUM_CHECK_DATA(int[] vals, String typeName, String fieldName, String containerMacroName) {  
+    int _value_false= 0;                                                      
+    do {                                                                      
+        if (vals == null && firstInstance)                                    
+            SoDebugError.post("SO_SET_MF_ENUM_TYPE",                         
+                               "Field "+fieldName+" (%s, line %d): Did you forget to"+    
+                               " use SO_"+containerMacroName+"_DEFINE_ENUM_VALUE("+typeName+", ...)?"      
+                               /*, __FILE__, __LINE__,*/                 
+                               );                 
+    } while (_value_false != 0);                                                   
+    }
+	
 }

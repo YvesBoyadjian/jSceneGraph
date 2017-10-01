@@ -57,6 +57,7 @@ package jscenegraph.database.inventor.engines;
 
 import jscenegraph.database.inventor.SoFieldList;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldContainer;
 
@@ -174,6 +175,45 @@ getForwardConnections(SoFieldList list)
 }
 
 	  
+//! Enables or disables all connections from this ouptut. If the
+//! 	connections are disabled, values will not be output along them.  
+//! 	By default, outputs are enabled.
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Enables or disables all connections from this
+//output. The enabled flag is checked at SO_ENGINE_OUTPUT time and
+//at notify() to prevent notification/evaluation through disabled
+//outputs.
+//
+//Use: public
+
+public void                enable(boolean flag) {
+    if (enabled != flag) {
+        enabled = flag;
+
+        // Notify if re-enabling connections
+        if (flag) {
+
+            // A very annoying double notification occurs with engines
+            // that enable their outputs during inputChanged that we
+            // prevent by not bothering to start notification if we're
+            // already in the middle of notification:
+            SoEngine e = getContainer();
+            if (e != null && e.isNotifying()) return;
+
+            for (int j = 0; j < getNumConnections(); j++) {
+                SoField f = (this).operator_square_bracket(j);
+
+                if (!f.flags.isEngineModifying) {
+                    f.startNotify();
+                }
+            }
+        }
+    }
+	
+}
+
 	  
 	  // Returns TRUE if this output is currently enabled. 
 	  public boolean isEnabled() {
@@ -264,5 +304,17 @@ getForwardConnections(SoFieldList list)
     public SoField            operator_square_bracket(int i)
         { return connections.get(i); }
 
-    public void setContainer(SoEngine eng)     { container = eng; }    
+    public void setContainer(SoEngine eng)     { container = eng; }
+
+	public void destructor() {
+	    // A engine should only be deleted once it has nothing connected
+	    // to its outputs.  So, in the DEBUG case, we'll make sure there
+	    // are no more connections, and complain if there are.
+	//#ifdef DEBUG
+	    if (getNumConnections() != 0)
+	        SoDebugError.post("SoEngineOutput::~SoEngineOutput",
+	                           "Engine with output connections deleted.\n"+
+	                           "Did you unref() an engine that you didn't ref()?");
+	//#endif /* DEBUG */
+	}    
 }

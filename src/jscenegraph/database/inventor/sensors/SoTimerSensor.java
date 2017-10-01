@@ -149,6 +149,14 @@ public class SoTimerSensor extends SoTimerQueueSensor implements Destroyable {
 		 interval.copyFrom(intvl); 
 	}
 	
+	/**
+	 * Java port
+	 * @param intvl
+	 */
+	public void setInterval(float intvl) {
+		setInterval(new SbTime(intvl));
+	}
+	
     //! Get the base time.
     public SbTime       getBaseTime()             { return baseTime;  }
 	
