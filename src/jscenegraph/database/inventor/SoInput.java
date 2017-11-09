@@ -1085,6 +1085,48 @@ public boolean read(final int[] i)
     return ok;
 }
 
+public boolean read(final long[] i)
+{
+    // READ_INTEGER(i, convertInt32, int, int32_t);
+    boolean ok = false;                                                                
+    if (! skipWhiteSpace())                                                   
+        ok = false;                                                           
+    else if (curFile.binary) {                                               
+        int n = Long.BYTES;//M_SIZEOF(dglType);                                            
+        int pad = ((n+3) & ~0003) - n;                                        
+        long tnum = 0;                                                         
+        if (fromBuffer()) {                                                   
+            if (eof())                                                        
+                ok = false;                                                   
+            else {                                                            
+                ok = true;                                                    
+                tnum = SoMachine.DGL_NTOH_INT64(curFile.curBufAsLong());//dglFunc(curFile->curBuf, (dglType *)&tnum);                   
+                curFile.curBuf += Long.BYTES + pad;                   
+            }                                                                 
+        }                                                                     
+        else {                                                
+            if (backupBufUsed == true) {                                      
+                tnum = (backupBuf[0] << 24)+(backupBuf[1] << 16)+(backupBuf[2] << 8)+(backupBuf[3]);//(type)(*(type *)backupBuf);                             
+                backupBufUsed = false;                                        
+                return true;                                                  
+            }                                                                 
+            byte[] padbuf = new byte[8];                                                   
+            makeRoomInBuf(/*M_SIZEOF(int)*/Long.BYTES);                                 
+            ok = FILE.fread(tmpBuffer, /*M_SIZEOF(int)*/Long.BYTES, 1, curFile.fp)!=0;      
+            tnum = convertInt32(tmpBuffer);                     
+            if (pad != 0)                                                     
+                ok = FILE.fread(padbuf, /*M_SIZEOF(char)*/1, pad, curFile.fp)!=0; 
+        }                                                                     
+        i[0] = (long)tnum;                                                     
+    }                                                                         
+    else {                                                                    
+        final long[] _tmp = new long[1];                                                        
+        ok = readLong(_tmp);                                                    
+        if (ok)                                                               
+            i[0] = _tmp[0];                                                
+    }                                                                         
+    return ok;
+}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -1807,6 +1849,193 @@ public boolean readHex(final int[] l)
 // Use: private
 
 private boolean readInteger(final int[] l)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final char[]        str = new char[READ_STRINGBUFFER_SIZE];    // Number can't be longer than this
+    int        s = /*str*/0; // java port
+    int         i;
+    boolean        ret;
+
+
+    // Read from backBuf if it is not empty
+    if (backBufIndex >= 0) {
+        
+        // 2005-04-19 Felix: Check for buffer overflow
+        if (backBuf.length() >= READ_STRINGBUFFER_SIZE) {
+            SoDebugError.post("SoInput::readInteger",
+                               "Integer value to big for internal representation, value truncated to "+(READ_STRINGBUFFER_SIZE-1)+" characters");
+            
+            //*(strncpy(str, backBuf.getString(), READ_STRINGBUFFER_SIZE-1) + READ_STRINGBUFFER_SIZE-1) = '\0';
+        	int ii;
+        	for (ii=0;ii<READ_STRINGBUFFER_SIZE-1;ii++ ) {
+        		str[ii] = backBuf.charAt(ii);
+        	}
+            str[READ_STRINGBUFFER_SIZE-1] = '\0';
+        }
+        else {
+            //strcpy(str, backBuf.getString());
+        	int ii;
+        	for (ii=0;ii<backBuf.length();ii++ ) {
+        		str[ii] = backBuf.charAt(ii);
+        	}
+        	str[ii] = 0;
+        }
+
+        // Clear the back buffer.
+        backBuf = "";
+        backBufIndex = -1;
+
+        s = /*str*/0;
+        ret = true;
+    }
+
+    // Read from a memory buffer
+    else if (fromBuffer()) {
+        s = curFile.curBuf;
+        ret = true;
+    }
+
+    // Read from a file
+    else {
+        //int i;
+
+        while ((i = FILE.getc(curFile.fp)) != FILE.EOF) {
+            str[s] = (char) i;
+            if (str[s] == ',' || str[s] == ']' || str[s] == '}' || Character.isSpace(str[s])) {
+                putBack(str[s]);
+                str[s] = '\0';
+                break;
+            }
+            
+            // 2005-04-19 Felix: Check for buffer overflow
+            if (s /*- str*/ < READ_STRINGBUFFER_SIZE-1) {
+                s++;
+            }
+            else {
+                SoDebugError.post("SoInput::readInteger",
+                                   "Integer value to big for internal representation, value truncated to "+(READ_STRINGBUFFER_SIZE-1)+" characters" );
+                
+                s = /*str +*/ READ_STRINGBUFFER_SIZE-1;
+                str[s] = '\0';
+                break;
+            }
+        }
+
+        ret = (s /*- str*/ <= 0) ? false : true;
+        s = /*str*/0;
+    }
+    
+    // Convert the string we just got into a int32_t integer
+    if (ret) {
+        int ptr;
+        int save = s;
+
+        if (str[s] == '0') {
+            s++;
+
+            // The string just contains a single zero
+            if (str[s] == '\0' || str[s] == ',' || str[s] == ']' || str[s] == '}' ||
+                Character.isSpace(str[s]))
+            {
+                l[0] = 0;
+                ret = true;
+            }
+
+            // A hexadecimal format number
+            else if (str[s] == 'x' || str[s] == 'X') {
+                s++;
+                l[0] = 0;
+                ptr = s;
+                while (str[s] != '\0') {
+                    i = (int)str[s];
+                    if (i >= '0' && i <= '9') {
+                        i -= '0';
+                        l[0] = (l[0]<<4) + i;
+                    }
+                    else if (i >= 'A' && i <= 'F') {
+                        i -= ('A' - 10);
+                        l[0] = (l[0]<<4) + i;
+                    }
+                    else if (i >= 'a' && i <= 'f') {
+                        i -= ('a' - 10);
+                        l[0] = (l[0]<<4) + i;
+                    }
+                    else {      // unrecognized character; stop processing
+                        break;
+                    }
+                    s++;
+                }
+                if (s == ptr) {
+                    if (fromBuffer())
+                        s = curFile.curBuf = save;
+                    else
+                        putBack(str[save]);
+                    ret = false;
+                }
+            }
+
+            // An octal format number
+            else {
+                l[0] = 0;
+                ptr = s;
+                while ((int)str[s] >= '0' && (int)str[s] <= '7') {
+                    i = (int)str[s] - '0';
+                    l[0] = (l[0]<<3) + i;
+                    s++;
+                }
+                if (s == ptr) {
+                    if (fromBuffer())
+                        s = curFile.curBuf = save;
+                    else
+                        putBack(str[save]);
+                    ret = false;
+                }
+            }
+        }
+
+        // A decimal format number
+        else {
+            int sign = 1;
+
+            l[0] = 0;
+            if (str[s] == '-' || str[s] == '+') {
+                s++;
+                sign = -1;
+            }
+            ptr = s;
+            while ((int)str[s] >= '0' && (int)str[s] <= '9') {
+                i = (int)str[s] - '0';
+                l[0] = l[0]*10 + i;
+                s++;
+            }
+            l[0] *= sign;
+            if (s == ptr) {
+                if (fromBuffer())
+                    s = curFile.curBuf = save;
+                else
+                    putBack(str[save]);
+                ret = false;
+            }
+        }
+
+        if (fromBuffer())
+            curFile.curBuf = s;
+    }
+
+    return ret;
+
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Reads a int32_t signed integer. Returns FALSE on EOF or if no
+//    valid integer was read.
+//
+// Use: private
+
+private boolean readLong(final long[] l)
 //
 ////////////////////////////////////////////////////////////////////////
 {

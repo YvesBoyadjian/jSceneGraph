@@ -136,6 +136,16 @@ public class SoInputFile {
 		return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().get(0);
 	}
 
+	// java port
+	public long curBufAsLong() {
+		int n = Long.BYTES;
+		byte[] bytes = new byte[n];
+		for(int i=0; i<n;i++) {
+			bytes[i] = (byte)buffer.charAt(curBuf+i);
+		}
+		return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asLongBuffer().get(0);
+	}
+
 	//java port
 	public void memcpy(byte[] buf, int curBuf2, int n) {
 		for(int i=0;i<n;i++,curBuf2++) {

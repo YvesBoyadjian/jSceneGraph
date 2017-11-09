@@ -1649,4 +1649,16 @@ public void jacobi3(final float[] evalues,
 		ref[3][3] = value -> matrix[3][3] = (float)value;
     	return ref;
     }
+
+    /**
+     * Java port
+     * @param i
+     * @return
+     */
+	public float getValueAt(int index) {
+		int i = index / 4;
+		int j = index % 4;
+		
+		return matrix[i][j];
+	}
 }

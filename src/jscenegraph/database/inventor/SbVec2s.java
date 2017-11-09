@@ -226,12 +226,12 @@ operator_minus(final SbVec2s v2)
 	}
 
 	// java port
-	public int getX() {
+	public short getX() {
 		return vec[0];
 	}
 
 	//java port
-	public int getY() {
+	public short getY() {
 		return vec[1];
 	}
 

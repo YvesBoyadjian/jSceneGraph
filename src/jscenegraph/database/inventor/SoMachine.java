@@ -25,6 +25,10 @@ public class SoMachine {
 		return Integer.reverseBytes(f);
 	}
 	
+	public static long DGL_NTOH_INT64(long f) {
+		return Long.reverseBytes(f);
+	}
+	
 	public static void DGL_HTON_INT32(int[] t, int f) {
 		t[0] = Integer.reverseBytes(f);
 	}

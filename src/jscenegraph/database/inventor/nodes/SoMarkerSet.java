@@ -1485,7 +1485,7 @@ getMarker(int idx, final SbVec2s  size,
   is NONE (not removable), \c false is returned. If everything is OK,
   \c true is returned.
 */
-public boolean
+public static boolean
 removeMarker(int idx)
 {
   if (idx == NONE ||

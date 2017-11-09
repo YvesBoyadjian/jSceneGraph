@@ -102,6 +102,20 @@ public class SoSFColor extends SoSField<SbColor> {
 	        setValue(new SbColor(r, g, b));
 	    }
 	   
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Sets RGB value from array of 3 floats. (Convenience function)
+//
+// Use: public
+
+public void setValue(float rgb[])         // Array of values
+//
+////////////////////////////////////////////////////////////////////////
+{
+    setValue(new SbColor(rgb));
+}
+
 		@Override
 		protected SbColor constructor() {		
 			return new SbColor();
