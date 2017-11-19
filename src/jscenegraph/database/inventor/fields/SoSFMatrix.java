@@ -115,5 +115,31 @@ public boolean readValue(SoInput in)
          && in.read(ref[3][2]) && in.read(ref[3][3]);
 }
 
+/**
+ * java port
+ * @param i
+ * @param j
+ * @param k
+ * @param l
+ * @param m
+ * @param n
+ * @param o
+ * @param p
+ * @param q
+ * @param r
+ * @param s
+ * @param t
+ * @param u
+ * @param v
+ * @param w
+ * @param x
+ */
+public void setValue(int i, int j, int k, int l, int m, int n, int o, int p, int q, int r, int s, int t, int u, int v,
+		int w, int x) {
+	SbMatrix matrix = new SbMatrix( i,  j,  k,  l,  m,  n,  o,  p,  q,  r,  s,  t,  u,  v,
+			 w,  x);
+	setValue(matrix);
+}
+
 	
 }

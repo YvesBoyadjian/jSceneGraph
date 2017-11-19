@@ -68,6 +68,7 @@ import jscenegraph.database.inventor.misc.SoCompactPathList;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.misc.SoTempPath;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.interaction.inventor.SoSceneManager;
 import jscenegraph.mevis.inventor.SoProfiling;
 import jscenegraph.port.Destroyable;
 
@@ -172,7 +173,9 @@ public abstract class SoAction implements Destroyable {
       private    	       boolean              terminated;
 	   
       private    	       int                 index;
-    	       
+
+      private SoSceneManager sceneManager;
+      
       public static SoType getClassTypeId() {
     	  return new SoType(classTypeId);
       }
@@ -991,5 +994,21 @@ shouldCompactPathLists()
     return true;
 }
 
+/**
+ * Java port
+ * @return
+ */
+public SoSceneManager getSceneManager() {
+	return sceneManager;
+}
+
+/**
+ * Java port
+ * @param sceneManager
+ */
+public void setSceneManager(SoSceneManager sceneManager) {
+	this.sceneManager = sceneManager;
+}
+	   
 	     
 	   }

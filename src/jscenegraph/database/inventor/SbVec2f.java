@@ -324,5 +324,21 @@ public float length()
 	public float getY() { // java port
 		return vec[1];
 	}
+
+	/**
+	 * java port
+	 * @param x
+	 */
+	public void setX(float x) {
+		vec[0] = x;
+	}
+
+	/**
+	 * java port
+	 * @param y
+	 */
+	public void setY(float y) {
+		vec[1] = y;
+	}
  }
 

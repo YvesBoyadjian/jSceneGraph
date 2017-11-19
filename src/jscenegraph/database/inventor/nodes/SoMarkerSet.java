@@ -1422,6 +1422,21 @@ swap_updown(byte[] data, int width, int height)
 */
 public static void
 addMarker(int idx, final SbVec2s  size,
+                       byte[] bytes)
+{
+	addMarker(idx, size,
+            bytes, true);	
+}
+public static void
+addMarker(int idx, final SbVec2s  size,
+                       byte[] bytes, boolean isLSBFirst)
+{
+	addMarker(idx, size,
+            bytes, isLSBFirst,
+            true);	
+}
+public static void
+addMarker(int idx, final SbVec2s  size,
                        byte[] bytes, boolean isLSBFirst,
                        boolean isUpToDown)
 {
@@ -1463,7 +1478,7 @@ addMarker(int idx, final SbVec2s  size,
   is NONE (not removable), \c false is returned. If everything is OK,
   \c true is returned.
 */
-public boolean
+public static boolean
 getMarker(int idx, final SbVec2s  size,
                        byte[][] bytes, boolean[] isLSBFirst)
 {
@@ -1531,5 +1546,21 @@ isMarkerBitSet(int idx, int bitNumber)
 	      markerlist.append(temp);
 	    }
 	  }
+	public static void addMarker(int markerIndex2, SbVec2s size, byte[] bytes, int[] data) {
+		// TODO
+		addMarker(markerIndex2,size,bytes);
+	}
+	
+	/**
+	 * Java port
+	 * @param idx
+	 * @return
+	 */
+	public static Object getMarker(int idx) {
+		final SbVec2s  size = new SbVec2s();
+		byte[][] bytes = new byte[1][];
+		boolean[] isLSBFirst = new boolean[1];
+		return getMarker(idx, size, bytes, isLSBFirst);
+	}
 
 }

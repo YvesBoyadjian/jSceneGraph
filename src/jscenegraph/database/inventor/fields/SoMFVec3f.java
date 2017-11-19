@@ -166,6 +166,26 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		valueChanged();
 	}
 
+	/**
+	 * Java port
+	 * @param start
+	 * @param xyz
+	 */
+	public void setValues(int start, float[] xyz) {
+		int num = xyz.length/3; // Number of values to set
+		int newNum = start + num;
+		int i;
+
+		if (newNum > getNum())
+			makeRoom(newNum);
+
+		for (i = 0; i < num; i++)
+			((SbVec3f) values[start + i]).setValue(xyz[3*i],xyz[3*i+1],xyz[3*i+2]);
+
+		valueChanged();
+	}
+
+	
 	////////////////////////////////////////////////////////////////////////
 	//
 	// Description:

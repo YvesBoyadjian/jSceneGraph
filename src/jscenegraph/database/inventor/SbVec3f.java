@@ -490,4 +490,24 @@ public float getValueAt(int axis) { // java port
 	return vec[axis];
 }
 
+/**
+ * java port
+ * @param f
+ */
+public void multiply(float f) {
+	operator_mul_equal(f);
+}
+
+public void add(SbVec3f v) {
+	operator_add_equal(v);
+}
+
+/**
+ * java port
+ * @param other
+ */
+public void setValue(SbVec3f other) {
+	setValue(other.getValue());
+}
+
 }

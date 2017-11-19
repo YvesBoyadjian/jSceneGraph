@@ -140,6 +140,54 @@ copy()
 }
     
 
+/*!
+  Returns index into coordinate set for the point's 3D coordinates.
+ */
+//! Returns the index of the point within the relevant coordinate node.
+public int
+getCoordinateIndex()
+{
+  return coordIndex;
+}
+
+/*!
+  Returns point's index into set of materials.
+ */
+//! Returns the index of the material for the point within the relevant
+//! material node.
+public int
+getMaterialIndex()
+{
+  return materialIndex;
+}
+
+/*!
+  Returns point's index into set of normals.
+ */
+//! Returns the index of the surface normal at the point within the
+//! relevant normal node. Note that if normals have been generated for a
+//! shape, the index may not be into an existing normal node.
+public int
+getNormalIndex()
+{
+  return normalIndex;
+}
+
+/*!
+  Returns point's index into set of texture coordinates.
+ */
+//! Returns the index of the texture coordinates for the point within the
+//! relevant normal node. Note that if texture coordinates have been
+//! generated for a shape, the index may not be into an existing texture
+//! coordinate node.
+public int getTextureCoordIndex()
+{
+  return texCoordIndex;
+}
+
+
+
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:

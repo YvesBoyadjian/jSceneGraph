@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.database.inventor.SbVec3d;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
 
@@ -116,6 +117,19 @@ public boolean readValue(SoInput in)
 
 public void setValue(float[] vector) { // java port
 	setValue(new SbVec3f(vector));
+}
+
+/**
+ * Java port
+ * @param vector
+ */
+public void setValue(SbVec3d vector) {
+	double[] value = vector.getValue();
+	float[] valuef = new float[3];
+	valuef[0] = (float)value[0];
+	valuef[1] = (float)value[1];
+	valuef[2] = (float)value[2];
+	setValue(valuef);	
 }
 
 	}

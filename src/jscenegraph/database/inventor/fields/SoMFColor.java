@@ -115,6 +115,24 @@ public class SoMFColor extends SoMField<SbColor> {
 		setValues(start, colors);
 	}
 
+
+	/**
+	 * java port
+	 * @param start
+	 * @param newValues
+	 */
+public void setValues(int start, float[] newValues) {
+	int nbColors = newValues.length/3;
+	SbColor[] colors = new SbColor[nbColors]; 
+	for(int i=0;i<nbColors;i++) {
+		float valr = newValues[i*3];
+		float valg = newValues[i*3+1];
+		float valb = newValues[i*3+2];
+		SbColor color = new SbColor(valr,valg,valb);
+		colors[i] = color;
+	}
+	setValues(start, colors);
+}
 	@Override
 	protected SbColor constructor() {
 		return new SbColor();
@@ -164,5 +182,14 @@ readBinaryValues(SoInput in, int numToRead)
 	    return true;
     }
     return false;
+}
+
+/**
+ * java port
+ * @param index
+ * @param rgb
+ */
+public void set1Value(int index, float[] rgb) {
+	set1Value(index, new SbColor(rgb));
 }
 }

@@ -129,4 +129,17 @@ public boolean read1Value(SoInput in, int index)
 	});
 }
 
+/**
+ * java port
+ * @param start
+ * @param colors
+ */
+public void setValues(int start, int[] colors) {
+	Integer[] colorsO = new Integer[colors.length];
+	for(int i=0;i<colors.length;i++) {
+		colorsO[i] = colors[i];
+	}
+	setValues(start,colorsO);
+}
+
 }

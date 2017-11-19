@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbRotation;
+import jscenegraph.database.inventor.SbRotationd;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
 
@@ -138,6 +139,14 @@ public boolean readValue(SoInput in)
     setValue(axis, angle[0]);
 
     return true;
+}
+
+/**
+ * java port
+ * @param rotationd
+ */
+public void setValue(SbRotationd rotationd) {
+	setValue(new SbRotation(rotationd));
 }
 
 	   }

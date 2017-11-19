@@ -54,6 +54,9 @@
 
 package jscenegraph.database.inventor.fields;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 import jscenegraph.database.inventor.SoInput;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -176,6 +179,18 @@ readBinaryValues(SoInput in,    // Reading specification
 		for(int i=0;i<numToRead;i++) values[i] = valuesI[i];
 	}
 	return retVal;
+}
+
+/**
+ * Java port
+ * @param buffer
+ */
+public void setValuesBuffer(ByteBuffer buffer) {
+	IntBuffer ib = buffer.asIntBuffer();
+	int length = ib.remaining();
+	int[] array = new int[length];
+	ib.get(array);
+	setValues(0,array);
 }
 
 }

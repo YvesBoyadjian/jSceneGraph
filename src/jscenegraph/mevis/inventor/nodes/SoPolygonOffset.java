@@ -40,7 +40,7 @@ public class SoPolygonOffset extends SoNode {
 	  public  static SoFieldData[] getFieldDataPtr()                              
 	        { return SoSubNode.getFieldDataPtr(SoPolygonOffset.class); }    	  	
 	
-	  enum Style {
+	  public enum Style {
 		   FILLED(SoPolygonOffsetElement.Style.FILLED.getValue()),
 		    LINES(SoPolygonOffsetElement.Style.LINES.getValue()),
 		    POINTS(SoPolygonOffsetElement.Style.POINTS.getValue()),

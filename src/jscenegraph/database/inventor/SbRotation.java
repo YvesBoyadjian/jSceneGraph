@@ -142,6 +142,19 @@ public class SbRotation implements Mutable {
 	public SbRotation( SbVec3f rotateFrom, SbVec3f rotateTo)
 	{ setValue(rotateFrom, rotateTo); }
 	
+	/**
+	 * java port
+	 * @param other
+	 */
+	public SbRotation(SbRotationd other) {
+		double[] q0q1q2q3 = new double[4];
+		other.getValue(q0q1q2q3);
+		quat[0] = (float)q0q1q2q3[0];
+		quat[1] = (float)q0q1q2q3[1];
+		quat[2] = (float)q0q1q2q3[2];
+		quat[3] = (float)q0q1q2q3[3];
+	}
+
 	// Returns pointer to array of 4 components defining quaternion. 
 	public float[] getValue() {
 		 return (quat); 

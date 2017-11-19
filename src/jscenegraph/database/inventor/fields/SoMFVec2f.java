@@ -137,5 +137,19 @@ public boolean read1Value(SoInput in, int index)
             in.read(ref[1]));
 }
 
+/**
+ * Java port
+ * @param start
+ * @param values
+ */
+public void setValues(int start, float[][] values) {
+	int nb = values.length;
+	SbVec2f[] valuesVec = new SbVec2f[nb];
+	for(int i=0;i<nb;i++) {
+		valuesVec[i] = new SbVec2f(values[i]);
+	}
+	setValues(start,valuesVec);
+}
+
          
 }

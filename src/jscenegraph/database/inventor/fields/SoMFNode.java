@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.coin3d.inventor.nodes.SoFragmentShader;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.misc.SoBase;
@@ -281,6 +282,17 @@ allocValues(int newNum)
     }
 
     num = maxNum = newNum;
+}
+
+/**
+ * Java port
+ * @param index
+ * @param node
+ */
+public void set1Value(int index, SoNode node) {
+	SoNode[] nodePtr = new SoNode[1];
+	nodePtr[0] = node;
+	set1Value(index, nodePtr);
 }
 
 }

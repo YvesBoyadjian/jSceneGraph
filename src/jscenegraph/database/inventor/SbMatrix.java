@@ -1661,4 +1661,16 @@ public void jacobi3(final float[] evalues,
 		
 		return matrix[i][j];
 	}
+
+	/**
+	 * Java port
+	 * @return
+	 */
+	public float[] getValueLinear() {
+		float[] valueLinear = new float[16];
+		for(int i=0; i< 16;i++) {
+			valueLinear[i] = getValueAt(i);
+		}
+		return valueLinear;
+	}
 }

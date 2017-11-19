@@ -148,4 +148,56 @@ public void copyFrom(SbVec3d other) {
 		ref[2] = value -> vec[2] = value;
 		return ref;
 	}
+
+// Returns vector components. 
+public final double[] getValue() { return vec; }
+
+/**
+ * Java port
+ * @return
+ */
+public double getX() {
+	return vec[0];
+}
+
+/**
+ * Java port
+ * @return
+ */
+public double getY() {
+	return vec[1];
+}
+
+/**
+ * java port
+ * @return
+ */
+public double getZ() {
+	return vec[2];
+}
+
+/**
+ * Java port
+ * @param x
+ */
+public void setX(float x) {
+	vec[0] = x;
+}
+
+/**
+ * java port
+ * @param y
+ */
+public void setY(float y) {
+	vec[1] = y;
+}
+
+/**
+ * Java port
+ * @param z
+ */
+public void setZ(float z) {
+	vec[2] = z;
+}
+
 }

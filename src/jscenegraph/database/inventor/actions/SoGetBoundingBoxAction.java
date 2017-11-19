@@ -69,6 +69,7 @@ import jscenegraph.database.inventor.elements.SoLocalBBoxMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewingMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.interaction.inventor.SoSceneManager;
 import jscenegraph.port.Destroyable;
 
 
@@ -500,5 +501,4 @@ beginTraversal(SoNode node)
 
     traverse(node);
 }
-	   
 }

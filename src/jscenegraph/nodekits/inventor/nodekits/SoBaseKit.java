@@ -401,6 +401,10 @@ public void destructor() {
 	   //
 	   // Use: public
 	   
+	public SoNode // java port
+	getPart( String partName) {
+	  return getPart(partName,true);
+	}
 	  public SoNode 
 	   getPart( String partName, boolean makeIfNeeded ) {
 		  return getPart(new SbName(partName),makeIfNeeded);

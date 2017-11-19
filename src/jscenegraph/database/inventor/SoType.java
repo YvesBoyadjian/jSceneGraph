@@ -551,12 +551,18 @@ makeInternal()
 	   	 * @param so__CONCAT
 	   	 * @return
 	   	 */
-		public static SoType getClassTypeId(Class<? extends SoField> klass) {
+		public static SoType getClassTypeId(Class<?> klass) {
 			
 			try {
-				Method method = klass.getMethod("getClassTypeId",Class.class);
-				Object object = method.invoke(klass,klass);
-				return (SoType)object;
+				try {
+					Method method = klass.getMethod("getClassTypeId");
+					Object object = method.invoke(klass);
+					return (SoType)object;
+				} catch (NoSuchMethodException e) {
+					Method method = klass.getMethod("getClassTypeId",Class.class);
+					Object object = method.invoke(klass,klass);
+					return (SoType)object;
+				}
 			} catch (NoSuchMethodException | SecurityException|IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new IllegalStateException();
 			}

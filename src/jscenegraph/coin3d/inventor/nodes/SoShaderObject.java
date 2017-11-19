@@ -39,6 +39,7 @@ import jscenegraph.coin3d.shaders.SoGLSLShaderObject;
 import jscenegraph.coin3d.shaders.SoGLShaderObject;
 import jscenegraph.coin3d.shaders.SoGLShaderProgram;
 import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
+import jscenegraph.coin3d.shaders.inventor.nodes.SoMFUniformShaderParameter;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderStateMatrixParameter;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoUniformShaderParameter;
 import jscenegraph.database.inventor.SbColor;
@@ -55,7 +56,6 @@ import jscenegraph.database.inventor.elements.SoTextureImageElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
-import jscenegraph.database.inventor.fields.SoMFNode;
 import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSFString;
@@ -186,9 +186,9 @@ public class SoShaderObject extends SoNode {
   public final SoSFBool isActive = new SoSFBool();
   public final SoSFEnum sourceType = new SoSFEnum();
   public final SoSFString sourceProgram = new SoSFString();
-  // FIXME: this field is an SoMFUniformShaderParameter in TGS
+  // FIXED: this field is an SoMFUniformShaderParameter in TGS
   // Inventor. We should also implement that field. 20050125 mortene.
-  public final SoMFNode parameter = new SoMFNode();
+  public final SoMFUniformShaderParameter parameter = new SoMFUniformShaderParameter();
   
   private SoShaderObject owner;
   private SoShaderObject.SourceType cachedSourceType;

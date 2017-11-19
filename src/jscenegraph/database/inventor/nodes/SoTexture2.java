@@ -191,7 +191,8 @@ public class SoTexture2 extends SoNode {
     enum Model {
         MODULATE                ( GL2.GL_MODULATE),
         DECAL                   ( GL2.GL_DECAL),
-        BLEND                   ( GL2.GL_BLEND);
+        BLEND                   ( GL2.GL_BLEND),
+    	REPLACE					( GL2.GL_REPLACE);
         
         Model(int value) {
         	this.value = value;

@@ -110,6 +110,20 @@ public class SbBox3f implements Mutable {
 	}
 
 	/**
+	 * Java port
+	 * @param volume
+	 */
+	public SbBox3f(float[] volume) {
+		float xmin = volume[0];
+		float ymin = volume[1];
+		float zmin = volume[2];
+		float xmax = volume[3];
+		float ymax = volume[4];
+		float zmax = volume[5];
+		 min.setValue(xmin, ymin, zmin); max.setValue(xmax, ymax, zmax);
+	}
+
+	/**
 	 * Returns the minimum point of the box.
 	 * The minimum point is the corner of the box with
 	 * the lowest X, Y, and Z values.
@@ -643,6 +657,33 @@ public SbVec3f getSize() { // java port
 	float[] xyz = new float[3];
 	getSize(xyz);
 	return new SbVec3f(xyz);
+}
+
+/**
+ * Java port
+ * @param geometryBBox
+ * @return
+ */
+public boolean contains(SbBox3f other) {
+	if(other.min.getX() < min.getX()) {
+		return false;
+	}
+	if(other.min.getY() < min.getY()) {
+		return false;
+	}
+	if(other.min.getZ() < min.getZ()) {
+		return false;
+	}
+	if(other.max.getX() > max.getX()) {
+		return false;
+	}
+	if(other.max.getY() > max.getY()) {
+		return false;
+	}
+	if(other.max.getZ() > max.getZ()) {
+		return false;
+	}
+	return true;
 }
 
 

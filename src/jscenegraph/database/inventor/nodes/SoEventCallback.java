@@ -187,6 +187,15 @@ public class SoEventCallback extends SoNode implements Destroyable {
 	 // Pay attention to the passed type of event, calling f whenever
 	 // and event of the passed type occurs. userData will be passed to f.
 	 //
+	    /**
+	     * java port
+	     * @param eventType
+	     * @param f
+	     * @param userData
+	     */
+	 	public void addEventCallback(Class eventType, SoEventCallbackCB f, Object userData) {
+	 		addEventCallback(SoType.getClassTypeId(eventType),f, userData);
+	 	}
 	 	public void addEventCallback(SoType eventType, SoEventCallbackCB f, Object userData) {
 		
 	 		  SoEventCallbackData data = new SoEventCallbackData();
