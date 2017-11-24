@@ -1463,6 +1463,7 @@ addMarker(int idx, final SbVec2s  size,
   temp.deletedata = true;
   temp.data = new byte[ datasize ];
   Util.memcpy(temp.data,bytes,datasize);
+  temp.dataOffset = 0; // java port
   // FIXME: the swap_leftright() function seems
   // buggy. Investigate. 20011120 mortene.
   if (isLSBFirst) { swap_leftright(temp.data,size.getValue()[0],size.getValue()[1]); }

@@ -65,6 +65,7 @@ import jscenegraph.database.inventor.actions.SoHandleEventAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
 import jscenegraph.database.inventor.actions.SoSearchAction;
 import jscenegraph.database.inventor.elements.SoSwitchElement;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFInt32;
 
@@ -455,11 +456,9 @@ public void getMatrix(SoGetMatrixAction action)
 	            // Make sure index is reasonable
 	            if (which < 0 || which >= getNumChildren()) {
 //	    #ifdef DEBUG
-//	                SoDebugError::post("SoSwitch::doChild",
-//	                                   "Child index %d is out of range %d - %d "
-//	                                   "(applying %s)",
-//	                                   which, 0, getNumChildren() - 1,
-//	                                   action.getTypeId().getName().getString());
+	                SoDebugError.post("SoSwitch::doChild",
+	                                   "Child index "+which+" is out of range 0 - "+(getNumChildren() - 1)+" "+
+	                                   "(applying "+action.getTypeId().getName().getString()+")");
 //	    #endif /* DEBUG */
 	                break;
 	            }
