@@ -1141,7 +1141,7 @@ public class SoMarkerSet extends SoPointSet {
 		  return binding;
 		}
 		
-		private static boolean firsterror;
+		private static boolean firsterror = true;
 
 // doc in super
 public void
@@ -1214,10 +1214,16 @@ GLRender(SoGLRenderAction action)
     int midx = Math.min(i, this.markerIndex.getNum() - 1);
 //#if COIN_DEBUG
       if (midx < 0 || (this.markerIndex.operator_square_bracket(midx) >= markerlist.getLength())) {
-        /*static boolean*/ firsterror = true;
+        // static boolean firsterror = true;
         if (firsterror) {
-          SoDebugError.postWarning("SoMarkerSet.GLRender",
+        	if(midx>= 0) {
+        		SoDebugError.postWarning("SoMarkerSet.GLRender",
                                     "markerIndex "+markerIndex.operator_square_bracket(i)+" out of bound");
+        	}
+        	else {
+          SoDebugError.postWarning("SoMarkerSet.GLRender",
+                  "markerIndex field empty");
+        	}
           firsterror = false;
         }
         // Don't render, jump back to top of for-loop and continue with
@@ -1228,7 +1234,7 @@ GLRender(SoGLRenderAction action)
 
     if (mbind == Binding.PER_VERTEX) mb.send(matnr++, true);
 
-    SbVec3f point = coords.get3(idx);
+    SbVec3f point = new SbVec3f(coords.get3(idx));
     idx++;
 
     if (this.markerIndex.operator_square_bracket(midx) == NONE) { continue; }
@@ -1561,7 +1567,7 @@ isMarkerBitSet(int idx, int bitNumber)
 		final SbVec2s  size = new SbVec2s();
 		byte[][] bytes = new byte[1][];
 		boolean[] isLSBFirst = new boolean[1];
-		return getMarker(idx, size, bytes, isLSBFirst);
+		return getMarker(idx, size, bytes, isLSBFirst) ? true : null;
 	}
 
 }

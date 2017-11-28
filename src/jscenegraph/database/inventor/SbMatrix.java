@@ -68,6 +68,116 @@
  _______________________________________________________________________
  */
 
+/**************************************************************************\
+ *
+ *  This file is part of the Coin 3D visualization library.
+ *  Copyright (C) by Kongsberg Oil & Gas Technologies.
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  ("GPL") version 2 as published by the Free Software Foundation.
+ *  See the file LICENSE.GPL at the root directory of this source
+ *  distribution for additional information about the GNU GPL.
+ *
+ *  For using Coin with software that can not be combined with the GNU
+ *  GPL, and for taking advantage of the additional benefits of our
+ *  support services, please contact Kongsberg Oil & Gas Technologies
+ *  about acquiring a Coin Professional Edition License.
+ *
+ *  See http://www.coin3d.org/ for more information.
+ *
+ *  Kongsberg Oil & Gas Technologies, Bygdoy Alle 5, 0257 Oslo, NORWAY.
+ *  http://www.sim.no/  sales@sim.no  coin-support@coin3d.org
+ *
+\**************************************************************************/
+
+/*!
+  \class SbMatrix SbLinear.h Inventor/SbLinear.h
+  \brief The SbMatrix class is a 4x4 dimensional representation of a matrix.
+  \ingroup base
+
+  SbMatrix is used by many other classes in Coin.  It provides storage
+  for a 4x4 matrix of single-precision floating point values.
+
+  By definition, matrices in Coin should be set up in column-order
+  mode. This is the same order as used by e.g. OpenGL, but note that
+  books on geometry often uses the opposite row-order mode, which can
+  confuse new-comers to the API.
+
+  Another way to think of column-order matrices is that they use
+  post-order multiplications: that is, to concatenate a transformation
+  from a second matrix with your current matrix, it should be
+  multiplied on the right-hand side, i.e. with the
+  SbMatrix::multRight() method.
+
+  If you have a matrix in row-order from some other source, it can be
+  "converted" to column-order by transposing it with
+  SbMatrix::transpose(). A simple example will help to explain
+  this.
+
+  With row-order matrices, a transformation matrix with position,
+  rotation and scale looks like this:
+
+  \code
+  M = T * R * S
+  \endcode
+
+  Where T is translation, R is rotation and S is the scale. What this
+  means is that scale is applied first. The scaled matrix is then
+  rotated, and finally the scaled and rotated matrix is
+  translated. When using column-order matrices, as done in Coin,
+  matrices are represented slightly differently; the order of
+  multiplication is reversed:
+
+  \code
+  M = S * R * T
+  \endcode
+
+  The transformation is just the same as the row-order matrix. The
+  only difference being the order of multiplication. To understand why
+  this is so, consider the sample transformation:
+
+  \code
+  M = T * R * S
+  \endcode
+
+  Converting M from a row-order matrix to a column-order matrix is
+  done as follows:
+
+  \code
+  M^t = (T * R * S)^t
+  M^t = ((T * R) * S)^t
+  M^t = S^t * (T * R)^t
+  M^t = S^t * R^t * T^t
+  \endcode
+
+  All left to be done is to remove the transpose symbols, and the
+  matrices have been converted to column-order matrices:
+
+  \code
+  M = S * R * T
+  \endcode
+
+  This was done using the fact that:
+
+  \code
+  A^t = (B * C)^t = C^t * B^t
+  \endcode
+
+  Converting from column-order to row-order is done using the same
+  principle.
+*/
+
+// FIXME:
+//
+//  * The SbMatrix::factor() function has not been implemented yet.
+//
+//  * The element access methods should be inlined.
+//
+//  * Not a lot of optimizations have been done yet, so there's a lot
+//    of room for improvements.
+
+
 package jscenegraph.database.inventor;
 
 import java.util.function.DoubleConsumer;
@@ -550,343 +660,415 @@ final float PRECISION_LIMIT = (1.0e-15f);
 }
 
 
+//// MEVISLAB VERSION : NOT USED
+//// Perform an LU decomposition of a matrix.  From Numerical Recipes in C, pg 43
+//// Destroys the original matrix.  The resulting matrix is as follows
+////
+////      a b c d         1 0 0 0      a b c d
+//// LU = e f g h     L = e 1 0 0  U = 0 f g h
+////      i j k l         i j 1 0      0 0 k l
+////      m n o p         m n o 1      0 0 0 p
+////
+//// For singular matrices, want to calculate something
+//// that is close to the inverse, so we can pick
+//// things scaled to zero in some dimension.
+////
+//public boolean
+//LUDecomposition(final int index[/*4*/], final float[] d)
+//{
+//    int         imax = -1; //java port
+//    float       big, dum, sum, temp;
+//    float[]       vv = new float[4];
+////#ifdef DEBUGGING
+//    int         i, j, k;
+////#endif /* DEBUGGING */
 //
-// Perform an LU decomposition of a matrix.  From Numerical Recipes in C, pg 43
-// Destroys the original matrix.  The resulting matrix is as follows
+//    d[0] = 1.0f;
+//    
+////#ifdef DEBUGGING
+//    for(i = 0; i < 4; i++) {
+//        big = 0.0f;
+//        for(j = 0; j < 4; j++)
+//            if((temp = Math.abs(matrix[i][j])) > big) big = temp;
+//        if(big == 0.0) {
+//            matrix[i][i] = 1e-6f;
+//            big = matrix[i][i];
+//        }
+//        vv[i] = 1.0f / big;
+//    }
+////#else
+////#define COMPUTE_VV(i) \
+////    big = 0.0; \
+////    if((temp = ABS(matrix[i][0])) > big) big = temp; \
+////    if((temp = ABS(matrix[i][1])) > big) big = temp; \
+////    if((temp = ABS(matrix[i][2])) > big) big = temp; \
+////    if((temp = ABS(matrix[i][3])) > big) big = temp; \
+////    if(big == 0.0) { \
+////        matrix[i][i] = 1e-6; \
+////        big = matrix[i][i]; \
+////    } \
+////    vv[i] = 1.0 / big;
+////
+////    COMPUTE_VV(0);      
+////    COMPUTE_VV(1);      
+////    COMPUTE_VV(2);      
+////    COMPUTE_VV(3);
+////#undef COMPUTE_VV       
+////#endif /* DEBUGGING */
 //
-//      a b c d         1 0 0 0      a b c d
-// LU = e f g h     L = e 1 0 0  U = 0 f g h
-//      i j k l         i j 1 0      0 0 k l
-//      m n o p         m n o 1      0 0 0 p
+////#ifdef DEBUGGING
+//    // This is the code as it originally existed.
+//    // Below this is the unrolled, really unreadable version.
 //
-// For singular matrices, want to calculate something
-// that is close to the inverse, so we can pick
-// things scaled to zero in some dimension.
+//    for(j = 0; j < 4; j++) {
 //
+//        // BLOCK 1
+//        for(i = 0; i < j; i++) {
+//            sum = matrix[i][j];
+//            for(k = 0; k < i; k++)
+//                sum -= matrix[i][k] * matrix[k][j];
+//            matrix[i][j] = sum;
+//        }
+//
+//        big = 0.0f;
+//
+//        // BLOCK 2
+//        for(i = j; i < 4; i++) {
+//            sum = matrix[i][j];
+//            for(k = 0; k < j; k++)
+//                sum -= matrix[i][k] * matrix[k][j];
+//            matrix[i][j] = sum;
+//            if((dum = vv[i] * Math.abs(sum)) >= big) {
+//                big = dum;
+//                imax = i;
+//            }
+//        }
+//
+//        // BLOCK 3
+//        if(j != imax) {
+//            for(k = 0; k < 4; k++) {
+//                dum = matrix[imax][k];
+//                matrix[imax][k] = matrix[j][k];
+//                matrix[j][k] = dum;
+//            }
+//            d[0] = -d[0];
+//            vv[imax] = vv[j];
+//        }
+//
+//        // BLOCK 4
+//        index[j] = imax;
+//        if(matrix[j][j] == 0.0) matrix[j][j] = 1e-20f;
+//        
+//        // BLOCK 5
+//        if(j != 4 - 1) {
+//            dum = 1.0f / (matrix[j][j]);
+//            for(i = j + 1; i < 4; i++)
+//                matrix[i][j] *= dum;
+//        }
+//        
+//    }
+//    
+////#else
+////
+////    // This is the completely unreadable, but much faster
+////    // version of the above code. First, some macros that
+////    // never change.
+////    
+////// macro for block 3, inner k loop
+////#define BLOCK3INNER(j,k) \
+////    dum = matrix[imax][k]; \
+////    matrix[imax][k] = matrix[j][k]; \
+////    matrix[j][k] = dum;
+////
+////// macro for block 4
+////#define BLOCK4(j) \
+////    index[j] = imax; \
+////    if(matrix[j][j] == 0.0) matrix[j][j] = 1e-20;
+////
+////    // Now the code...
+////
+////    // *********************************************
+////    // j = 0
+////    // *********************************************
+////
+////    // BLOCK 1, j = 0
+////    // does nothing when j==0
+////
+////    big = 0.0;
+////
+////    // BLOCK 2, j = 0
+////    
+////// macro for block 2 when j == 0
+////// inner k loop does nothing when j == 0
+////#define BLOCK2J0(i) \
+////    sum = matrix[i][0]; \
+////    if((dum = vv[i] * ABS(sum)) >= big) { \
+////        big = dum; \
+////        imax = i; \
+////    }
+////        
+////    // for(i = j; i < 4; i++)
+////    BLOCK2J0(0)
+////    BLOCK2J0(1)
+////    BLOCK2J0(2)
+////    BLOCK2J0(3)
+////#undef BLOCK2J0
+////    
+////    // BLOCK 3, j = 0
+////    if(0 != imax) {
+////        BLOCK3INNER(0,0);
+////        BLOCK3INNER(0,1);
+////        BLOCK3INNER(0,2);
+////        BLOCK3INNER(0,3);
+////        d = -d;
+////        vv[imax] = vv[0];
+////    }
+////
+////    // BLOCK 4, j = 0
+////    BLOCK4(0);
+////
+////    // BLOCK 5, j = 0
+////    dum = 1.0 / (matrix[0][0]);
+////    // for(i = j + 1; i < 4; i++)
+////        matrix[1][0] *= dum;
+////        matrix[2][0] *= dum;
+////        matrix[3][0] *= dum;
+////
+////    // *********************************************
+////    // j = 1
+////    // *********************************************
+////
+////    // BLOCK 1, j = 1
+////    // for(i = 0; i < j; i++) {
+////    sum = matrix[0][1];
+////    // for(k = 0; k < i; k++)
+////        // nothing    
+////
+////    big = 0.0;
+////
+////    // BLOCK 2, j = 1
+////    
+////// macro for block 2 when j == 1
+////#define BLOCK2J1(i) \
+////    sum = matrix[i][1]; \
+////    sum -= matrix[i][0] * matrix[0][1]; \
+////    matrix[i][1] = sum; \
+////    if((dum = vv[i] * ABS(sum)) >= big) { \
+////        big = dum; \
+////        imax = i; \
+////    }
+////        
+////    // for(i = j; i < 4; i++)
+////    BLOCK2J1(1)
+////    BLOCK2J1(2)
+////    BLOCK2J1(3)
+////#undef BLOCK2J1
+////    
+////    // BLOCK 3, j = 1
+////    if(1 != imax) {
+////        BLOCK3INNER(1,0);
+////        BLOCK3INNER(1,1);
+////        BLOCK3INNER(1,2);
+////        BLOCK3INNER(1,3);
+////        d = -d;
+////        vv[imax] = vv[1];
+////    }
+////
+////    // BLOCK 4, j = 1
+////    BLOCK4(1);
+////
+////    // BLOCK 5, j = 1
+////    dum = 1.0 / (matrix[1][1]);
+////    // for(i = j + 1; i < 4; i++)
+////        matrix[2][1] *= dum;
+////        matrix[3][1] *= dum;
+////    
+////    // *********************************************
+////    // j = 2
+////    // *********************************************
+////
+////    // BLOCK 1, j = 2
+////    // for(i = 0; i < j; i++) {
+////        // i = 0
+////        sum = matrix[0][2];
+////        // for(k = 0; k < i; k++)
+////            // nothing
+////        // i = 1            
+////        sum = matrix[1][2];
+////        // for(k = 0; k < i; k++)
+////            sum -= matrix[1][0] * matrix[0][2];
+////        matrix[1][2] = sum;
+////        
+////    big = 0.0;
+////
+////    // BLOCK 2, j = 2
+////    
+////// macro for block 2 when j == 2
+////#define BLOCK2J2(i) \
+////    sum = matrix[i][2]; \
+////    sum -= matrix[i][0] * matrix[0][2]; \
+////    sum -= matrix[i][1] * matrix[1][2]; \
+////    matrix[i][2] = sum; \
+////    if((dum = vv[i] * ABS(sum)) >= big) { \
+////        big = dum; \
+////        imax = i; \
+////    }
+////        
+////    // for(i = j; i < 4; i++)
+////    BLOCK2J2(2)
+////    BLOCK2J2(3)
+////#undef BLOCK2J2
+////    
+////    // BLOCK 3, j = 2
+////    if(2 != imax) {
+////        BLOCK3INNER(2,0);
+////        BLOCK3INNER(2,1);
+////        BLOCK3INNER(2,2);
+////        BLOCK3INNER(2,3);
+////        d = -d;
+////        vv[imax] = vv[2];
+////    }
+////
+////    // BLOCK 4, j = 2
+////    BLOCK4(2);
+////
+////    // BLOCK 5, j = 2
+////    dum = 1.0 / (matrix[2][2]);
+////    // for(i = j + 1; i < 4; i++)
+////        matrix[3][2] *= dum;
+////
+////    // *********************************************
+////    // j = 3
+////    // *********************************************
+////
+////    // BLOCK 1, j = 3
+////    // for(i = 0; i < j; i++) {
+////        // i = 0
+////            sum = matrix[0][3];
+////            // for(k = 0; k < i; k++)
+////                // nothing
+////        // i = 1            
+////            sum = matrix[1][3];
+////            // for(k = 0; k < i; k++)
+////                sum -= matrix[1][0] * matrix[0][3];
+////            matrix[1][3] = sum;
+////        // i = 2
+////            sum = matrix[2][3];
+////            // for(k = 0; k < i; k++)
+////                sum -= matrix[2][0] * matrix[0][3];
+////                sum -= matrix[2][1] * matrix[1][3];
+////            matrix[2][3] = sum;
+////        
+////    big = 0.0;
+////
+////    // BLOCK 2, j = 3
+////    
+////// macro for block 2 when j == 3
+////#define BLOCK2J3(i) \
+////    sum = matrix[i][3]; \
+////    sum -= matrix[i][0] * matrix[0][3]; \
+////    sum -= matrix[i][1] * matrix[1][3]; \
+////    sum -= matrix[i][2] * matrix[2][3]; \
+////    matrix[i][3] = sum; \
+////    if((dum = vv[i] * ABS(sum)) >= big) { \
+////        big = dum; \
+////        imax = i; \
+////    }
+////        
+////    // for(i = j; i < 4; i++)
+////    BLOCK2J3(3)
+////#undef BLOCK2J3
+////    
+////    // BLOCK 3, j = 3
+////    if(3 != imax) {
+////        BLOCK3INNER(3,0);
+////        BLOCK3INNER(3,1);
+////        BLOCK3INNER(3,2);
+////        BLOCK3INNER(3,3);
+////        d = -d;
+////        vv[imax] = vv[3];
+////    }
+////
+////    // BLOCK 4, j = 3
+////    BLOCK4(3);
+////
+////    // BLOCK 5, j = 3
+////    // does not execute when j == 3
+////    
+////#endif /* DEBUGGING */
+//
+//    return true;
+//}
+
+/*!
+  This function produces a permuted LU decomposition of the matrix.  It
+  uses the common single-row-pivoting strategy.
+
+  \a FALSE is returned if the matrix is singular, which it never is, because
+  of small adjustment values inserted if a singularity is found (as Open
+  Inventor does too).
+
+  The parity argument is always set to 1.0 or -1.0.  Don't really know what
+  it's for, so it's not checked for correctness.
+
+  The index[] argument returns the permutation that was done on the matrix
+  to LU-decompose it.  index[i] is the row that row i was swapped with at
+  step i in the decomposition, so index[] is not the actual permutation of
+  the row indexes!
+
+  BUGS:  The function does not produce results that are numerically identical
+  with those produced by Open Inventor for the same matrices, because the
+  pivoting strategy in OI was never fully understood.
+
+  \sa SbMatrix::LUBackSubstitution
+*/
+
+
 public boolean
-LUDecomposition(final int index[/*4*/], final float[] d)
+LUDecomposition(final int[] index, final float[] d)
 {
-    int         imax = -1; //java port
-    float       big, dum, sum, temp;
-    float[]       vv = new float[4];
-//#ifdef DEBUGGING
-    int         i, j, k;
-//#endif /* DEBUGGING */
-
+    int i;
+    for (i = 0; i < 4; i++) index[i] = i;
     d[0] = 1.0f;
-    
-//#ifdef DEBUGGING
-    for(i = 0; i < 4; i++) {
-        big = 0.0f;
-        for(j = 0; j < 4; j++)
-            if((temp = Math.abs(matrix[i][j])) > big) big = temp;
-        if(big == 0.0) {
-            matrix[i][i] = 1e-6f;
-            big = matrix[i][i];
-        }
-        vv[i] = 1.0f / big;
-    }
-//#else
-//#define COMPUTE_VV(i) \
-//    big = 0.0; \
-//    if((temp = ABS(matrix[i][0])) > big) big = temp; \
-//    if((temp = ABS(matrix[i][1])) > big) big = temp; \
-//    if((temp = ABS(matrix[i][2])) > big) big = temp; \
-//    if((temp = ABS(matrix[i][3])) > big) big = temp; \
-//    if(big == 0.0) { \
-//        matrix[i][i] = 1e-6; \
-//        big = matrix[i][i]; \
-//    } \
-//    vv[i] = 1.0 / big;
-//
-//    COMPUTE_VV(0);      
-//    COMPUTE_VV(1);      
-//    COMPUTE_VV(2);      
-//    COMPUTE_VV(3);
-//#undef COMPUTE_VV       
-//#endif /* DEBUGGING */
 
-//#ifdef DEBUGGING
-    // This is the code as it originally existed.
-    // Below this is the unrolled, really unreadable version.
+    float MINIMUM_PIVOT = 1e-6f; // Inventor fix...
 
-    for(j = 0; j < 4; j++) {
-
-        // BLOCK 1
-        for(i = 0; i < j; i++) {
-            sum = matrix[i][j];
-            for(k = 0; k < i; k++)
-                sum -= matrix[i][k] * matrix[k][j];
-            matrix[i][j] = sum;
-        }
-
-        big = 0.0f;
-
-        // BLOCK 2
-        for(i = j; i < 4; i++) {
-            sum = matrix[i][j];
-            for(k = 0; k < j; k++)
-                sum -= matrix[i][k] * matrix[k][j];
-            matrix[i][j] = sum;
-            if((dum = vv[i] * Math.abs(sum)) >= big) {
-                big = dum;
-                imax = i;
+    for (int row = 1; row < 4; row++) {
+        int swap_row = row;
+        float max_pivot = 0.0f;
+        for (int test_row = row; test_row < 4; test_row++) {
+            float test_pivot = Math.abs(matrix[test_row][row]);
+            if (test_pivot > max_pivot) {
+                swap_row = test_row;
+                max_pivot = test_pivot;
             }
         }
 
-        // BLOCK 3
-        if(j != imax) {
-            for(k = 0; k < 4; k++) {
-                dum = matrix[imax][k];
-                matrix[imax][k] = matrix[j][k];
-                matrix[j][k] = dum;
-            }
+        // swap rows
+        if (swap_row != row) {
             d[0] = -d[0];
-            vv[imax] = vv[j];
+            index[row] = swap_row;
+            for (i = 0; i < 4; i++) {
+                float swap = matrix[row][i];
+                matrix[row][i] = matrix[swap_row][i];
+                matrix[swap_row][i] = swap;
+            }
         }
 
-        // BLOCK 4
-        index[j] = imax;
-        if(matrix[j][j] == 0.0) matrix[j][j] = 1e-20f;
-        
-        // BLOCK 5
-        if(j != 4 - 1) {
-            dum = 1.0f / (matrix[j][j]);
-            for(i = j + 1; i < 4; i++)
-                matrix[i][j] *= dum;
+        float pivot = matrix[row][row];
+        if (matrix[row][row] == 0.0f) {
+//            return FALSE;
+            // instead of returning FALSE on singulars...
+            matrix[row][row] = pivot = MINIMUM_PIVOT;
         }
-        
+
+        // the factorization
+        for (i = row + 1; i < 4; i++) {
+            float factor = (matrix[i][row] /= pivot);
+            for (int j = row + 1; j < 4; j++)
+                matrix[i][j] -= factor * matrix[row][j];
+        }
     }
-    
-//#else
-//
-//    // This is the completely unreadable, but much faster
-//    // version of the above code. First, some macros that
-//    // never change.
-//    
-//// macro for block 3, inner k loop
-//#define BLOCK3INNER(j,k) \
-//    dum = matrix[imax][k]; \
-//    matrix[imax][k] = matrix[j][k]; \
-//    matrix[j][k] = dum;
-//
-//// macro for block 4
-//#define BLOCK4(j) \
-//    index[j] = imax; \
-//    if(matrix[j][j] == 0.0) matrix[j][j] = 1e-20;
-//
-//    // Now the code...
-//
-//    // *********************************************
-//    // j = 0
-//    // *********************************************
-//
-//    // BLOCK 1, j = 0
-//    // does nothing when j==0
-//
-//    big = 0.0;
-//
-//    // BLOCK 2, j = 0
-//    
-//// macro for block 2 when j == 0
-//// inner k loop does nothing when j == 0
-//#define BLOCK2J0(i) \
-//    sum = matrix[i][0]; \
-//    if((dum = vv[i] * ABS(sum)) >= big) { \
-//        big = dum; \
-//        imax = i; \
-//    }
-//        
-//    // for(i = j; i < 4; i++)
-//    BLOCK2J0(0)
-//    BLOCK2J0(1)
-//    BLOCK2J0(2)
-//    BLOCK2J0(3)
-//#undef BLOCK2J0
-//    
-//    // BLOCK 3, j = 0
-//    if(0 != imax) {
-//        BLOCK3INNER(0,0);
-//        BLOCK3INNER(0,1);
-//        BLOCK3INNER(0,2);
-//        BLOCK3INNER(0,3);
-//        d = -d;
-//        vv[imax] = vv[0];
-//    }
-//
-//    // BLOCK 4, j = 0
-//    BLOCK4(0);
-//
-//    // BLOCK 5, j = 0
-//    dum = 1.0 / (matrix[0][0]);
-//    // for(i = j + 1; i < 4; i++)
-//        matrix[1][0] *= dum;
-//        matrix[2][0] *= dum;
-//        matrix[3][0] *= dum;
-//
-//    // *********************************************
-//    // j = 1
-//    // *********************************************
-//
-//    // BLOCK 1, j = 1
-//    // for(i = 0; i < j; i++) {
-//    sum = matrix[0][1];
-//    // for(k = 0; k < i; k++)
-//        // nothing    
-//
-//    big = 0.0;
-//
-//    // BLOCK 2, j = 1
-//    
-//// macro for block 2 when j == 1
-//#define BLOCK2J1(i) \
-//    sum = matrix[i][1]; \
-//    sum -= matrix[i][0] * matrix[0][1]; \
-//    matrix[i][1] = sum; \
-//    if((dum = vv[i] * ABS(sum)) >= big) { \
-//        big = dum; \
-//        imax = i; \
-//    }
-//        
-//    // for(i = j; i < 4; i++)
-//    BLOCK2J1(1)
-//    BLOCK2J1(2)
-//    BLOCK2J1(3)
-//#undef BLOCK2J1
-//    
-//    // BLOCK 3, j = 1
-//    if(1 != imax) {
-//        BLOCK3INNER(1,0);
-//        BLOCK3INNER(1,1);
-//        BLOCK3INNER(1,2);
-//        BLOCK3INNER(1,3);
-//        d = -d;
-//        vv[imax] = vv[1];
-//    }
-//
-//    // BLOCK 4, j = 1
-//    BLOCK4(1);
-//
-//    // BLOCK 5, j = 1
-//    dum = 1.0 / (matrix[1][1]);
-//    // for(i = j + 1; i < 4; i++)
-//        matrix[2][1] *= dum;
-//        matrix[3][1] *= dum;
-//    
-//    // *********************************************
-//    // j = 2
-//    // *********************************************
-//
-//    // BLOCK 1, j = 2
-//    // for(i = 0; i < j; i++) {
-//        // i = 0
-//        sum = matrix[0][2];
-//        // for(k = 0; k < i; k++)
-//            // nothing
-//        // i = 1            
-//        sum = matrix[1][2];
-//        // for(k = 0; k < i; k++)
-//            sum -= matrix[1][0] * matrix[0][2];
-//        matrix[1][2] = sum;
-//        
-//    big = 0.0;
-//
-//    // BLOCK 2, j = 2
-//    
-//// macro for block 2 when j == 2
-//#define BLOCK2J2(i) \
-//    sum = matrix[i][2]; \
-//    sum -= matrix[i][0] * matrix[0][2]; \
-//    sum -= matrix[i][1] * matrix[1][2]; \
-//    matrix[i][2] = sum; \
-//    if((dum = vv[i] * ABS(sum)) >= big) { \
-//        big = dum; \
-//        imax = i; \
-//    }
-//        
-//    // for(i = j; i < 4; i++)
-//    BLOCK2J2(2)
-//    BLOCK2J2(3)
-//#undef BLOCK2J2
-//    
-//    // BLOCK 3, j = 2
-//    if(2 != imax) {
-//        BLOCK3INNER(2,0);
-//        BLOCK3INNER(2,1);
-//        BLOCK3INNER(2,2);
-//        BLOCK3INNER(2,3);
-//        d = -d;
-//        vv[imax] = vv[2];
-//    }
-//
-//    // BLOCK 4, j = 2
-//    BLOCK4(2);
-//
-//    // BLOCK 5, j = 2
-//    dum = 1.0 / (matrix[2][2]);
-//    // for(i = j + 1; i < 4; i++)
-//        matrix[3][2] *= dum;
-//
-//    // *********************************************
-//    // j = 3
-//    // *********************************************
-//
-//    // BLOCK 1, j = 3
-//    // for(i = 0; i < j; i++) {
-//        // i = 0
-//            sum = matrix[0][3];
-//            // for(k = 0; k < i; k++)
-//                // nothing
-//        // i = 1            
-//            sum = matrix[1][3];
-//            // for(k = 0; k < i; k++)
-//                sum -= matrix[1][0] * matrix[0][3];
-//            matrix[1][3] = sum;
-//        // i = 2
-//            sum = matrix[2][3];
-//            // for(k = 0; k < i; k++)
-//                sum -= matrix[2][0] * matrix[0][3];
-//                sum -= matrix[2][1] * matrix[1][3];
-//            matrix[2][3] = sum;
-//        
-//    big = 0.0;
-//
-//    // BLOCK 2, j = 3
-//    
-//// macro for block 2 when j == 3
-//#define BLOCK2J3(i) \
-//    sum = matrix[i][3]; \
-//    sum -= matrix[i][0] * matrix[0][3]; \
-//    sum -= matrix[i][1] * matrix[1][3]; \
-//    sum -= matrix[i][2] * matrix[2][3]; \
-//    matrix[i][3] = sum; \
-//    if((dum = vv[i] * ABS(sum)) >= big) { \
-//        big = dum; \
-//        imax = i; \
-//    }
-//        
-//    // for(i = j; i < 4; i++)
-//    BLOCK2J3(3)
-//#undef BLOCK2J3
-//    
-//    // BLOCK 3, j = 3
-//    if(3 != imax) {
-//        BLOCK3INNER(3,0);
-//        BLOCK3INNER(3,1);
-//        BLOCK3INNER(3,2);
-//        BLOCK3INNER(3,3);
-//        d = -d;
-//        vv[imax] = vv[3];
-//    }
-//
-//    // BLOCK 4, j = 3
-//    BLOCK4(3);
-//
-//    // BLOCK 5, j = 3
-//    // does not execute when j == 3
-//    
-//#endif /* DEBUGGING */
-
     return true;
 }
 

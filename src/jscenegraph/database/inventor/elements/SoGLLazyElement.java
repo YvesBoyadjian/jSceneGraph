@@ -409,7 +409,7 @@ setPackedElt(SoNode node, int numColors,
     }
     
     ivState.packed              = true;
-    ivState.packedTransparent   = ((SoPackedColor) node).isTransparent();
+    ivState.packedTransparent   = (node instanceof SoPackedColor) ? ((SoPackedColor) node).isTransparent() : false; //TODO COIN3D
      
     // For open caches, record the fact that set was called:
     ivState.cacheLevelSetBits |= (masks.DIFFUSE_MASK.getValue()|masks.TRANSPARENCY_MASK.getValue());      
