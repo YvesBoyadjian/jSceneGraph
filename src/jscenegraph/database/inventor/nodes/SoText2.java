@@ -596,21 +596,21 @@ computeBBox(SoAction action, final SbBox3f box, final SbVec3f center)
     //translation has already been done.    
     if (myFont != null) myFont.convertToUCS(getNodeId(), string);
     
-    SbMatrix objToScreen;
-    objToScreen = SoProjectionMatrixElement.get(state);
-    objToScreen =
-        objToScreen.multLeft(SoViewingMatrixElement.get(state));
-    objToScreen =
-        objToScreen.multLeft(SoModelMatrixElement.get(state));
+    final SbMatrix objToScreen = new SbMatrix();
+    objToScreen.copyFrom(SoProjectionMatrixElement.get(state));
+    objToScreen.copyFrom(
+        objToScreen.multLeft(SoViewingMatrixElement.get(state)));
+    objToScreen.copyFrom(
+        objToScreen.multLeft(SoModelMatrixElement.get(state)));
 
-    SbMatrix screenToObj = objToScreen.inverse();
+    final SbMatrix screenToObj = new SbMatrix(objToScreen.inverse());
 
-    SbViewportRegion vpr = SoViewportRegionElement.get(state);
+    final SbViewportRegion vpr = new SbViewportRegion(SoViewportRegionElement.get(state));
 
     // The origin of the text on the screen is the object-space point
     // 0,0,0:
-    SbVec3f screenOrigin =
-        fromObjectSpace(new SbVec3f(0,0,0), objToScreen, vpr);
+    final SbVec3f screenOrigin = new SbVec3f(
+        fromObjectSpace(new SbVec3f(0,0,0), objToScreen, vpr));
 
     // Figure out the screen-space bounding box of the characters:
     final SbBox3f screenBbox = new SbBox3f(), charBbox = new SbBox3f();
