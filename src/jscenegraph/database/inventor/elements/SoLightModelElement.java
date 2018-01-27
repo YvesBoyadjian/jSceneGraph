@@ -71,7 +71,7 @@ import jscenegraph.database.inventor.misc.SoState;
  * @author Yves Boyadjian
  *
  */
-public class SoLightModelElement {
+public class SoLightModelElement extends SoInt32Element {
 
   public
     //! These are the available lighting models:

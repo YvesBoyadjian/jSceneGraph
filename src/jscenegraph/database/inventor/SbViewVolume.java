@@ -73,6 +73,7 @@ package jscenegraph.database.inventor;
 import static jscenegraph.database.inventor.SbBasic.M_PI_2;
 
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.port.Array;
 import jscenegraph.port.Mutable;
 
 
@@ -1099,6 +1100,16 @@ narrow(final SbBox3f box)
   This method is an extension for Coin, and is not available in the
   original Open Inventor.
 */
+public void
+getViewVolumePlanes(final Array<SbPlane> planes) 
+{
+	int nb = planes.length();
+	final SbPlane[] planesArray = new SbPlane[planes.length()];
+	for(int i=0;i<nb;i++) {
+		planesArray[i] = planes.get(i);
+	}
+	getViewVolumePlanes(planesArray);
+}
 public void
 getViewVolumePlanes(final SbPlane[] planes) 
 {

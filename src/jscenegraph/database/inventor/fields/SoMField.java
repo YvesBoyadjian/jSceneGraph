@@ -563,4 +563,11 @@ insertSpace(int start,        // Starting index
 		return operator_square_bracket(i);
 	}
 
+    /* Get non-const pointer into array of values for batch edits */          
+    public T[] startEditing()                                
+        { evaluate(); return values; }                                        
+                                                                              
+    /* Indicate that batch edits have finished */                             
+    public void finishEditing() { valueChanged(); }           
+                                                                              
 }

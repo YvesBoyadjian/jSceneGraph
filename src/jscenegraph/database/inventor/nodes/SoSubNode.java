@@ -98,6 +98,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import jscenegraph.database.inventor.SbName;
@@ -358,6 +359,13 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
 			}
   }
 
+  public void SO_NODE_CONSTRUCTOR(Class klass) {
+	  if(!Objects.equals(klass,thisClass)) {
+		  throw new IllegalArgumentException(klass + " : Wrong class, should be : " + thisClass);
+	  }
+	  SO_NODE_CONSTRUCTOR();
+  }
+	  
   public void SO_NODE_CONSTRUCTOR() {
 	  
 	  SoNode node = thisParent;

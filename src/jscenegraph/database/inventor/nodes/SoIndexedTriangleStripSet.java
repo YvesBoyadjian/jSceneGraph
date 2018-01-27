@@ -214,6 +214,7 @@ public class SoIndexedTriangleStripSet extends SoIndexedShape {
 		renderFunc[1] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmOnT(action);
 		renderFunc[4] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmFn(action);
 		renderFunc[6] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmVn(action);
+		renderFunc[7] = (soIndexedTriangleStripSet, action) ->  soIndexedTriangleStripSet.OmVnT(action);
 	}
     
 // Constants for influencing auto-caching algorithm:
@@ -821,6 +822,53 @@ public void OmVn (SoGLRenderAction action ) {
 	++numvertsIndex;
     }
 }
+
+
+public void OmVnT
+    (SoGLRenderAction action ) {
+	
+	GL2 gl2 = action.getCacheContext();
+	
+    final int ns = numStrips;
+    final int[] numverts = numVertices;
+    final int[] vertexIndex = coordIndex.getValuesInt(0);
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer normalPtr = vpCache.getNormals(0);
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    Integer[] normalIndx = getNormalIndices();
+    Buffer texCoordPtr = vpCache.getTexCoords(0);
+    final int texCoordStride = vpCache.getTexCoordStride();
+    SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
+    Integer[] tCoordIndx = getTexCoordIndices();
+    int v;
+    int vtxCtr = 0;
+    int numvertsIndex = 0; // java port    
+    for (int strip = 0; strip < ns; strip++) {
+	final int nv = (numverts)[numvertsIndex];
+	gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+	for (v = 0; v < nv-1; v+=2) {
+	    (normalFunc).run(gl2, normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES));
+	    (texCoordFunc).run(gl2,texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES));
+	    (vertexFunc).run(gl2,vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES));
+
+	    (normalFunc).run(gl2,normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES));       
+	    (texCoordFunc).run(gl2,texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES));        
+	    (vertexFunc).run(gl2,vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES));           
+	}
+	if (v < nv) { // Leftovers
+	    (normalFunc).run(gl2,normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES));
+	    (texCoordFunc).run(gl2,texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES));         
+	    (vertexFunc).run(gl2,vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES));         
+	}
+	gl2.glEnd();
+	vtxCtr++;
+	++numvertsIndex;
+    }
+}
+
 
 
 	

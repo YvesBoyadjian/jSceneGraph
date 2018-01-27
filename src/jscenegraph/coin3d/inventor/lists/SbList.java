@@ -85,6 +85,15 @@ public class SbList<T extends Object> {
 		return (T)this.itembuffer[index];
 	}
 
+	/**
+	 * Java port
+	 * @param index
+	 * @param object
+	 */
+	public void operator_square_bracket(int index, T object) {
+		this.itembuffer[index] = object;
+	}
+
 	public void truncate(int length) {
 		int dofit = 0;
 	    this.numitems = length;

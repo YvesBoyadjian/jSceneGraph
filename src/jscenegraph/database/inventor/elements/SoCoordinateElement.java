@@ -342,4 +342,27 @@ set4(SoState state, SoNode node,
 
 
 
+/*! COIN3D
+  Returns a pointer to the 3D coordinate array. Don't use this method
+  unless SoCoordinateElement::is3D() returns \c TRUE.
+
+  This method is not part of the original SGI Open Inventor v2.1 API.
+
+  \since Coin 1.0
+*/
+public SbVec3f[]
+getArrayPtr3()
+{
+//#if COIN_DEBUG
+  if (!this.is3D()) {
+    SoDebugError.postWarning("SoDiffuseColorElement::getArrayPtr3",
+                              "coordinates are *not* 3D -- use "+
+                              "getArrayPtr4() instead");
+  }
+//#endif // COIN_DEBUG
+
+  return this.coords3/*D*/;
+}
+
+
   }

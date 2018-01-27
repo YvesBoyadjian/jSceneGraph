@@ -67,6 +67,7 @@ import jscenegraph.coin3d.inventor.elements.SoDepthBufferElement;
 import jscenegraph.coin3d.inventor.elements.SoGLDepthBufferElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.elements.SoTexture3EnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLTexture3EnabledElement;
 import jscenegraph.database.inventor.SbName;
@@ -353,6 +354,9 @@ private        int                 depth;
 		       SoViewVolumeElement.initClass(SoViewVolumeElement.class);
 		       SoViewingMatrixElement.initClass(SoViewingMatrixElement.class);
 		       SoViewportRegionElement.initClass(SoViewportRegionElement.class);
+		       
+		       SoTextureEnabledElement.initClass(SoTextureEnabledElement.class); //COIN 3D
+		       SoLightModelElement.initClass(SoLightModelElement.class); //COIN 3D
 
 		       // GL specific elements must be initialized after their more
 		       // generic counterparts

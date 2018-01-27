@@ -13,5 +13,15 @@ public interface Destroyable {
 	/**
 	 * Destructor
 	 */
-	public void destructor();
+	void destructor();
+	
+	/**
+	 * Helper method
+	 * @param destroyable
+	 */
+	static void delete(Destroyable destroyable) {
+		if(destroyable != null) {
+			destroyable.destructor();
+		}
+	}
 }

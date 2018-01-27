@@ -147,11 +147,13 @@ public abstract class SoShape extends SoNode {
 	
       //! This type is used by the triangle shape generation methods
     //! (beginShape, etc.)
-  public  enum TriangleShape {
+  public  enum TriangleShape { //TODO
         TRIANGLE_STRIP,
         TRIANGLE_FAN,
         TRIANGLES,
-        POLYGON
+        POLYGON,
+        // The rest of the enums are not part of the original Inventor API.
+        QUADS, QUAD_STRIP, POINTS, LINES, LINE_STRIP // COIN3D
     };
 
     //! Helper struct used by primitive types like cube, sphere, ...

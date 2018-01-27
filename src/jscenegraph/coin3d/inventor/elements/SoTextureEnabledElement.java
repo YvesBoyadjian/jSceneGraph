@@ -28,24 +28,22 @@ import jscenegraph.database.inventor.elements.SoInt32Element;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 
-/**
- * @author Yves Boyadjian
- *
- */
 /*!
-  \class SoGLTextureEnabledElement Inventor/elements/SoGLTextureEnabledElement.h
-  \brief The SoGTexture3EnabledElement class is a an element which stores
-  whether 3D texturing is enabled or not.
+  \class SoTextureEnabledElement Inventor/elements/SoTextureEnabledElement.h
+  \brief The SoTextureEnabledElement class is an element which stores whether texturing is enabled or not.
   \ingroup elements
 
   \COIN_CLASS_EXTENSION
 
-  \sa SoTextureEnabledElement
+  \sa SoTexture3EnabledElement
   \since Coin 2.0
-  \since TGS Inventor 2.6
 */
 
-public class SoTexture3EnabledElement extends SoInt32Element {
+/**
+ * @author Yves Boyadjian
+ *
+ */
+public class SoTextureEnabledElement extends SoInt32Element {
 
 
 /*!
@@ -53,27 +51,25 @@ public class SoTexture3EnabledElement extends SoInt32Element {
 */
 public static void
 set(SoState state,
-                               /*SoNode node,*/
+                               SoNode node,
                                boolean enabled)
 {
-	SoInt32Element.set(classStackIndexMap.get(SoTexture3EnabledElement.class), state/*, node*/, (enabled ? 1 : 0));
+  SoInt32Element.set(classStackIndexMap.get(SoTextureEnabledElement.class), state, /*node,*/ (enabled? 1 :0));
 }
 
 
 // doc from parent
-public void
-init(SoState state)
+public void init(SoState state)
 {
-  this.data = SoTexture3EnabledElement.getDefault() ? 1 : 0;
+  this.data = (SoTextureEnabledElement.getDefault()?1:0);
 }
 
 /*!
   Return current state of this element.
 */
-public static boolean
-get(SoState state)
+public static boolean get(SoState state)
 {
-  return (SoInt32Element.get(classStackIndexMap.get(SoTexture3EnabledElement.class), state))!=0;
+  return (boolean)(SoInt32Element.get(classStackIndexMap.get(SoTextureEnabledElement.class), state) != 0);
 }
 
 /*!

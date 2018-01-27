@@ -110,10 +110,10 @@ pop(SoState  stateptr,
 /*!
   Return current state of this element.
 */
-public boolean
+public static boolean
 get(SoState state)
 {
-  return (boolean) super.get(state);
+  return (boolean) SoTexture3EnabledElement.get(state);
 }
 
 /*!
