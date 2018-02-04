@@ -56,6 +56,7 @@ package jscenegraph.database.inventor.elements;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoTextureEnabledElement;
 import jscenegraph.database.inventor.misc.SoState;
 
 
@@ -87,7 +88,7 @@ import jscenegraph.database.inventor.misc.SoState;
  * @author Yves Boyadjian
  *
  */
-public class SoGLTextureEnabledElement extends SoInt32Element {
+public class SoGLTextureEnabledElement extends SoTextureEnabledElement {
 
     //! We save the state to figure out if the lastPattern variable was
     //! copied from a parent element; if it was, then caches will have
@@ -134,7 +135,7 @@ init(SoState state)
 public static void    
 set(SoState state, boolean value)
 {
-    SoInt32Element.set(classStackIndexMap.get(SoGLTextureEnabledElement.class), state, (int)(value?1:0));        
+	SoTextureEnabledElement.set(classStackIndexMap.get(SoGLTextureEnabledElement.class), state, (int)(value?1:0)); //COIN3D        
     SoShapeStyleElement.setTextureEnabled(state,value);
 }
 

@@ -61,6 +61,7 @@ import javax.imageio.ImageIO;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoTextureEnabledElement;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SoInput;
@@ -497,6 +498,7 @@ SoTexture2_doAction(SoAction action)
     SoTextureImageElement.set(state, this, size, nc[0], bytes,
                                wrapS.getValue(), wrapT.getValue(),
                                model.getValue(), blendColor.getValue());
+    SoTextureEnabledElement.set(state, this, true); //COIN3D
 }
 
 ////////////////////////////////////////////////////////////////////////
