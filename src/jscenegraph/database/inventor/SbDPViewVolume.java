@@ -24,6 +24,7 @@
 package jscenegraph.database.inventor;
 
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.port.Array;
 
 /*!
   \class SbDPViewVolume SbLinear.h Inventor/SbLinear.h
@@ -70,7 +71,7 @@ public class SbDPViewVolume {
 	  original Open Inventor.
 	*/
 	public void
-	getViewVolumePlanes(final SbPlane[] planes) 
+	getViewVolumePlanes(final Array<SbPlane> planes) 
 	{
 	  final SbVec3d far_ll = new SbVec3d();
 	  final SbVec3d far_lr = new SbVec3d();
@@ -89,51 +90,51 @@ public class SbDPViewVolume {
 	  SbVec3f f_far_ul = dp_to_sbvec3f(far_ul.operator_add (this.projPoint));
 	  SbVec3f f_far_ur = dp_to_sbvec3f(far_ur.operator_add (this.projPoint));
 	  
-	  planes[0] = new SbPlane(f_ulf, f_llf, f_far_ll);  // left
-	  planes[1] = new SbPlane(f_llf, f_lrf, f_far_lr); // bottom
-	  planes[2] = new SbPlane(f_lrf, f_near_ur, f_far_ur); // right
-	  planes[3] = new SbPlane(f_near_ur, f_ulf, f_far_ul); // top
-	  planes[4] = new SbPlane(f_ulf, f_near_ur, f_lrf); // near
-	  planes[5] = new SbPlane(f_far_ll, f_far_lr, f_far_ur); // far
+	  planes.set(0, new SbPlane(f_ulf, f_llf, f_far_ll));  // left
+	  planes.set(1, new SbPlane(f_llf, f_lrf, f_far_lr)); // bottom
+	  planes.set(2, new SbPlane(f_lrf, f_near_ur, f_far_ur)); // right
+	  planes.set(3, new SbPlane(f_near_ur, f_ulf, f_far_ul)); // top
+	  planes.set(4, new SbPlane(f_ulf, f_near_ur, f_lrf)); // near
+	  planes.set(5, new SbPlane(f_far_ll, f_far_lr, f_far_ur)); // far
 
 	  // check for inverted view volume (negative aspectRatio)
-	  if (!planes[0].isInHalfSpace(f_lrf)) {
+	  if (!planes.get(0).isInHalfSpace(f_lrf)) {
 	    final SbVec3f n = new SbVec3f();
 	    float D;
 
-	    n.copyFrom( planes[0].getNormal());
-	    D = planes[0].getDistanceFromOrigin();    
-	    planes[0] = new SbPlane(n.operator_minus(), -D);
+	    n.copyFrom( planes.get(0).getNormal());
+	    D = planes.get(0).getDistanceFromOrigin();    
+	    planes.set(0, new SbPlane(n.operator_minus(), -D));
 
-	    n.copyFrom( planes[2].getNormal());
-	    D = planes[2].getDistanceFromOrigin();    
-	    planes[2] = new SbPlane(n.operator_minus(), -D);
+	    n.copyFrom( planes.get(2).getNormal());
+	    D = planes.get(2).getDistanceFromOrigin();    
+	    planes.set(2, new SbPlane(n.operator_minus(), -D));
 	  }
-	  if (!planes[1].isInHalfSpace(f_near_ur)) {
+	  if (!planes.get(1).isInHalfSpace(f_near_ur)) {
 	    final SbVec3f n = new SbVec3f();
 	    float D;
 
-	    n.copyFrom( planes[1].getNormal());
-	    D = planes[1].getDistanceFromOrigin();    
-	    planes[1] = new SbPlane(n.operator_minus(), -D);
+	    n.copyFrom( planes.get(1).getNormal());
+	    D = planes.get(1).getDistanceFromOrigin();    
+	    planes.set(1, new SbPlane(n.operator_minus(), -D));
 
-	    n.copyFrom( planes[3].getNormal());
-	    D = planes[3].getDistanceFromOrigin();    
-	    planes[3] = new SbPlane(n.operator_minus(), -D);
+	    n.copyFrom( planes.get(3).getNormal());
+	    D = planes.get(3).getDistanceFromOrigin();    
+	    planes.set(3, new SbPlane(n.operator_minus(), -D));
 	    
 	  }
 
-	  if (!planes[4].isInHalfSpace(f_far_ll)) {
+	  if (!planes.get(4).isInHalfSpace(f_far_ll)) {
 	    final SbVec3f n = new SbVec3f();
 	    float D;
 
-	    n.copyFrom( planes[4].getNormal());
-	    D = planes[4].getDistanceFromOrigin();    
-	    planes[4] = new SbPlane(n.operator_minus(), -D);
+	    n.copyFrom( planes.get(4).getNormal());
+	    D = planes.get(4).getDistanceFromOrigin();    
+	    planes.set(4, new SbPlane(n.operator_minus(), -D));
 
-	    n.copyFrom( planes[5].getNormal());
-	    D = planes[5].getDistanceFromOrigin();    
-	    planes[5] = new SbPlane(n.operator_minus(), -D);
+	    n.copyFrom( planes.get(5).getNormal());
+	    D = planes.get(5).getDistanceFromOrigin();    
+	    planes.set(5, new SbPlane(n.operator_minus(), -D));
 	    
 	  }
 

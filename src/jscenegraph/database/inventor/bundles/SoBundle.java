@@ -80,4 +80,7 @@ public class SoBundle {
     //! Constructor takes action from whose state bundle is to access elements
     public SoBundle(SoAction action)          { state = action.getState(); }
 
+    public void destructor() {
+    	// do nothing
+    }
 }

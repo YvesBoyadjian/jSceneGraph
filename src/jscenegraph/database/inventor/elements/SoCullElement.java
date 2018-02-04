@@ -30,6 +30,7 @@ import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewVolume;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Array;
 
 /*!
   \class SoCullElement SoCullElement.h Inventor/elements/SoCullElement.h
@@ -88,7 +89,7 @@ public class SoCullElement extends SoElement {
 	
 	private static final int MAXPLANES = 32;
 	
-	private final SbPlane[] plane = new SbPlane[MAXPLANES];
+	private final Array<SbPlane> plane = new Array<>(SbPlane.class,MAXPLANES);
 	
 	private int numplanes;
 	
@@ -97,11 +98,7 @@ public class SoCullElement extends SoElement {
 	private int vvindex;
 	
 	public SoCullElement() {
-		
-		for(int i=0; i< MAXPLANES; i++) {
-			plane[i] = new SbPlane();
-		}
-		
+		super();
 	}
 	
 
@@ -126,7 +123,7 @@ public class SoCullElement extends SoElement {
 	  this.flags = prev.flags;
 	  this.numplanes = prev.numplanes;
 	  this.vvindex = prev.vvindex;
-	  for (int i = 0; i < prev.numplanes; i++) this.plane[i] = prev.plane[i];
+	  for (int i = 0; i < prev.numplanes; i++) this.plane.set(i, prev.plane.get(i));
 	}
 
 	/*!
@@ -150,18 +147,17 @@ public class SoCullElement extends SoElement {
 	      return;
 	    }
 	    int i;
-	    final SbPlane[] vvplane = new SbPlane[6];
-	    for( i=0; i< 6; i++) { vvplane[i] = new SbPlane(); }
+	    final Array<SbPlane> vvplane = new Array<>(SbPlane.class,6);
 	    vv.getViewVolumePlanes(vvplane);
 	    if (elem.vvindex >= 0) { // overwrite old view volume
 	      for (i = 0; i < 6; i++) {
-	        elem.plane[elem.vvindex+i] = vvplane[i];
+	        elem.plane.set(elem.vvindex+i, vvplane.get(i));
 	        elem.flags &= ~(1<<(elem.vvindex+i));
 	      }
 	    }
 	    else {
 	      elem.vvindex = elem.numplanes;
-	      for (i = 0; i < 6; i++) elem.plane[elem.numplanes++] = vvplane[i];
+	      for (i = 0; i < 6; i++) elem.plane.set(elem.numplanes++, vvplane.get(i));
 	    }
 	  }
 	}
@@ -185,7 +181,7 @@ public class SoCullElement extends SoElement {
 	//#endif // COIN_DEBUG
 	      return;
 	    }
-	    elem.plane[elem.numplanes++] = newplane;
+	    elem.plane.set(elem.numplanes++, newplane);
 	  }
 	}
 
@@ -291,7 +287,7 @@ public class SoCullElement extends SoElement {
 
 	  final int n = elem.numplanes;
 	  int flags = elem.flags;
-	  final SbPlane[] planes = elem.plane;
+	  final Array<SbPlane> planes = elem.plane;
 	  int mask = 0x0001;
 
 	  for (i = 0; i < n; i++, mask<<=1) {
@@ -299,7 +295,7 @@ public class SoCullElement extends SoElement {
 	      int in = 0;
 	      int out = 0;
 	      for (j = 0; j < 8; j++) {
-	        if (planes[i].isInHalfSpace(pts[j])) in++;
+	        if (planes.get(i).isInHalfSpace(pts[j])) in++;
 	        else out++;
 	      }
 	      if (in == 8) {

@@ -142,7 +142,7 @@ public void destructor()
     // turn off ColorMaterial, if it was turned on.
     if (fastColor)  
         SoGLLazyElement.setColorMaterial(state, false);
-    
+    super.destructor();
 }
 
 

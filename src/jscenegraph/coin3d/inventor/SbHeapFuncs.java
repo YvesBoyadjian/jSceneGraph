@@ -23,7 +23,7 @@ public class SbHeapFuncs {
 	Eval eval_func;
 	Get_index get_index_func;
 	Set_index set_index_func;
-
+	
 	/**
 	 * Constructor
 	 * @param eval
@@ -31,6 +31,7 @@ public class SbHeapFuncs {
 	 * @param set_index
 	 */
 	public SbHeapFuncs(Eval eval, Get_index get_index, Set_index set_index) {
+		super();
 		this.eval_func = eval;
 		this.get_index_func = get_index;
 		this.set_index_func = set_index;
