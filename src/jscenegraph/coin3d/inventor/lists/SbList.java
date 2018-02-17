@@ -23,6 +23,8 @@
 
 package jscenegraph.coin3d.inventor.lists;
 
+import jscenegraph.port.Mutable;
+
 /**
  * @author Yves Boyadjian
  *
@@ -51,7 +53,7 @@ package jscenegraph.coin3d.inventor.lists;
 // of the other public classes. Judging from a quick look, this seems
 // feasible, and just a couple of hours or so of work.
 //
-public class SbList<T extends Object> {
+public class SbList<T extends Object> implements Mutable { //FIXME
 
 	  // Older compilers aren't too happy about const declarations in the
 	  // class definitions, so use the enum trick described by Scott
@@ -170,6 +172,11 @@ private void grow(final int size) {
     //if (this.itembuffer != this.builtinbuffer) delete[] this->itembuffer; java port
     this.itembuffer = newbuffer;
   }
+@Override
+public void copyFrom(Object other) {
+	final SbList<T> l = (SbList<T>)other;
+    this.copy(l);
+}
 
   
 }

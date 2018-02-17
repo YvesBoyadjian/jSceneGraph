@@ -158,4 +158,17 @@ public class SbIntList extends SbPList {
     		fromVoidPtr.put(value,integer);
     	}    	
     }
+    
+    /**
+     * Java port
+     * @return
+     */
+    public int[] getArrayPtr() {
+    	int size = getLength();
+    	int[] array = new int[size];
+    	for(int i =0; i<size;i++) {
+    		array[i] = operator_square_bracket(i);
+    	}
+    	return array;
+    }
 }

@@ -130,5 +130,8 @@ public interface SbBasic {
 	    	  return (A < B) ? B : A;
 	    	}
 
+	    static float SbClamp( float Val, float Min, float Max ) {
+	    	  return (Val < Min) ? Min : (Val > Max) ? Max : Val;
+	    	}
 
 	   }
