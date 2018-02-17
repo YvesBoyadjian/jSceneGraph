@@ -181,6 +181,7 @@ getValue(final float[] x, final float[] y, final float[] z)
 	  return (float)Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
 	 }
 	 	
+	  public float sqrLength() { return vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]; }
 	
 	// Changes vector to be unit length, returning 
 	// the length before normalization. 

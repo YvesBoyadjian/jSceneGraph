@@ -1098,16 +1098,16 @@ public class SbViewVolume implements Mutable {
 		final SbVec3f far_ur = new SbVec3f();
 
 		this.getPlaneRectangle(this.nearToFar, far_ll, far_lr, far_ul, far_ur);
-		SbVec3f near_ur = this.ulf.operator_add(this.lrf.operator_minus(this.llf));
+		final SbVec3f near_ur = this.ulf.operator_add(this.lrf.operator_minus(this.llf));
 
-		SbVec3f f_ulf = dp_to_sbvec3f(this.ulf.operator_add(this.projPoint));
-		SbVec3f f_llf = dp_to_sbvec3f(this.llf.operator_add(this.projPoint));
-		SbVec3f f_lrf = dp_to_sbvec3f(this.lrf.operator_add(this.projPoint));
-		SbVec3f f_near_ur = dp_to_sbvec3f(near_ur.operator_add(this.projPoint));
-		SbVec3f f_far_ll = dp_to_sbvec3f(far_ll.operator_add(this.projPoint));
-		SbVec3f f_far_lr = dp_to_sbvec3f(far_lr.operator_add(this.projPoint));
-		SbVec3f f_far_ul = dp_to_sbvec3f(far_ul.operator_add(this.projPoint));
-		SbVec3f f_far_ur = dp_to_sbvec3f(far_ur.operator_add(this.projPoint));
+		final SbVec3f f_ulf = dp_to_sbvec3f(this.ulf.operator_add(this.projPoint));
+		final SbVec3f f_llf = dp_to_sbvec3f(this.llf.operator_add(this.projPoint));
+		final SbVec3f f_lrf = dp_to_sbvec3f(this.lrf.operator_add(this.projPoint));
+		final SbVec3f f_near_ur = dp_to_sbvec3f(near_ur.operator_add(this.projPoint));
+		final SbVec3f f_far_ll = dp_to_sbvec3f(far_ll.operator_add(this.projPoint));
+		final SbVec3f f_far_lr = dp_to_sbvec3f(far_lr.operator_add(this.projPoint));
+		final SbVec3f f_far_ul = dp_to_sbvec3f(far_ul.operator_add(this.projPoint));
+		final SbVec3f f_far_ur = dp_to_sbvec3f(far_ur.operator_add(this.projPoint));
 
 		planes.set(0, new SbPlane(f_ulf, f_llf, f_far_ll)); // left
 		planes.set(1, new SbPlane(f_llf, f_lrf, f_far_lr)); // bottom

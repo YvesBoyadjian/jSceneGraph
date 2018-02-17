@@ -190,6 +190,19 @@ operator_minus(final SbVec2s v2)
                   (short)(v1.vec[1] - v2.vec[1]));
 }
 
+public SbVec2s operator_div( double d)
+{ 
+	final SbVec2s v = this;
+	return v.operator_mul (1.0 / d); 
+}
+
+public SbVec2s
+operator_mul(double d)
+{
+	final SbVec2s v = this;
+    return new SbVec2s((short)(v.vec[0] * d), (short)(v.vec[1] * d));
+}
+
 
 
 	//! Returns vector components.

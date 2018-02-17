@@ -114,4 +114,21 @@ public interface SbBasic {
 	    static final double M_SQRT1_2       =0.70710678118654752440;
 	    static final float MAXFLOAT        =((float)3.40282346638528860e+38);
 	   
+	    static float SbSqr(float val) {
+	    	  return val * val;
+	    	}
+
+	    static int SbSqr(int val) {
+	    	  return val * val;
+	    	}
+
+	    static float SbAbs( float Val ) {
+	    	  return (Val < 0) ? 0 - Val : Val;
+	    	}
+
+	    static float SbMax( float A, float B ) {
+	    	  return (A < B) ? B : A;
+	    	}
+
+
 	   }
