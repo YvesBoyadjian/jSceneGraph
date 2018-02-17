@@ -380,7 +380,7 @@ public class SoKeyboardEvent extends SoButtonEvent
              
                          // did the caller want any key press? or do they match?
                          if ((whichKey == SoKeyboardEvent.Key.ANY) ||
-                             (ke.getKey() == whichKey))
+                             (ke.getKey().getValue() == whichKey.getValue()))
                              isMatch = true;
                      }
                  }
