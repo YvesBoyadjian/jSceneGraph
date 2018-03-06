@@ -55,7 +55,6 @@ package jscenegraph.database.inventor.fields;
 
 import java.util.Objects;
 
-import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.port.Mutable;
@@ -342,7 +341,10 @@ public abstract class SoMField<T extends Object> extends SoField {
 			Mutable dest = (Mutable) (values[0]);
 			Mutable src = (Mutable) newValue;
 			dest.copyFrom(src);
-		} else {
+		} else if( newValue instanceof Integer && values[0] instanceof Float){
+			values[0] = (T)Float.valueOf(((Integer)newValue).floatValue());
+		}
+		else {
 			values[0] = newValue;
 		}
 		valueChanged();

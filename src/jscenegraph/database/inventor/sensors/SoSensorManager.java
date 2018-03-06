@@ -254,7 +254,7 @@ removeRescheduledTimer(SoTimerQueueSensor s)
 		   
 		       delayQTimeout.copyFrom(t);
 		   
-		       if (t == SbTime.zero()) {
+		       if (t.operator_equal(SbTime.zero())) {
 		           delayQTimeoutSensor.unschedule();
 		       } else {
 		           if (delayQueue[0] != null) {

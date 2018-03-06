@@ -12,7 +12,7 @@ import jscenegraph.database.inventor.fields.SoMFVec3f;
  * @author Yves Boyadjian
  *
  */
-public class SoComposeMatrix extends SoEngine {
+public class SoComposeMatrix extends SoEngine { //TODO
 	
 	  public final SoMFVec3f translation = new SoMFVec3f();
 	   

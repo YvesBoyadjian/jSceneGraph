@@ -268,4 +268,17 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		return (in.read(ref[0]) && in.read(ref[1]) && in.read(ref[2]));
 	}
 
+    //! Set the \p index'th value to the given floating point values.
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Sets one vector value from 3 separate floats. (Convenience function)
+//
+//Use: public
+
+	public void set1Value(int index, float x, float y, float z) {
+	    set1Value(index, new SbVec3f(x, y, z));		
+	}
+
+	
 }

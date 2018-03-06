@@ -597,7 +597,7 @@ shouldCopy()
 //		       SoOnOff.initClass();
 //		       SoOneShot.initClass();
 //		       SoSelectOne.initClass();
-//		       SoTimeCounter.initClass();
+		       SoTimeCounter.initClass();
 		       //SoTransformVec3f.initClass();
 //		       SoTriggerAny.initClass();
 //		       SoUnknownEngine.initClass();

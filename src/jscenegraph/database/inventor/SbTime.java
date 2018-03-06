@@ -262,9 +262,28 @@ operator_greater(final SbTime tm)
         return false;
 }	
 	
+	public boolean operator_greater_equal(SbTime tm) {
+	    if ((t.getSeconds() >= tm.t.getSeconds()) ||
+	            (t.getSeconds() == tm.t.getSeconds() && t.getMicroSeconds() >= tm.t.getMicroSeconds()))
+	            return true;
+	        else
+	            return false;
+	}
+
+	
 	    //! Destructive multiplication and division by scalar.
     public SbTime operator_mul_equal(double s)
         { this.copyFrom(this.operator_mul(s)); return this; }
+    
+
+	public SbTime operator_add_equal(SbTime s) {
+		 this.copyFrom(this.operator_add(s)); return this; 	
+	}
+
+
+	public SbTime operator_minus_equal(SbTime s) {
+		 this.copyFrom(this.operator_minus(s)); return this; 	
+	}    
 
     //! Equality operators.
     public boolean                           operator_equal_equal(final SbTime tm) 
@@ -533,5 +552,4 @@ operator_greater(final SbTime tm)
 		int tv_usec = (int) ((sec - tv_sec) * 1000000.0);
 		t = new Timeval(tv_sec, tv_usec);
 	}
-
 }

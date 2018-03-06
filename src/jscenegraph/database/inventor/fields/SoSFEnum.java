@@ -136,6 +136,11 @@ public class SoSFEnum extends SoSField<Integer> {
 //
 // Use: public
 
+	// java port
+	public void
+	setValue( String name) {
+		setValue(new SbName(name));
+	}
 public void
 setValue( SbName name)
 //

@@ -852,7 +852,7 @@ public static boolean registerHeader(final String header, boolean isBinary, floa
     //! continuously animate (such as SoTimeCounter) will eventually be
     //! scheduled.
     public static void         setRealTimeInterval(final SbTime deltaT) {
-    if (deltaT == SbTime.zero()) {
+    if (deltaT.operator_equal(SbTime.zero())) {
         realTimeSensor.setInterval(deltaT);
         realTimeSensor.unschedule();
     }
