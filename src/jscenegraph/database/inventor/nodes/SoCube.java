@@ -474,6 +474,7 @@ GLRenderBoundingBox(SoGLRenderAction action, final SbBox3f bbox)
 
   // Restore state
   action.getState().pop();
+  mb.destructor(); // java port
 }
 
 //
@@ -634,6 +635,7 @@ void GLRenderVertexArray(SoGLRenderAction action,
 
   _cache.drawArrays(this, action, GL2.GL_TRIANGLES);
   _cache.vbo.unbind(gl2);
+  mb.destructor(); // java port
 }
 
 
