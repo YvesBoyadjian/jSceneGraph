@@ -624,6 +624,13 @@ public void generatePrimitives(SoAction action)
     curFace++;
   }
   state.pop();
+  
+  // java port
+  pv.destructor();
+  fd.destructor();
+  pd.destructor();
+  nb.destructor();
+  tcb.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////

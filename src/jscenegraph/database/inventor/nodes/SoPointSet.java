@@ -458,6 +458,9 @@ generatePrimitives(SoAction action)
 
   }
   state.pop();     // Restore NormalElement
+  
+  pv.destructor();
+  detail.destructor();
 }
 
 

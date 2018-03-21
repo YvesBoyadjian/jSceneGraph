@@ -2369,6 +2369,11 @@ private void getFrontBBox(final SbBox2f result)
             generateFront(gl2, line);
         }
     }
+    
+    v1.destructor();
+    v2.destructor();
+    v3.destructor();
+    detail.destructor();
 	}
 
 

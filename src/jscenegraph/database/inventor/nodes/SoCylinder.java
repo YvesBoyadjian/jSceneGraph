@@ -1263,6 +1263,8 @@ generatePrimitives(SoAction action)
 	    }
 	}
     }
+    pv.destructor(); // java port
+    detail.destructor(); // java port
 }
 
 //

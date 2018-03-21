@@ -739,6 +739,12 @@ public void GLRender(SoGLRenderAction action)
   }       
 
   state.pop();
+  
+  pvs[0].destructor();
+  pvs[1].destructor();
+  pvs[2].destructor();
+  detail.destructor();
+  tcb.destructor();
 	}
 
 

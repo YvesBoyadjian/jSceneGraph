@@ -797,6 +797,8 @@ protected void generatePrimitives(SoAction action)
 
 	endShape();
     }
+    
+    pv.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -489,6 +489,12 @@ generatePrimitives(SoAction action)
     }
   }
   state.pop();
+  
+  pvs[0].destructor();
+  pvs[1].destructor();
+  detail.destructor();
+  pd.destructor();
+  tcb.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////
