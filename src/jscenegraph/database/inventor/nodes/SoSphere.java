@@ -256,6 +256,7 @@ public void GLRender(SoGLRenderAction action)
     else
       GLRenderGeneric(action, ! mb.isColorOnly(), doTextures);
   }
+  mb.destructor(); // java port
 }
 
 ////////////////////////////////////////////////////////////////////////

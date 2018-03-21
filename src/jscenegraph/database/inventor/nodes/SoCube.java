@@ -1055,6 +1055,8 @@ GLRenderGeneric(SoGLRenderAction action,
 
     if (numDivisions == 1)
 	gl2.glEnd();
+    
+    mb.destructor(); //java port
 }
 
 

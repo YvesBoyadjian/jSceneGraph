@@ -807,6 +807,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
   GL2 gl2 = action.getCacheContext(); // java port
   
   _cache.vbo.unbind(gl2);
+  
+  mb.destructor(); // java port
 }
 
 
@@ -1568,6 +1570,7 @@ GLRenderGeneric(SoGLRenderAction action,
 	    }
 	}
     }
+    mb.destructor(); // java port
 }
 
 ////////////////////////////////////////////////////////////////////////

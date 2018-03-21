@@ -808,6 +808,8 @@ public class SoCone extends SoShape {
 	    }
 	}
     }
+    pv.destructor(); //java port
+    detail.destructor(); // java port
     }
     
  // Returns S or T texture coord for point on bottom of cone, given x
@@ -1223,7 +1225,7 @@ public class SoCone extends SoShape {
 	    }
 	}
     }
-    	
+    mb.destructor(); // java port
     }
     
 ////////////////////////////////////////////////////////////////////////
@@ -1398,7 +1400,7 @@ public class SoCone extends SoShape {
 	    }
 	}
     }
-    	
+    mb.destructor(); // java port
     }
 
 
@@ -1693,7 +1695,8 @@ public class SoCone extends SoShape {
   _cache.drawArrays(this, action, GL2.GL_TRIANGLES);
   _cache.vbo.unbind(gl2);
 
-    	
+  mb.destructor(); // java port
+
     }
 
 ////////////////////////////////////////////////////////////////////////

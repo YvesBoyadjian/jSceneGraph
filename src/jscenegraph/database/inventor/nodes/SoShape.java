@@ -486,6 +486,7 @@ SoShape_GLRender(SoGLRenderAction action)
         // Generate primitives to approximate the shape. Each
         // primitive will be rendered separately (through callbacks).
         generatePrimitives(action);
+        mb.destructor();
     }
 }
 
