@@ -61,22 +61,32 @@ import java.nio.IntBuffer;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoDebug;
+import jscenegraph.database.inventor.SoPickedPoint;
+import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.bundles.SoNormalBundle;
 import jscenegraph.database.inventor.bundles.SoTextureCoordinateBundle;
 import jscenegraph.database.inventor.caches.SoNormalCache;
+import jscenegraph.database.inventor.details.SoDetail;
+import jscenegraph.database.inventor.details.SoFaceDetail;
+import jscenegraph.database.inventor.details.SoPointDetail;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
+import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
+import jscenegraph.database.inventor.elements.SoNormalBindingElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;
+import jscenegraph.database.inventor.fields.SoMFInt32;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.misc.SoState;
@@ -226,16 +236,415 @@ public class SoIndexedTriangleStripSet extends SoIndexedShape {
 
 	        
 	  
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Generates polys representing a triangleStrip set.
+//
+//Use: protected
+
 	/* (non-Javadoc)
 	 * @see jscenegraph.database.inventor.nodes.SoShape#generatePrimitives(jscenegraph.database.inventor.actions.SoAction)
 	 */
 	@Override
 	protected void generatePrimitives(SoAction action) {
-		// TODO Auto-generated method stub
 
+  SoState state = action.getState();
+  // Put vertexProperty stuff into state:
+  SoVertexProperty vp = getVertexProperty();
+  state.push();
+  if (vp != null) {
+    vp.doAction(action);
+  }
+
+  // When generating primitives for picking, delay computing default
+  // texture coordinates
+  boolean forPicking = action.isOfType(SoRayPickAction.getClassTypeId());
+
+  final SoPrimitiveVertex[]           pvs = new SoPrimitiveVertex[3];
+  pvs[0] = new SoPrimitiveVertex();
+  pvs[1] = new SoPrimitiveVertex();
+  pvs[2] = new SoPrimitiveVertex();
+  final SoFaceDetail                detail = new SoFaceDetail();
+  final SoNormalBundle              nb = new SoNormalBundle(action, false);
+  final SoTextureCoordinateBundle   tcb = new SoTextureCoordinateBundle(action, false, ! forPicking);
+  SoCoordinateElement   ce; // ptr
+  int                         curIndex, curStrip = 0;
+  int                         curTri = 0;
+  int                         curMaterial = -1, curNormal = -1;
+  int                         curTexCoord = -1;
+  int                         numIndices;
+  Integer[]                       coordIndices, matlIndices;
+  Integer[]                       normIndices, texCoordIndices;
+  Binding                     materialBinding, normalBinding;
+  boolean                        texCoordsIndexed;
+
+  ce = SoCoordinateElement.getInstance(action.getState());
+
+  materialBinding  = getMaterialBinding(action);
+  texCoordsIndexed = areTexCoordsIndexed(action);
+  normalBinding    = getNormalBinding(action, nb);
+
+  curIndex = 0;
+
+  numIndices      = coordIndex.getNum();
+  coordIndices    = coordIndex.getValues(0);
+  matlIndices     = materialIndex.getValues(0);
+  normIndices     = normalIndex.getValues(0);
+  texCoordIndices = textureCoordIndex.getValues(0);
+
+  // Check for special case of 1 index of SO_END_TRIANGLESTRIP_INDEX. This
+  // means that coord indices are to be used for materials, normals,
+  // or texture coords as well
+  if (materialIndex.getNum() == 1 && matlIndices[0] == SO_END_STRIP_INDEX)
+    matlIndices = coordIndices;
+  if (normalIndex.getNum() == 1 && normIndices[0] == SO_END_STRIP_INDEX) 
+    normIndices = coordIndices;
+  if (textureCoordIndex.getNum() == 1 &&
+    texCoordIndices[0] == SO_END_STRIP_INDEX)
+    texCoordIndices = coordIndices;
+
+  if (forPicking) {
+    final SbVec4f tc = new SbVec4f(0.0f, 0.0f, 0.0f, 0.0f);
+    pvs[0].setTextureCoords(tc);
+    pvs[1].setTextureCoords(tc);
+    pvs[2].setTextureCoords(tc);
+  }
+
+  detail.setNumPoints(3);
+  SoPointDetail[] pd = detail.getPoints(); // ptr
+
+  pvs[0].setDetail(detail);
+  pvs[1].setDetail(detail);
+  pvs[2].setDetail(detail);
+
+  // Step through all the coordinate indices, building triangleStrips out
+  // of them, until we run out of coordinate indices.
+  while (curIndex < numIndices) {
+
+    // Figure out how many vertices are in this strip:
+    int vertsInStrip;
+    for (vertsInStrip = 0; vertsInStrip+curIndex <
+      numIndices && coordIndex.operator_square_bracket(vertsInStrip+curIndex) !=
+      SO_END_STRIP_INDEX; vertsInStrip++);
+
+    // Check to see whether to skip this strip due to 
+    //  too few polygons:
+    if (vertsInStrip < 3 ) {
+
+      curIndex += vertsInStrip+1;
+      curStrip++;
+      if (materialBinding == Binding.PER_VERTEX)
+        curMaterial += vertsInStrip;
+      if (normalBinding == Binding.PER_VERTEX)
+        curNormal += vertsInStrip;
+      if (vertsInStrip > 2)
+        curTri += vertsInStrip-2;
+      continue;
+    }
+
+    detail.setPartIndex(curStrip);
+
+    // Loop through all vertices of current triangleStrip
+    for (int j = 0; j < vertsInStrip; j++) {
+
+      switch (materialBinding) {
+        case OVERALL:
+          curMaterial = 0;
+          break;
+        case PER_STRIP:
+          curMaterial = curStrip;
+          break;
+        case PER_STRIP_INDEXED:
+          curMaterial = (int) matlIndices[curStrip];
+          break;
+        case PER_TRIANGLE:
+          curMaterial = (int) curTri;
+          break;
+        case PER_TRIANGLE_INDEXED:
+          curMaterial = (int) matlIndices[curTri];
+          break;
+        case PER_VERTEX:
+          curMaterial++;
+          break;
+        case PER_VERTEX_INDEXED:
+          curMaterial = (int) matlIndices[curIndex];
+          break;
+      }
+
+      switch (normalBinding) {
+        case OVERALL:
+          curNormal = 0;
+          break;
+        case PER_STRIP:
+          curNormal = curStrip;
+          break;
+        case PER_STRIP_INDEXED:
+          curNormal = (int) normIndices[curStrip];
+          break;
+        case PER_TRIANGLE:
+          curNormal = curTri;
+          break;
+        case PER_TRIANGLE_INDEXED:
+          curNormal = (int) normIndices[curTri];
+          break;
+        case PER_VERTEX:
+          curNormal++;
+          break;
+        case PER_VERTEX_INDEXED:
+          curNormal = (int) normIndices[curIndex];
+          break;
+      }
+
+      curTexCoord = (texCoordsIndexed ?
+        (int) texCoordIndices[curIndex] : curIndex);
+
+      int thisVert = j%3;
+
+      detail.setFaceIndex(curTri);
+
+      // Set up a point detail for the current vertex
+      pd[thisVert].setCoordinateIndex((int) coordIndices[curIndex]);
+      pd[thisVert].setMaterialIndex(curMaterial);
+      pd[thisVert].setNormalIndex(curNormal);
+      pd[thisVert].setTextureCoordIndex(curTexCoord);
+
+      detail.setPoint(thisVert, pd[thisVert]);
+
+      pvs[thisVert].setPoint(ce.get3((int) coordIndices[curIndex]));
+      pvs[thisVert].setNormal(nb.get(curNormal));
+      pvs[thisVert].setMaterialIndex(curMaterial);
+      if (tcb.isFunction()) {
+        if (! forPicking)
+          pvs[thisVert].setTextureCoords(
+          tcb.get(pvs[thisVert].getPoint(),
+          pvs[thisVert].getNormal()));
+      }
+      else
+        pvs[thisVert].setTextureCoords(tcb.get(curTexCoord));
+
+      if (j >= 2) {
+        // Must handle per-triangle normals or materials
+        // specially:
+        if (materialBinding == Binding.PER_TRIANGLE ||
+          materialBinding == Binding.PER_TRIANGLE_INDEXED) {
+            int v = (j-1)%3;
+            pd[v].setMaterialIndex(curMaterial);
+            pvs[v].setMaterialIndex(curMaterial);
+            v = (j-2)%3;
+            pd[v].setMaterialIndex(curMaterial);
+            pvs[v].setMaterialIndex(curMaterial);
+        }
+        if (normalBinding == Binding.PER_TRIANGLE ||
+          normalBinding == Binding.PER_TRIANGLE_INDEXED) {
+            int v = (j-1)%3;
+            pd[v].setNormalIndex(curNormal);
+            pvs[v].setNormal(nb.get(curNormal));
+            v = (j-2)%3;
+            pd[v].setNormalIndex(curNormal);
+            pvs[v].setNormal(nb.get(curNormal));
+        }
+
+        // Do three vertices of the triangle, being careful to
+        // keep them oriented correctly (the orientation switches
+        // on every other triangle):
+        if ((j & 1)!=0) {
+          invokeTriangleCallbacks(action, pvs[0], pvs[2],
+            pvs[1]);
+        } else {
+          invokeTriangleCallbacks(action, pvs[0], pvs[1],
+            pvs[2]);
+        }
+        curTri++;
+      }
+
+      //
+      // Increment per-vertex stuff
+      //
+      curIndex++;
+    }
+
+    //
+    // Increment per-strip stuff
+    //
+    curIndex++;     // Skip over the END_STRIP_INDEX
+    curStrip++;
+  }
+  state.pop();
+  
+  pvs[0].destructor();
+  pvs[1].destructor();
+  pvs[2].destructor();
+  detail.destructor();
+  nb.destructor();
+  tcb.destructor();
 	}
 
 
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Overrides standard method to create an SoFaceDetail instance
+//    representing a picked intersection with a triangle in the set.
+//
+// Use: protected, virtual
+
+protected SoDetail 
+createTriangleDetail(SoRayPickAction action,
+                                                SoPrimitiveVertex v1,
+                                                SoPrimitiveVertex v2,
+                                                SoPrimitiveVertex v3,
+                                                SoPickedPoint pp)
+                                                //
+                                                ////////////////////////////////////////////////////////////////////////
+{
+  SoFaceDetail        detail = new SoFaceDetail(); //ptr
+  SoFaceDetail  d; // ptr
+
+  detail.setNumPoints(3);
+
+  d = ( SoFaceDetail ) v1.getDetail();
+
+  // Copy the three point details
+  detail.setPoint(0, d.getPoint(0));
+  detail.setPoint(1, d.getPoint(1));
+  detail.setPoint(2, d.getPoint(2));
+
+  // The face/part indices are in the incoming details
+  detail.setFaceIndex(d.getFaceIndex());
+  detail.setPartIndex(d.getPartIndex());
+
+  // Compute texture coordinates at intersection point and store it
+  // in the picked point
+  final SoTextureCoordinateBundle   tcb = new SoTextureCoordinateBundle(action, false);
+  if (tcb.isFunction())
+    pp.setObjectTextureCoords(tcb.get(pp.getObjectPoint(),
+    pp.getObjectNormal()));
+
+  tcb.destructor();
+  return detail;
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Returns current material binding from action's state.
+//
+// Use: private, static
+
+Binding getMaterialBinding(SoAction action)
+//
+////////////////////////////////////////////////////////////////////////
+{
+  switch (SoMaterialBindingElement.get(action.getState())) {
+      case OVERALL:
+        return Binding.OVERALL;
+      case PER_PART:
+        return Binding.PER_STRIP;
+      case PER_PART_INDEXED:
+        return Binding.PER_STRIP_INDEXED;
+      case PER_FACE:
+        return Binding.PER_TRIANGLE;
+      case PER_FACE_INDEXED:
+        return Binding.PER_TRIANGLE_INDEXED;
+      case PER_VERTEX:
+        return Binding.PER_VERTEX;
+      case PER_VERTEX_INDEXED:
+        return Binding.PER_VERTEX_INDEXED;
+  }
+  return Binding.OVERALL; // Shut up C++ compiler
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Returns current normal binding from action's state.
+//
+// Use: private, static
+
+Binding getNormalBinding(SoAction action,
+                                            final SoNormalBundle nb)
+                                            //
+                                            ////////////////////////////////////////////////////////////////////////
+{
+  if (figureNormals(action.getState(), nb))
+    return Binding.PER_VERTEX;
+
+  switch (SoNormalBindingElement.get(action.getState())) {
+      case OVERALL:
+        return Binding.OVERALL;
+
+      case PER_PART:
+        return Binding.PER_STRIP;
+      case PER_PART_INDEXED:
+        return Binding.PER_STRIP_INDEXED;
+      case PER_FACE:
+        return Binding.PER_TRIANGLE;
+      case PER_FACE_INDEXED:
+        return Binding.PER_TRIANGLE_INDEXED;
+      case PER_VERTEX:
+        return Binding.PER_VERTEX;
+      case PER_VERTEX_INDEXED:
+        return Binding.PER_VERTEX_INDEXED;
+  }
+  return Binding.OVERALL; // Shut up C++ compiler
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Figures out normals, if necessary.  Returns TRUE if normals were
+//    figured out (and the normal binding should be PER_VERTEX).
+//
+// Use: private
+
+private boolean figureNormals(SoState state, SoNormalBundle nb)
+//
+////////////////////////////////////////////////////////////////////////
+{
+  // See if there is a valid normal cache. If so, tell the normal
+  // bundle to use it.
+  SoNormalCache normCache = getNormalCache();
+  if (normCache != null && normCache.isValid(state)) {
+    nb.set(normCache.getNum(), normCache.getNormals());
+    return true;
+  }
+
+  int                 numNeeded = 0, i, numTris = 0, numV = 0;
+  SoMFInt32     nIndices;
+
+  if (normalIndex.getNum() == 1 && normalIndex.operator_square_bracket(0) == SO_END_STRIP_INDEX)
+    nIndices = coordIndex;
+  else
+    nIndices = normalIndex;
+
+  // Find greatest index:
+  for (i = 0; i < nIndices.getNum(); i++) {
+    if ((nIndices).operator_square_bracket(i) > numNeeded)
+      numNeeded = (int) (nIndices).operator_square_bracket(i);
+
+    // Count number of triangles, too.  numV counts how many
+    // vertices we've got since the beginning of the strip:
+    if ((nIndices).operator_square_bracket(i) >= 0) {
+      ++numV;
+      if (numV >= 3) ++numTris;
+    }
+    else numV = 0;
+  }
+
+  if (nb.shouldGenerate(numNeeded)) {
+    generateDefaultNormals(state, nb);
+
+    return true;
+  }
+
+  return false;
+}
+
+
+	
+	
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
