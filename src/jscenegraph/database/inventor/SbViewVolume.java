@@ -326,7 +326,7 @@ public class SbViewVolume implements Mutable {
 	//
 	// Use: public
 
-	public void projectPointToLine(final SbVec2f pt, SbVec3f line0, SbVec3f line1)
+	public void projectPointToLine(final SbVec2f pt, final SbVec3f line0, final SbVec3f line1)
 	//
 	////////////////////////////////////////////////////////////////////////
 	{
